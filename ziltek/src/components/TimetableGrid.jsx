@@ -54,7 +54,10 @@ class TimetableGrid extends Component {
 										time={t}
 										readonly={this.props.readonly}
 										onChange={(v) => {
-											this.state.timetable[i][ii] = v;
+											this.setState((state) => {
+												state.timetable[i][ii] = v;
+												return state;
+											});
 											console.log("value changed", i, ii, v);
 										}}
 										/>

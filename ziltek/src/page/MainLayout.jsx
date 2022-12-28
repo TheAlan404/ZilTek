@@ -8,16 +8,14 @@ class MainLayout extends Component {
   render() {
     return (
       <>
-        <Container size="xl" px="xs">
-          <Grid>
-            <Grid.Col span={3}>
-              <TimetableGrid
-                timetable={controller.getTimetableToday()}
-                readonly
-              />
-            </Grid.Col>
-          </Grid>
-        </Container>
+        <Grid>
+          <Grid.Col span={3}>
+            <TimetableGrid
+              timetable={controller.getTimetableToday()}
+              readonly
+            />
+          </Grid.Col>
+        </Grid>
       </>
     )
   }

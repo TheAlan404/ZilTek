@@ -5,10 +5,6 @@
  */
 
 class FileStorage {
-    constructor() {
-        
-    }
-
     initialize(events) {
         events.status("Initializing database...")
         let openReq = indexedDB.open("ZilTekFileStore");
@@ -50,7 +46,26 @@ class FileStorage {
             console.log(data);
             cb();
         };
-    }
+    };
+
+    /**
+     * @param {string} name 
+     * @returns {File|null}
+     */
+    getFile(name) {
+
+    };
+
+    /**
+     * @param {string} name 
+     * @param {File} file 
+     */
+    async putFile(name, file) {
+        let objectStore = this.db.transaction("files").objectStore("files");
+        objectStore.add({
+            data: await file.arrayBuffer(),
+        }, name);
+    };
 };
 
 export default new FileStorage();

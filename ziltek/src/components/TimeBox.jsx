@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { TimeInput } from '@mantine/dates';
+import { newDate } from '../timetables';
 
 class TimeBox extends Component {
 	constructor(props) {
@@ -18,6 +19,7 @@ class TimeBox extends Component {
 			<>
 				<TimeInput
 					value={this.state.value}
+					defaultValue={newDate(0, 0)}
 					onChange={(value) => {
 						this.setState({ value });
 						(this.props.onChange || (()=>0))(value);

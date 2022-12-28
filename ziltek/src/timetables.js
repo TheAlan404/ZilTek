@@ -2,6 +2,23 @@ const newDate = (h, m) => {
     return new Date(0, 0, 0, h, m, 0, 0);
 };
 
+/**
+ * @param {Date} d 
+ * @returns {string}
+ */
+const dateToString = (d) => {
+    return d.getHours() + ":" + d.getMinutes();
+};
+
+/**
+ * @param {string} s
+ * @returns {Date}
+ */
+const stringToDate = (s) => {
+    let [h, m] = s.trim().split(":");
+    return newDate(h, m);
+};
+
 const NullTuple = () => [newDate(0, 0), newDate(0, 0), newDate(0, 0)];
 
 /**
@@ -84,6 +101,8 @@ const mergeTimetables = (main, overrideTable) => {
 
 export {
     newDate,
+    dateToString,
+    stringToDate,
     addMinutesToDate,
     subtractMinutesToDate,
     generateTimetable,
