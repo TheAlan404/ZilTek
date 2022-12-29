@@ -1,20 +1,14 @@
+import { Text } from '@mantine/core'
 import React, { Component } from 'react'
 
 class FilesPanel extends Component {
-  render() {
-    return (
-      <>
-        <Grid>
-            <Grid.Col span={3}>
-              <TimetableGrid
-                timetable={controller.getTimetableToday()}
-                readonly
-              />
-            </Grid.Col>
-          </Grid>
-      </>
-    )
-  }
+	render() {
+		return (
+			<>
+				<Text>FilesPanel here</Text>
+			</>
+		)
+	}
 }
 
 export default FilesPanel

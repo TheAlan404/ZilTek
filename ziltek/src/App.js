@@ -9,13 +9,14 @@ import EditModeButtons from './components/EditModeButtons';
 import fileStorage from './fileStorage';
 import s from './lang';
 import { NotificationsProvider } from '@mantine/notifications';
+import EditorLayout from './page/EditorLayout';
 
 class App extends Component {
 	constructor(props) {
 		super(props)
 
 		this.state = {
-			loadingText: "Loading...",
+			loadingText: "",
 			errorText: "",
 			mode: "view", // "view" | "edit"
 			isAudioPlaying: false,
@@ -23,7 +24,7 @@ class App extends Component {
 	}
 
 	componentDidMount() {
-		fileStorage.initialize({
+		/*fileStorage.initialize({
 			status: (t) => this.setState({ loadingText: t }),
 			error: (e) => {
 				console.log(e);
@@ -37,7 +38,9 @@ class App extends Component {
 					loadingText: "",
 				});
 			},
-		});
+		});*/
+
+		controller.loadData();
 
 		controller.events.playing = () => {
 			this.setState({ isAudioPlaying: true });
@@ -90,26 +93,28 @@ class App extends Component {
 							</Group>
 						</Header>
 
+						<div>
+							<LoadingOverlay
+								visible={!!this.state.loadingText}
+								loader={<Center>
+									<Loader color="violet" />
+									<Space w="md" />
+									<br />
+									<Text>{this.state.loadingText}</Text>
+									<Text color="red">{this.state.errorText}</Text>
+								</Center>}>
+							</LoadingOverlay>
 
-						<LoadingOverlay
-							visible={!!this.state.loadingText}
-							loader={<Center>
-								<Loader color="violet" />
-								<Space w="md" />
-								<br />
-								<Text>{this.state.loadingText}</Text>
-								<Text color="red">{this.state.errorText}</Text>
-							</Center>}>
 							<Space h="md" />
 
 							<Container size="xl" px="xs">
 								{this.state.mode == "view" ? <>
 									<MainLayout />
 								</> : <>
+									<EditorLayout />
 								</>}
 							</Container>
-						</LoadingOverlay>
-
+						</div>
 					</NotificationsProvider>
 				</MantineProvider>
 			</>

@@ -1,3 +1,5 @@
+const DateStringRegex = /\d{2}:\d{2}/;
+
 const newDate = (h, m) => {
     return new Date(0, 0, 0, h, m, 0, 0);
 };
@@ -7,7 +9,7 @@ const newDate = (h, m) => {
  * @returns {string}
  */
 const dateToString = (d) => {
-    return d.getHours() + ":" + d.getMinutes();
+    return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0");
 };
 
 /**
@@ -35,10 +37,12 @@ const subtractMinutesToDate = (date, m) => {
 };
 
 /**
+ * @global
  * @typedef {[Date, Date, Date][]} Timetable
  */
 
 /**
+ * @memberof ZilTek
  * @typedef {object} TimetableGenSegment
  * @prop {Date} startTime
  * @prop {Number} offset
@@ -108,4 +112,5 @@ export {
     generateTimetable,
     mergeTimetables,
     NullTuple,
+    DateStringRegex,
 };

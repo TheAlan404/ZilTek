@@ -1,14 +1,20 @@
 import fileStorage from "./fileStorage";
-import { dateToString, mergeTimetables, newDate, NullTuple } from "./timetables";
+import { DateStringRegex, dateToString, mergeTimetables, newDate, stringToDate } from "./timetables";
 import { showNotification } from "@mantine/notifications";
 import s from "./lang";
+
+/**
+ * @typedef {object} TimetableOverride
+ * @prop {import("./timetables").Timetable} table
+ * @prop {boolean | false} fullOverride
+ */
 
 class Controller {
     constructor() {
         this.timetables = {
             /** @type {import("./timetables").Timetable} */
             main: [],
-            /** @type {import("./timetables").Timetable[]} */
+            /** @type {TimetableOverride[]} */
             overrides: [], // 0 - Sunday, 1 - Monday, ...
         };
 
@@ -31,6 +37,7 @@ class Controller {
         this.events = {
             playing: () => {},
             stopped: () => {},
+            update: [],
         };
     };
 
@@ -46,9 +53,11 @@ class Controller {
 
         let json;
         try {
-            json = JSON.parse(rawjson);
+            json = JSON.parse(rawjson, (k, v) =>
+                typeof v === "string" && v.length === 5 && DateStringRegex.test(v) ?
+                    stringToDate(v)
+                : v );
         } catch(e) {
-            //
             showNotification({
                 title: s("error"),
                 message: s("err_datacorrupt"),
@@ -70,21 +79,32 @@ class Controller {
             });
         }
 
+        console.log("loaded data", this.timetables, this.melodies);
+
         showNotification({
             message: s("loaded"),
-            autoClose: 1000,
         });
+
+        this.triggerUpdates();
     }
     
     saveData() {
         let raw;
 
+        let conv = {
+            ver: 0,
+            timetables: {
+                main: this.timetables.main.map(a => a.map(d => dateToString(d))),
+                overrides: this.timetables.overrides.map(o => ({
+                    fullOverride: o.fullOverride,
+                    table: o.table.map(a => a.map(d => dateToString(d))),
+                })),
+            },
+            melodies: this.melodies,
+        }
+
         try {
-            raw = JSON.stringify({
-                ver: 0,
-                timetables: this.timetables,
-                melodies: this.melodies,
-            }, (k, v) => v instanceof Date ? dateToString(v) : v);
+            raw = JSON.stringify(conv);
         } catch(e) {
             showNotification({
                 title: s("error"),
@@ -95,7 +115,13 @@ class Controller {
             return;
         }
 
+        console.log("saved data", conv.timetables);
+
         localStorage.setItem("ziltekdata", raw);
+    }
+
+    triggerUpdates() {
+        this.events.update.forEach(lis => lis());
     }
 
     eraseAllData() {
@@ -174,9 +200,10 @@ class Controller {
 
     getTimetableToday() {
         let { main } = this.timetables;
-        let override = this.timetables.overrides[this.getWeekday()] || [];
+        return main
+        //let override = (this.timetables.overrides[this.getWeekday()] || { table: [] }).table || [];
 
-        return mergeTimetables(main, override);
+        //return mergeTimetables(main, override);
     };
 
     getWeekday() {

@@ -4,6 +4,12 @@
  * @prop {File} file
  */
 
+import tobecontinued from "./exampleMelodies/tobecontinued.mp3";
+
+const BuiltInDataStore = {
+    "tobecontinued.mp3": tobecontinued,
+}
+
 class FileStorage {
     initialize(events) {
         events.status("Initializing database...")
@@ -53,7 +59,8 @@ class FileStorage {
      * @returns {File|null}
      */
     getFile(name) {
-
+        if(BuiltInDataStore[name])
+            return BuiltInDataStore[name];
     };
 
     /**
