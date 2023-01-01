@@ -16,7 +16,7 @@ class PlayerControls extends Component {
             <>
                 { /* god damn DOM only allowing string as input smh */ }
                 <Group>
-                    <Text>ZilTek</Text>
+                    <Text>Bell Status</Text>
                     <SegmentedControl
                         value={this.state.isOn ? "on" : "off"}
                         onChange={(v) => this.setState({ isOn: v == "on" })}

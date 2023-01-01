@@ -10,12 +10,15 @@ class TimetableGrid extends Component {
 
 		this.state = {
 			timetable: this.props.timetable || [],
+			changes: false,
 		}
 	}
 
 	addRow() {
+		if(!this.state.changes) (this.props.onChanges || (()=>{}))();
 		this.setState((state) => {
 			state.timetable.push(NullTuple());
+			state.changes = true;
 			return state;
 		});
 
@@ -24,17 +27,28 @@ class TimetableGrid extends Component {
 
 	removeRow(i) {
 		// hax
+		if(!this.state.changes) (this.props.onChanges || (()=>{}))();
 		this.setState((state) => ({
 			timetable: [...state.timetable.slice(0, i), ...state.timetable.slice(i + 1)],
+			changes: true,
 		}))
 
 		console.log("removed row", this.state.timetable, i);
+	}
+
+	revertTable() {
+		(this.props.onRevert || (()=>{}))();
+		this.setState({
+			timetable: this.props.timetable || [],
+			changes: false,
+		});
 	}
 
 	componentDidUpdate(prevProps) {
 		if(prevProps.timetable === this.props.timetable) return;
 		this.setState({
 			timetable: this.props.timetable,
+			changes: false,
 		});
 	}
 
@@ -61,8 +75,10 @@ class TimetableGrid extends Component {
 										time={t}
 										readonly={this.props.readonly}
 										onChange={(v) => {
+											if(!this.state.changes) (this.props.onChanges || (()=>{}))();
 											this.setState((state) => {
 												state.timetable[i][ii] = v;
+												state.changes = true;
 												return state;
 											});
 											console.log("value changed", i, ii, v);
@@ -82,7 +98,7 @@ class TimetableGrid extends Component {
 					</tbody>
 				</Table>
 				{!this.props.readonly && <>
-					<Group position='center'>
+					<Group position='apart'>
 						<Button
 							variant='light'
 							onClick={() => this.addRow()}>
@@ -90,11 +106,24 @@ class TimetableGrid extends Component {
 						</Button>
 
 						{this.props.onSave ? <>
-							<Button
-								color="green"
-								onClick={() => this.props.onSave(this.state.timetable)}>
-								Save
-							</Button>
+							<Group position='left'>
+								<Button
+									color="red"
+									variant='outline'
+									disabled={!this.state.changes}
+									onClick={() => this.revertTable()}>
+									Revert
+								</Button>
+								<Button
+									color="green"
+									disabled={!this.state.changes}
+									onClick={() => {
+										this.props.onSave(this.state.timetable);
+										this.setState({ changes: false });
+									}}>
+									Save
+								</Button>
+							</Group>
 						</> : <></>}
 					</Group>
 				</>}

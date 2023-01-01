@@ -19,6 +19,8 @@ class TimeBox extends Component {
 			<>
 				<TimeInput
 					value={this.state.value}
+					label={this.props.label}
+					description={this.props.description}
 					defaultValue={newDate(0, 0)}
 					onChange={(value) => {
 						this.setState({ value });

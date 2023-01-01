@@ -10,6 +10,7 @@ import fileStorage from './fileStorage';
 import s from './lang';
 import { NotificationsProvider } from '@mantine/notifications';
 import EditorLayout from './page/EditorLayout';
+import AppTitle from './components/AppTitle';
 
 class App extends Component {
 	constructor(props) {
@@ -18,7 +19,7 @@ class App extends Component {
 		this.state = {
 			loadingText: "",
 			errorText: "",
-			mode: "view", // "view" | "edit"
+			mode: "edit", // "view" | "edit"
 			isAudioPlaying: false,
 		};
 	}
@@ -55,68 +56,60 @@ class App extends Component {
 	render() {
 		return (
 			<>
-				<MantineProvider
-					withGlobalStyles
-					withNormalizeCSS
-					theme={{ colorScheme: 'dark' }}>
-					<NotificationsProvider>
-
-						<Header>
-							<Group position="apart" height="3em" p="sm" m="auto">
-								<Text>ZilTek <Text c="dimmed" span fz="sm">by dennis</Text></Text>
-								<Group>
-									{this.state.isAudioPlaying ? <>
-										<Tooltip label={s("clickToStopAudio")}>
-											<Button
-												compact
-												variant='light'
-												color="green"
-												onClick={() => controller.stopAudio()}>
-												{s("audioPlaying")}
-											</Button>
-										</Tooltip>
-									</> : <>
-
-									</>}
-								</Group>
-								<Group>
-									{this.state.mode == "view" ? <Button
+				<Header>
+					<Group position="apart" height="3em" p="sm" m="auto">
+						<AppTitle />
+						<Group>
+							{this.state.isAudioPlaying ? <>
+								<Tooltip label={s("clickToStopAudio")}>
+									<Button
+										compact
 										variant='light'
-										color="violet"
-										leftIcon={<IconEdit />}
-										onClick={() => this.setState({ mode: "edit" })}>
-										Edit Mode
-									</Button> : <EditModeButtons
-										onClickExit={() => this.setState({ mode: "view" })}
-									/>}
-								</Group>
-							</Group>
-						</Header>
+										color="green"
+										onClick={() => controller.stopAudio()}>
+										{s("audioPlaying")}
+									</Button>
+								</Tooltip>
+							</> : <>
 
-						<div>
-							<LoadingOverlay
-								visible={!!this.state.loadingText}
-								loader={<Center>
-									<Loader color="violet" />
-									<Space w="md" />
-									<br />
-									<Text>{this.state.loadingText}</Text>
-									<Text color="red">{this.state.errorText}</Text>
-								</Center>}>
-							</LoadingOverlay>
+							</>}
+						</Group>
+						<Group>
+							{this.state.mode == "view" ? <Button
+								variant='light'
+								color="violet"
+								leftIcon={<IconEdit />}
+								onClick={() => this.setState({ mode: "edit" })}>
+								Edit Mode
+							</Button> : <EditModeButtons
+								onClickExit={() => this.setState({ mode: "view" })}
+							/>}
+						</Group>
+					</Group>
+				</Header>
 
-							<Space h="md" />
+				<div>
+					<LoadingOverlay
+						visible={!!this.state.loadingText}
+						loader={<Center>
+							<Loader color="violet" />
+							<Space w="md" />
+							<br />
+							<Text>{this.state.loadingText}</Text>
+							<Text color="red">{this.state.errorText}</Text>
+						</Center>}>
+					</LoadingOverlay>
 
-							<Container size="xl" px="xs">
-								{this.state.mode == "view" ? <>
-									<MainLayout />
-								</> : <>
-									<EditorLayout />
-								</>}
-							</Container>
-						</div>
-					</NotificationsProvider>
-				</MantineProvider>
+					<Space h="md" />
+
+					<Container size="xl" px="xs">
+						{this.state.mode == "view" ? <>
+							<MainLayout />
+						</> : <>
+							<EditorLayout />
+						</>}
+					</Container>
+				</div>
 			</>
 		)
 	}

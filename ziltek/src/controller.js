@@ -21,9 +21,9 @@ class Controller {
         this.melodies = {
             // string[3]
             main: [
-                "example.mp3",
-                "example.mp3",
-                "example.mp3",
+                "tobecontinued.mp3",
+                "tobecontinued.mp3",
+                "tobecontinued.mp3",
             ],
             // not yet lmao no ----------string[][][3]
             overrides: [],

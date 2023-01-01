@@ -46,12 +46,63 @@ const STRINGS = {
     tr_on: "Açık",
     en_off: "Off",
     tr_off: "Kapalı",
+    en_mainTimetableInfo: "This is the main timetable.",
+    tr_mainTimetableInfo: "Bu ana zaman çizelgesi.",
+    en_unsavedChanges: "You have unsaved changes!",
+    tr_unsavedChanges: "Keydedilmemiş değişikliklerin var!",
+    en_timetableGenerator: "Timetable Generator Wizard",
+    tr_timetableGenerator: "Zaman Çizelgesi Oluşturucu",
+    en_startTime: "Start Time",
+    tr_startTime: "Başlangıç Zamanı",
+    en_startTimeDesc: "Starting time of the segment",
+    tr_startTimeDesc: "Bu bölümün başlangıç zamanı",
+    en_offset: "Offset",
+    tr_offset: "Eklenme",
+    en_offsetDesc: "How many minutes to skip from the last segment",
+    tr_offsetDesc: "Önceki bölümün son zamanından kaç dakika sonra başlaması",
+    en_classCount: "Class Count",
+    tr_classCount: "Ders Sayısı",
+    en_classDuration: "Class Duration",
+    tr_classDuration: "Ders Süresi",
+    en_classDurationDesc: "(in minutes)",
+    tr_classDurationDesc: "(dakika)",
+    en_breakDuration: "Break Duration",
+    tr_breakDuration: "Tenefüs Süresi",
+    en_breakDurationDesc: "(in minutes)",
+    tr_breakDurationDesc: "(dakika)",
+    en_studentBellOffset: "Student Bell Offset",
+    tr_studentBellOffset: "Öğrenci Zili Farkı",
+    en_studentBellOffsetDesc: "How many minutes to play the student bell before the teachers bell",
+    tr_studentBellOffsetDesc: "Öğretmen zilinden kaç dakika önce öğrenci zili çalması",
+    en_addSegment: "Add Segment",
+    tr_addSegment: "Bölüm Ekle",
+    en_type: "Type",
+    tr_type: "Tip",
 };
 
 const s = (id, ...a) => {
     return STRINGS[s.currentLang + "_" + id] || id;
 };
 
+s.languages = [
+    {
+        id: "en",
+        label: "English",
+    },
+    {
+        id: "tr",
+        label: "Türkçe (Turkish)",
+    },
+];
+
 s.currentLang = "en";
+
+if(s.languages.map(l => l.id).includes(localStorage.getItem("_lang")))
+    s.currentLang = localStorage.getItem("_lang");
+
+s.setLang = (l) => {
+    s.currentLang = l;
+    localStorage.setItem("_lang", l);
+};
 
 export default s;

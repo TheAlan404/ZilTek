@@ -2,6 +2,7 @@ import { ActionIcon, Button, Tooltip } from '@mantine/core'
 import { IconFileDownload, IconFileExport, IconFileImport, IconFileUpload, IconTrash } from '@tabler/icons'
 import React, { Component } from 'react'
 import controller from '../controller'
+import s from '../lang'
 
 class EditModeButtons extends Component {
 	render() {

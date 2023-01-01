@@ -1,4 +1,4 @@
-import { ActionIcon, Checkbox, Container, Divider, Grid, Group, Header, NativeSelect, Space, Stack, Tooltip } from '@mantine/core'
+import { ActionIcon, Checkbox, Container, Divider, Grid, Group, Header, NativeSelect, Select, Space, Stack, Tooltip } from '@mantine/core'
 import React, { Component } from 'react'
 import s from '../lang';
 import TimetableGrid from './TimetableGrid';
@@ -6,6 +6,8 @@ import { Text } from '@mantine/core';
 import { IconPlaylistX, IconWand } from '@tabler/icons';
 import controller from '../controller';
 import { showNotification } from '@mantine/notifications';
+import TimetableGenerator from './TimetableGenerator';
+import { openModal } from '@mantine/modals';
 
 class TimetableEditorPanel extends Component {
   constructor(props) {
@@ -19,13 +21,17 @@ class TimetableEditorPanel extends Component {
     };
   }
 
+  componentDidMount() {
+    this.setTimetableGrid(0);
+  }
+
   setTimetableGrid(id) {
     id = Number(id);
     console.log("Changed select to", id)
     let isMain = id === 0;
-    let table = isMain
+    let table = structuredClone(isMain
       ? controller.timetables.main
-      : (controller.timetables.overrides[id-1] || { table: [] }).table;
+      : (controller.timetables.overrides[id-1] || { table: [] }).table);
     let isFullOverride = isMain ? false : (controller.timetables.overrides[id-1] || { fullOverride: false }).fullOverride;
     
     console.dir({
@@ -75,12 +81,20 @@ class TimetableEditorPanel extends Component {
               <Text>{s("selectDay")}</Text>
             </Grid.Col>
             <Grid.Col span="auto">
-              <NativeSelect
+              <Select
                 data={new Array(8).fill(0)
-                  .map((v, i) => i ? s("day" + (i-1)) : s("mainTimetable"))
-                  .map((v, i) => ({ value: i, label: v }))}
-                defaultValue={0}
-                onChange={(e) => this.setTimetableGrid(e.currentTarget.value)}
+                  .map((v, i) => i ? {
+                    value: i.toString(),
+                    label: s("day" + (i-1)),
+                    group: "Overrides",
+                  } : {
+                    value: i.toString(),
+                    label: s("mainTimetable"),
+                    group: "Main",
+                  })}
+                defaultValue="0"
+                value={this.state.selectValue.toString()}
+                onChange={(e) => this.setTimetableGrid(e)}
               />
             </Grid.Col>
             <Grid.Col span="content">
@@ -92,7 +106,15 @@ class TimetableEditorPanel extends Component {
                   </ActionIcon>
                 </Tooltip>
                 <Tooltip label={s("generateTimetable")}>
-                  <ActionIcon>
+                  <ActionIcon
+                    onClick={() => openModal({
+                      title: <>
+                        <IconWand />
+                        <Text>{s("timetableGenerator")}</Text>
+                      </>,
+                      children: (<TimetableGenerator />),
+                      size: "lg",
+                    })}>
                     <IconWand />
                   </ActionIcon>
                 </Tooltip>
@@ -100,7 +122,11 @@ class TimetableEditorPanel extends Component {
               </Group>
             </Grid.Col>
           </Grid>
-          {this.state.isMain ? <></> : <Tooltip multiline inline label={s("fullOverrideTooltip")}>
+          {this.state.isMain ? <>
+            <Text>
+              {/*s("mainTimetableInfo")*/}
+            </Text>
+          </> : <Tooltip multiline inline label={s("fullOverrideTooltip")}>
             <div>
               <Checkbox label={s("fullOverride")} />
             </div>
@@ -108,7 +134,15 @@ class TimetableEditorPanel extends Component {
           <Container padding="md">
             <TimetableGrid
               timetable={this.state.selectedTimetable}
-              onSave={(t) => this.setTimetableData(t)}
+              onSave={(t) => {
+                this.setTimetableData(t);
+              }}
+              onChanges={() => {
+                
+              }}
+              onRevert={() => {
+                
+              }}
             />
           </Container>
         </Stack>
