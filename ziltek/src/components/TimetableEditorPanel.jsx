@@ -109,8 +109,10 @@ class TimetableEditorPanel extends Component {
                   <ActionIcon
                     onClick={() => openModal({
                       title: <>
-                        <IconWand />
-                        <Text>{s("timetableGenerator")}</Text>
+                        <Group>
+                          <IconWand />
+                          <Text>{s("timetableGenerator")}</Text>
+                        </Group>
                       </>,
                       children: (<TimetableGenerator />),
                       size: "lg",

@@ -13,6 +13,10 @@ class TimeBox extends Component {
 		}
 	}
 
+	componentDidUpdate(oldProps) {
+		if(oldProps.time !== this.props.time)
+			this.setState({ time: this.props.time });
+	}
 
 	render() {
 		return (

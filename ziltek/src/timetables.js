@@ -44,6 +44,7 @@ const subtractMinutesToDate = (date, m) => {
 /**
  * @memberof ZilTek
  * @typedef {object} TimetableGenSegment
+ * @prop {"startTime"|"offset"} type
  * @prop {Date} startTime
  * @prop {Number} offset
  * 
@@ -61,9 +62,9 @@ const generateTimetable = (segments = []) => {
     let table = [];
     let _time = newDate(0, 0);
     segments.forEach(segment => {
-        if (segment.startTime)
+        if (segment.type == "startTime")
             _time = segment.startTime;
-        else if (segment.offset)
+        else if (segment.type == "offset")
             _time = addMinutesToDate(_time, segment.offset);
 
         for (let i = 0; i < segment.classCount; i++) {
