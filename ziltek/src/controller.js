@@ -10,6 +10,8 @@ import s from "./lang";
  */
 
 class Controller {
+    version = "0.2";
+
     constructor() {
         this.timetables = {
             /** @type {import("./timetables").Timetable} */
