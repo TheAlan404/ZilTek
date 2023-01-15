@@ -8,7 +8,7 @@ class EditorLayout extends Component {
     return (
       <>
         <Grid>
-          <Grid.Col span={3}>
+          <Grid.Col span={4}>
             <FilesPanel />
           </Grid.Col>
           <Grid.Col span={4}>

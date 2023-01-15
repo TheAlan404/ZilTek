@@ -25,7 +25,7 @@ class App extends Component {
 	}
 
 	componentDidMount() {
-		/*fileStorage.initialize({
+		fileStorage.initialize({
 			status: (t) => this.setState({ loadingText: t }),
 			error: (e) => {
 				console.log(e);
@@ -35,13 +35,13 @@ class App extends Component {
 				})
 			},
 			success: () => {
+				controller.loadData();
+				controller.setupInterval();
 				this.setState({
 					loadingText: "",
 				});
 			},
-		});*/
-
-		controller.loadData();
+		});
 
 		controller.events.playing = () => {
 			this.setState({ isAudioPlaying: true });

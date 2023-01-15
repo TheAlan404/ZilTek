@@ -114,8 +114,43 @@ const STRINGS = {
 
     en_clickToRefresh: "Click the button to refresh",
     tr_clickToRefresh: "Butona tıklayarak güncelle",
+
+    en_dropperTitle: "Drop files here",
+    tr_dropperTitle: "Buraya dosyalarını sürükle",
+    en_dropperText: "To import audio or configurations",
+    tr_dropperText: "Ses veya ayar dosyaları içe aktarılır",
+
+    en_importing: "Importing",
+    tr_importing: "İçe Aktarılıyor",
+    en_imported: "Imported!",
+    tr_imported: "İçe Aktarıldı!",
+    en_importingFiles: "Importing $0 files...",
+    tr_importingFiles: "$0 dosya içe aktarılıyor...",
+    en_audioImported: "Imported $0 audio files",
+    tr_audioImported: "$0 adet ses dosyası yüklendi",
+    en_files: "files",
+    tr_files: "dosya",
+    en_filesHeader: "Files",
+    tr_filesHeader: "Dosyalar",
+
+    en_upload: "Upload",
+    tr_upload: "Yükle",
+
+    en_addMelody: "Add Melody",
+    tr_addMelody: "Melodi Ekle",
+
+    en_fromYoutube: "Import from Youtube",
+    tr_fromYoutube: "Youtube'dan al",
+
+    en_trimAudio: "Trim Audio",
+    tr_trimAudio: "Sesi kes",
 };
 
+/**
+ * @param {import("./util/TypeUtils").GetUnprefixedKeys<STRINGS>} id String ID
+ * @param  {...import("./util/TypeUtils").ExtractStringArgs<STRINGS, id>} a Extra values
+ * @returns {string}
+ */
 const s = (id, ...a) => {
     let str = STRINGS[s.currentLang + "_" + id] || id;
     a.forEach((v, i) => str = str.replace("$"+i, v));
