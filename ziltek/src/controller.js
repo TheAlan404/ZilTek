@@ -37,15 +37,15 @@ class Controller {
         /** @type {HTMLAudioElement} */
         this.audio = new Audio();
         this.events = {
-            playing: () => {},
-            stopped: () => {},
+            playing: () => { },
+            stopped: () => { },
             update: [],
         };
     };
 
     loadData() {
         let rawjson = localStorage.getItem("ziltekdata");
-        if(rawjson === null) {
+        if (rawjson === null) {
             this.saveData();
             showNotification({
                 message: s("welcome"),
@@ -58,8 +58,8 @@ class Controller {
             json = JSON.parse(rawjson, (k, v) =>
                 typeof v === "string" && v.length === 5 && DateStringRegex.test(v) ?
                     stringToDate(v)
-                : v );
-        } catch(e) {
+                    : v);
+        } catch (e) {
             showNotification({
                 title: s("error"),
                 message: s("err_datacorrupt"),
@@ -69,7 +69,7 @@ class Controller {
             return;
         };
 
-        if(json.ver === 0) {
+        if (json.ver === 0) {
             this.timetables = json.timetables;
             this.melodies = json.melodies;
         } else {
@@ -89,7 +89,7 @@ class Controller {
 
         this.triggerUpdates();
     }
-    
+
     saveData() {
         let raw;
 
@@ -107,7 +107,7 @@ class Controller {
 
         try {
             raw = JSON.stringify(conv);
-        } catch(e) {
+        } catch (e) {
             showNotification({
                 title: s("error"),
                 message: "JSON stringify save error",
@@ -141,18 +141,23 @@ class Controller {
     }
 
     executeBell() {
+        if (this.lastPlayedTime.getHours() == new Date().getHours()
+            && this.lastPlayedTime.getMinutes() == new Date().getMinutes()) {
+            return;
+        }
         let { shouldPlay, index } = this.findBell();
-        if(!shouldPlay) return;
+        if (!shouldPlay) return;
         let [i, tupleIndex] = index;
 
         let filename = this.getMelodyName(i, tupleIndex);
         this.playAudioByName(filename);
+        this.lastPlayedTime = new Date();
     }
 
     findBell() {
         let currentTime = new Date();
         let h = currentTime.getHours();
-        let m = currentTime.getHours();
+        let m = currentTime.getMinutes();
         let timetable = this.getTimetableToday();
 
         for (let i = 0; i < timetable.length; i++) {
@@ -172,13 +177,13 @@ class Controller {
     }
 
     getMelodyName(i, tupleIndex) {
-        return this.melodies[tupleIndex];
+        return this.melodies.main[tupleIndex];
     }
 
     playAudioByName(filename) {
         let file = fileStorage.getFile(filename);
-        if(!file) return;
-        this.playAudio(file);
+        if (!file) return;
+        this.playAudio(typeof file.file === "string" ? file.file : new Blob([file.file]));
     }
 
     /**
@@ -186,10 +191,11 @@ class Controller {
      */
     playAudio(file) {
         this.events.playing();
-        let url = URL.createObjectURL(file);
+        console.log("playAudio", file);
+        let url = typeof file === "string" ? file : URL.createObjectURL(file);
         this.audio.onended = () => {
             this.events.stopped();
-            URL.revokeObjectURL(url);
+            if (typeof file !== "string") URL.revokeObjectURL(url);
         };
         this.audio.src = url;
         this.audio.play();

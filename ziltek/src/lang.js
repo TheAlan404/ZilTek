@@ -144,6 +144,29 @@ const STRINGS = {
 
     en_trimAudio: "Trim Audio",
     tr_trimAudio: "Sesi kes",
+
+    en_download: "Download",
+    tr_download: "İndir",
+    en_delete: "Delete",
+    tr_delete: "Sil",
+    en_play: "Play",
+    tr_play: "Çal",
+    en_fileAlreadyExists: "The file $0 already exists!",
+    tr_fileAlreadyExists: "$0 adında bir dosya zaten var!",
+
+    en_fatalError: "Fatal Error! Report to developer",
+    tr_fatalError: "Kritik hata! Yazılımcıya bildirin",
+
+    en_youtubeLink: "Youtube Link/URL",
+    tr_youtubeLink: "Youtube Linki",
+
+    en_downloadingYT: "Downloading from youtube (this might take a while)...",
+    tr_downloadingYT: "Youtube'dan indiriliyor (biraz uzun sürebilir)...",
+    en_downloadedYT: "Downloaded from Youtube!",
+    tr_downloadedYT: "Youtube'dan indirildi!",
+
+    en_setAsMelody: "Set As Melody",
+    tr_setAsMelody: "Melodi olarak ayarla",
 };
 
 /**

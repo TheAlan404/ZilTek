@@ -5,14 +5,29 @@
  * @prop {File} file
  */
 
+import { showNotification } from "@mantine/notifications";
+import { IconAlertTriangle } from "@tabler/icons";
 import tobecontinued from "./exampleMelodies/tobecontinued.mp3";
+import s from "./lang";
+
+class CustomError extends Error {
+    constructor(m, d = {}) {
+        super(m);
+        for(let [k,v] in Object.entries(d))
+            this[k] = v;
+    }
+}
 
 /**
  * 
  * @param {IDBTransaction} t 
  * @returns {Promise<Event>}
  */
-const wraptx = (t) => new Promise(r => (t.oncomplete = r))
+const wraptx = (t) => new Promise(r => {
+    t.oncomplete = r;
+    t.onabort = (e) => console.log("abort wraptx", e);
+    t.onerror = (e) => console.log("error wraptx", e);
+})
 
 const BuiltInDataStore = Object.entries({
     "tobecontinued.mp3": tobecontinued,
@@ -74,7 +89,8 @@ class FileStorage {
         req.onsuccess = (e) => {
             let data = e.target.result;
             console.log(data);
-            cb();
+            this.files = data;
+            if(cb) cb();
             this.emitUpdate();
         };
     };
@@ -102,31 +118,42 @@ class FileStorage {
      * @param {File} file 
      */
     async putFile(filename, file) {
-        let tx = this.db.transaction("files");
+        console.log("putFile", filename, file);
+
+        if(this.files.some(f => f.filename === filename)) {
+            throw new CustomError("FILE_EXISTS", { filename });
+        }
+
+        let buf = await file.arrayBuffer();
+        let tx = this.db.transaction("files", "readwrite");
         let objectStore = tx.objectStore("files");
         objectStore.add({
             filename,
-            file: await file.arrayBuffer(),
+            file: buf,
             created: Date.now(),
         });
         await wraptx(tx);
-        this.emitUpdate();
+        this.loadFiles();
     };
 
     /**
      * 
      * @param {File[]} files 
      */
-    putFilesSync(files, cb) {
-        Promise.all(files.map(f => this.putFile(f.name, f))).then(() => cb());
+    putFilesSync(files, cb, cbe) {
+        Promise.all(files.map(f => this.putFile(f.name, f)))
+            .then(() => {
+                this.loadFiles(() => cb());
+            })
+            .catch((e) => cbe(e));
     }
 
     async deleteFile(filename) {
-        let tx = this.db.transaction("files");
+        let tx = this.db.transaction("files", "readwrite");
         let objectStore = tx.objectStore("files");
         objectStore.delete(filename);
         await wraptx(tx);
-        this.emitUpdate();
+        this.loadFiles();
     };
 };
 
