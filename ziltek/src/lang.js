@@ -5,6 +5,8 @@ const STRINGS = {
     tr_teacherBell: "Öğretmen",
     en_classBell: "Class End",
     tr_classBell: "Ders Çıkışı",
+    en_bell: "Bell",
+    tr_bell: "Zili",
 
     en_editMode: "Edit Mode",
     tr_editMode: "Düzenleme Modu",
@@ -167,6 +169,23 @@ const STRINGS = {
 
     en_setAsMelody: "Set As Melody",
     tr_setAsMelody: "Melodi olarak ayarla",
+
+    en_bellStatus: "Bell Status",
+    tr_bellStatus: "Zil Durumu",
+    en_clickToTurnOnBell: "The bells are off. Click to turn the bells back on",
+    tr_clickToTurnOnBell: "Ziller kapalı. Zilleri tekrar açmak için tıkla",
+    en_bellSuppressed: "Current bell is suppressed",
+    tr_bellSuppressed: "Şuanki zil susturuldu",
+
+    en_touchWindowPls: "Cannot play the audio! Please interact with the browser window.",
+    tr_touchWindowPls: "Ses çalınamıyor! Lütfen pencereye tıklayın.",
+
+    en_playButton: "PLAY",
+    tr_playButton: "ÇAL",
+    en_stopAudio: "Stop Audio",
+    tr_stopAudio: "Sesi Durdur",
+    en_stopButton: "STOP",
+    tr_stopButton: "DURDUR",
 };
 
 /**

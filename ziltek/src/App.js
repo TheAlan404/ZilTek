@@ -19,7 +19,7 @@ class App extends Component {
 		this.state = {
 			loadingText: "",
 			errorText: "",
-			mode: "edit", // "view" | "edit"
+			mode: "view", // "view" | "edit"
 			isAudioPlaying: false,
 		};
 	}
@@ -50,6 +50,11 @@ class App extends Component {
 		controller.events.stopped = () => {
 			this.setState({ isAudioPlaying: false });
 		};
+
+		controller.sub("suppressed", () => {
+			this.setState({ isSuppressed: true });
+			setTimeout(() => this.setState({ isSuppressed: false }), 10000);
+		});
 	}
 
 
@@ -60,7 +65,7 @@ class App extends Component {
 					<Group position="apart" height="3em" p="sm" m="auto">
 						<AppTitle />
 						<Group>
-							{this.state.isAudioPlaying ? <>
+							{this.state.isAudioPlaying && <>
 								<Tooltip label={s("clickToStopAudio")}>
 									<Button
 										compact
@@ -70,8 +75,19 @@ class App extends Component {
 										{s("audioPlaying")}
 									</Button>
 								</Tooltip>
-							</> : <>
-
+							</>}
+							{this.state.isSuppressed && <>
+								<Tooltip label={s("clickToTurnOnBell")}>
+									<Button
+										compact
+										variant='light'
+										color="red"
+										onClick={() => {
+											controller.setBellStatus(true);
+										}}>
+										{s("bellSuppressed")}
+									</Button>
+								</Tooltip>
 							</>}
 						</Group>
 						<Group>

@@ -36,6 +36,7 @@ class MainLayout extends Component {
             <TimetableGrid
               timetable={this.state.table}
               readonly
+              controllerRealtime
             />
           </Grid.Col>
           <Grid.Col span="auto">

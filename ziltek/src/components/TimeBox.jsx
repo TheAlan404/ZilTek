@@ -22,6 +22,24 @@ class TimeBox extends Component {
 		return (
 			<>
 				<TimeInput
+					styles={(theme) => {
+						if(this.props.isPlaying) {
+							return {
+								input: { borderColor: theme.colors.violet[theme.fn.primaryShade()],
+									borderWidth: 3 },
+							}
+						} else if (this.props.isSuppressed) {
+							return {
+								input: { borderColor: theme.colors.red[theme.fn.primaryShade()] },
+							}
+						} else if (this.props.didPlay) {
+							return {
+								input: { borderColor: theme.colors.green[theme.fn.primaryShade()] },
+							};
+						} else {
+							return {};
+						}
+					}}
 					value={this.state.value}
 					label={this.props.label}
 					description={this.props.description}

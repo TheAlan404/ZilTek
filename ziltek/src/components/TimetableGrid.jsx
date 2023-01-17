@@ -3,6 +3,7 @@ import { Text, Table, Button, CloseButton, Space, Group } from '@mantine/core';
 import TimeBox from './TimeBox';
 import { NullTuple } from '../timetables';
 import s from '../lang';
+import controller from '../controller';
 
 class TimetableGrid extends Component {
 	constructor(props) {
@@ -11,11 +12,30 @@ class TimetableGrid extends Component {
 		this.state = {
 			timetable: this.props.timetable || [],
 			changes: false,
+			lastPlayedIndex: [-1, -1],
+			suppressedIndex: [-1, -1],
 		}
 	}
 
+	componentDidMount() {
+		if(this.props.controllerRealtime) {
+			controller.sub("execUpdate", ({ type, index }) => {
+				if(type == "startPlay") {
+					this.setState({ lastPlayedIndex: index });
+				} else if (type == "endPlay") {
+					this.setState({ lastPlayedIndex: [-1, -1] });
+				};
+			})
+
+			controller.sub("suppressed", ({ index }) => {
+				this.setState({ suppressedIndex: index, lastPlayedIndex: [-1, -1] });
+			})
+		}
+	}
+
+
 	addRow() {
-		if(!this.state.changes) (this.props.onChanges || (()=>{}))();
+		if (!this.state.changes) (this.props.onChanges || (() => { }))();
 		this.setState((state) => {
 			state.timetable.push(NullTuple());
 			state.changes = true;
@@ -27,7 +47,7 @@ class TimetableGrid extends Component {
 
 	removeRow(i) {
 		// hax
-		if(!this.state.changes) (this.props.onChanges || (()=>{}))();
+		if (!this.state.changes) (this.props.onChanges || (() => { }))();
 		this.setState((state) => ({
 			timetable: [...state.timetable.slice(0, i), ...state.timetable.slice(i + 1)],
 			changes: true,
@@ -37,7 +57,7 @@ class TimetableGrid extends Component {
 	}
 
 	revertTable() {
-		(this.props.onRevert || (()=>{}))();
+		(this.props.onRevert || (() => { }))();
 		this.setState({
 			timetable: this.props.timetable || [],
 			changes: false,
@@ -45,7 +65,7 @@ class TimetableGrid extends Component {
 	}
 
 	componentDidUpdate(prevProps) {
-		if(prevProps.timetable === this.props.timetable) return;
+		if (prevProps.timetable === this.props.timetable) return;
 		this.setState({
 			timetable: this.props.timetable,
 			changes: false,
@@ -74,8 +94,15 @@ class TimetableGrid extends Component {
 									<TimeBox
 										time={t}
 										readonly={this.props.readonly}
+
+										isPlaying={this.props.controllerRealtime && (this.state.lastPlayedIndex[0] == i && this.state.lastPlayedIndex[1] == ii)}
+										isSuppressed={this.props.controllerRealtime && (this.state.suppressedIndex[0] == i && this.state.suppressedIndex[1] == ii)}
+										didPlay={this.props.controllerRealtime && (
+											new Date().getHours() > t.getHours() || (new Date().getHours() == t.getHours() && new Date().getMinutes() >= t.getMinutes())
+										)}
+
 										onChange={(v) => {
-											if(!this.state.changes) (this.props.onChanges || (()=>{}))();
+											if (!this.state.changes) (this.props.onChanges || (() => { }))();
 											this.setState((state) => {
 												state.timetable[i][ii] = v;
 												state.changes = true;

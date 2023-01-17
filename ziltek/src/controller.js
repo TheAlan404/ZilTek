@@ -2,6 +2,7 @@ import fileStorage from "./fileStorage";
 import { DateStringRegex, dateToString, mergeTimetables, newDate, stringToDate } from "./timetables";
 import { showNotification } from "@mantine/notifications";
 import s from "./lang";
+import { IconExclamationMark } from "@tabler/icons";
 
 /**
  * @typedef {object} TimetableOverride
@@ -31,6 +32,7 @@ class Controller {
             overrides: [],
         };
 
+        this.bellOnline = true;
         this.shouldPlay = true;
         this.lastPlayedTime = newDate(0, 0);
 
@@ -39,6 +41,9 @@ class Controller {
         this.events = {
             playing: () => { },
             stopped: () => { },
+            suppressed: [],
+            bellStatus: [],
+            execUpdate: [],
             update: [],
         };
     };
@@ -122,8 +127,18 @@ class Controller {
         localStorage.setItem("ziltekdata", raw);
     }
 
-    triggerUpdates() {
-        this.events.update.forEach(lis => lis());
+    sub(e, fn) {
+        this.events[e].push(fn);
+    }
+
+    triggerUpdates(ev = "update", ...a) {
+        this.events[ev].forEach(lis => lis(...a));
+    }
+
+    setBellStatus(v) {
+        this.bellOnline = v;
+        if(!v) this.stopAudio();
+        this.triggerUpdates("bellStatus");
     }
 
     eraseAllData() {
@@ -149,9 +164,15 @@ class Controller {
         if (!shouldPlay) return;
         let [i, tupleIndex] = index;
 
+        this.lastPlayedTime = new Date();
+        this.triggerUpdates("execUpdate", { type: "startPlay", index });
+        if(!this.bellOnline) {
+            this.triggerUpdates("suppressed", { index });
+            return;
+        };
+
         let filename = this.getMelodyName(i, tupleIndex);
         this.playAudioByName(filename);
-        this.lastPlayedTime = new Date();
     }
 
     findBell() {
@@ -195,14 +216,23 @@ class Controller {
         let url = typeof file === "string" ? file : URL.createObjectURL(file);
         this.audio.onended = () => {
             this.events.stopped();
+            this.triggerUpdates("execUpdate", { type: "endPlay", });
             if (typeof file !== "string") URL.revokeObjectURL(url);
         };
         this.audio.src = url;
-        this.audio.play();
+        this.audio.play().catch(() => showNotification({
+            color: "red",
+            title: s("error"),
+            message: s("touchWindowPls"),
+            autoClose: 15000,
+            icon: <IconExclamationMark />,
+        }));
     }
 
     stopAudio() {
+        if(!this.audio) return;
         this.audio.pause();
+        if(!this.audio.onended) return;
         this.audio.onended();
     }
 
