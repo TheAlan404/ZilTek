@@ -1,8 +1,8 @@
-import { Button, Divider, Grid, Group, NumberInput, Select, Space, Text } from '@mantine/core'
-import React, { Component } from 'react'
-import { newDate } from '../timetables';
-import TimeBox from './TimeBox';
-import s from "../lang.js";
+import { Button, Divider, Grid, NumberInput, Select, Text } from '@mantine/core';
+import React, { Component } from 'react';
+import s from "../../lang.js";
+import { addMinutesToDate, dateToString, newDate } from '../../timetables';
+import TimeBox from '../TimeBox';
 
 class TimetableGeneratorSegment extends Component {
     constructor(props) {
@@ -12,23 +12,24 @@ class TimetableGeneratorSegment extends Component {
             type: this.props.type || "startTime",
             startTime: newDate(0, 0),
             offset: 0,
-            classCount: 1,
-            classDuration: 0,
-            breakDuration: 0,
+            classCount: 4,
+            classDuration: 25,
+            breakDuration: 5,
             studentBellOffset: 0,
         };
     };
 
     setState(s) {
-        super.setState(s);
-        (this.props.onChange || (() => 0))(this.state);
+        super.setState(s, () => {
+            (this.props.onChange || (() => 0))(this.state);
+        });
     }
 
     componentDidUpdate(oldProps) {
         if (this.props === oldProps) return;
-        super.setState({
-            type: this.props.type || "startTime",
-        });
+        if (!this.props.data) return;
+        console.log("gensegment cdu", this.props.data);
+        super.setState(this.props.data);
     };
 
     render() {
@@ -39,6 +40,13 @@ class TimetableGeneratorSegment extends Component {
                         <Text fw={700}>
                             {s("segmentIndex", this.props.index+1)}
                         </Text>
+
+                        <Text c="cyan.8">
+                            {dateToString(this.props.durationInfo[0])}
+                            -
+                            {dateToString(this.props.durationInfo[1])}
+                        </Text>
+
                         <Select
                             label={s("Type")}
                             value={this.state.type}
@@ -56,7 +64,7 @@ class TimetableGeneratorSegment extends Component {
                                 <TimeBox
                                     label={s("startTime")}
                                     description={s("startTimeDesc")}
-                                    value={this.state.startTime}
+                                    time={this.state.startTime}
                                     onChange={(v) => this.setState({ startTime: v })}
                                 />
                             </>

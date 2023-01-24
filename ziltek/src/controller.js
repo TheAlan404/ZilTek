@@ -14,6 +14,25 @@ class Controller {
     version = "0.2";
 
     constructor() {
+        this.setDefaults();
+
+        this.bellOnline = true;
+        this.shouldPlay = true;
+        this.lastPlayedTime = newDate(0, 0);
+
+        /** @type {HTMLAudioElement} */
+        this.audio = new Audio();
+        this.events = {
+            playing: () => { },
+            stopped: () => { },
+            suppressed: [],
+            bellStatus: [],
+            execUpdate: [],
+            update: [],
+        };
+    };
+
+    setDefaults() {
         this.timetables = {
             /** @type {import("./timetables").Timetable} */
             main: [],
@@ -31,22 +50,7 @@ class Controller {
             // not yet lmao no ----------string[][][3]
             overrides: [],
         };
-
-        this.bellOnline = true;
-        this.shouldPlay = true;
-        this.lastPlayedTime = newDate(0, 0);
-
-        /** @type {HTMLAudioElement} */
-        this.audio = new Audio();
-        this.events = {
-            playing: () => { },
-            stopped: () => { },
-            suppressed: [],
-            bellStatus: [],
-            execUpdate: [],
-            update: [],
-        };
-    };
+    }
 
     loadData() {
         let rawjson = localStorage.getItem("ziltekdata");
@@ -92,7 +96,7 @@ class Controller {
             message: s("loaded"),
         });
 
-        this.triggerUpdates();
+        this.triggerUpdates("update");
     }
 
     saveData() {
@@ -139,10 +143,6 @@ class Controller {
         this.bellOnline = v;
         if(!v) this.stopAudio();
         this.triggerUpdates("bellStatus");
-    }
-
-    eraseAllData() {
-        localStorage.removeItem("ziltekdata");
     }
 
     setupInterval() {

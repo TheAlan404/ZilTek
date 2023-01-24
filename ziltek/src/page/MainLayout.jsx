@@ -20,7 +20,7 @@ class MainLayout extends Component {
       table: controller.getTimetableToday(),
     });
 
-    controller.events.update.push(() => {
+    controller.sub("update", () => {
       console.log("update main layout table", controller.getTimetableToday());
       this.setState({
         table: controller.getTimetableToday(),

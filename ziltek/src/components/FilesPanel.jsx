@@ -6,7 +6,7 @@ import s from '../lang';
 import importManager from '../importManager';
 import controller from '../controller';
 import { openModal } from '@mantine/modals';
-import ImportFromYoutubeModal from './ImportFromYoutubeModal';
+import ImportFromYoutubeModal from './modals/ImportFromYoutubeModal';
 import { showNotification } from '@mantine/notifications';
 
 class FilesPanel extends Component {

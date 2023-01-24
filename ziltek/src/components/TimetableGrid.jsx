@@ -11,7 +11,7 @@ class TimetableGrid extends Component {
 
 		this.state = {
 			timetable: this.props.timetable || [],
-			changes: false,
+			changes: this.props.changes || false,
 			lastPlayedIndex: [-1, -1],
 			suppressedIndex: [-1, -1],
 		}
@@ -68,7 +68,7 @@ class TimetableGrid extends Component {
 		if (prevProps.timetable === this.props.timetable) return;
 		this.setState({
 			timetable: this.props.timetable,
-			changes: false,
+			changes: this.props.changes || false,
 		});
 	}
 
