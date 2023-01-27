@@ -77,7 +77,7 @@ class TimetableGrid extends Component {
 			<>
 				{(this.state.timetable.length == 0) && <>
 					<Button variant='light' disabled fullWidth>
-						-- Empty --
+						-- {s("empty")} --
 					</Button>
 					<Space h="md" />
 				</>}

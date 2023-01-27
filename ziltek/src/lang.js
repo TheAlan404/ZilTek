@@ -38,6 +38,26 @@ const STRINGS = {
         ["en_day" + i]: cur[0],
         ["tr_day" + i]: cur[1],
     }), {})),
+
+    ...([
+        ["January", "Ocak"],
+        ["February", "Şubat"],
+        ["March", "Mart"],
+        ["April", "Nisan"],
+        ["May", "Mayıs"],
+        ["June", "Haziran"],
+        ["July", "Temmuz"],
+        ["August", "Ağustos"],
+        ["September", "Eylül"],
+        ["October", "Ekim"],
+        ["November", "Kasım"],
+        ["December", "Aralık"],
+    ].reduce((prev, cur, i) => ({
+        ...prev,
+        ["en_month" + i]: cur[0],
+        ["tr_month" + i]: cur[1],
+    }), {})),
+
     en_selectDay: "Select Day",
     tr_selectDay: "Günü seç",
     en_clearTimetable: "Clear timetable",
@@ -185,6 +205,9 @@ const STRINGS = {
 
     en_trimAudio: "Trim Audio",
     tr_trimAudio: "Sesi kes",
+
+    en_melodiesHeader: "Melodies",
+    tr_melodiesHeader: "Melodiler",
     
     // -- controller info --
     
@@ -267,6 +290,15 @@ const STRINGS = {
     tr_deleteConfirmation: "Heyşeyi silmek istediğinizden emin misiniz? Bütün zaman çizelgeleri, melodiler ve ayarlar silinicek.",
     en_dataDeleted: "Data deleted.",
     tr_dataDeleted: "Veriler silindi.",
+
+    en_empty: "Empty",
+    tr_empty: "Boş",
+
+    en_customMelodies: "Custom Melody Settings",
+    tr_customMelodies: "Özel Melodi Ayarları",
+
+    en_melodyChanged: "Melody has been changed successfully",
+    tr_melodyChanged: "Melodi başarıyla değiştirildi",
 };
 
 /**

@@ -96,7 +96,7 @@ class App extends Component {
 								color="violet"
 								leftIcon={<IconEdit />}
 								onClick={() => this.setState({ mode: "edit" })}>
-								Edit Mode
+								{s("editMode")}
 							</Button> : <EditModeButtons
 								onClickExit={() => this.setState({ mode: "view" })}
 							/>}

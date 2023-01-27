@@ -114,19 +114,6 @@ class FilesPanel extends Component {
 															<IconPlayerPlay />
 														</ActionIcon>
 													</Tooltip>
-													<Tooltip label={s("setAsMelody")}>
-														<ActionIcon
-															onClick={() => {
-																controller.melodies.main = [f.filename, f.filename, f.filename];
-																controller.saveData();
-																showNotification({
-																	message: "Saved",
-																	color: "green",
-																});
-															}}>
-															<IconCheck />
-														</ActionIcon>
-													</Tooltip>
 													<Tooltip label={s("download")}>
 														<ActionIcon
 															component="a"

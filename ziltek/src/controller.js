@@ -11,7 +11,7 @@ import { IconExclamationMark } from "@tabler/icons";
  */
 
 class Controller {
-    version = "0.2";
+    version = "0.5";
 
     constructor() {
         this.setDefaults();

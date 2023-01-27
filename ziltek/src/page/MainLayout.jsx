@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Container, Grid, Group, Text } from '@mantine/core';
+import { Center, Container, Grid, Group, Text } from '@mantine/core';
 import TimetableGrid from '../components/TimetableGrid';
 import { DummyTimetable2 } from '../dummy';
 import controller from '../controller';
@@ -40,9 +40,9 @@ class MainLayout extends Component {
             />
           </Grid.Col>
           <Grid.Col span="auto">
-            <Group position='center'>
+            <Center>
               <Clock />
-            </Group>
+            </Center>
           </Grid.Col>
           <Grid.Col span="auto">
             <Group position='right'>

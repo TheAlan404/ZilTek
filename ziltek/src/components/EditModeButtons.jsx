@@ -77,7 +77,7 @@ class EditModeButtons extends Component {
 					onClick={this.props.onClickExit}
 					variant="light"
 					color="red">
-					Exit Edit Mode
+					{s("viewMode")}
 				</Button>
 			</>
 		)
