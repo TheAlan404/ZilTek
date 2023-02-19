@@ -16,7 +16,7 @@ class TimeBox extends Component {
 	}
 
 	componentDidUpdate(oldProps) {
-		console.log("timebox cdu", oldProps, this.props);
+		//console.log("timebox cdu", oldProps, this.props);
 		if (oldProps.time != this.props.time)
 			this.setState({ time: this.props.time });
 	}

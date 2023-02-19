@@ -1,5 +1,6 @@
-import { Button, Center, Container, Group, Header, Paper, Select, Stack, Tooltip } from '@mantine/core'
+import { ActionIcon, Button, Center, Container, Grid, Group, Header, List, Paper, Select, Stack, Table, Text, Tooltip } from '@mantine/core'
 import { showNotification } from '@mantine/notifications'
+import { IconPlus, IconTrash } from '@tabler/icons'
 import React, { Component } from 'react'
 import controller from '../../controller'
 import fileStorage from '../../fileStorage'
@@ -11,7 +12,9 @@ class MelodyEditorPanel extends Component {
 	
 	  	this.state = {
 			files: fileStorage.getFiles(),
-			melodies: controller.melodies,
+			melodies: structuredClone(controller.melodies),
+
+			customMelodiesChanged: false,
 		}
 	}
 
@@ -33,18 +36,25 @@ class MelodyEditorPanel extends Component {
 		});
 
 		this.setState({
-			melodies: controller.melodies,
+			melodies: structuredClone(controller.melodies),
 		});
+	}
+
+	addCustomMelodyRow() {
+
+	}
+
+	removeCustomMelodyRow() {
+
 	}
 	
 	render() {
 		return (
-			<Container size="xl">
-				<Stack>
-					<Header>
-						{s("melodiesHeader")}
-					</Header>
-
+			<>
+				<Header>
+					{s("melodiesHeader")}
+				</Header>
+				<Stack px="xl">
 					<Select
 						label={s("studentBell") + " " + s("bell")}
 						data={this.state.files.map(f => f.filename)}
@@ -81,7 +91,100 @@ class MelodyEditorPanel extends Component {
 						</Tooltip>
 					</Center>
 				</Stack>
-			</Container>
+				<Header>
+					{s("customMelodiesHeader")}
+				</Header>
+				<Stack px="xl">
+					<Text>
+						{s("customMelodiesDesc")}
+					</Text>
+
+					<Group position='right'>
+						<Tooltip.Group>
+							<Tooltip label={s("clear")}>
+								<ActionIcon
+									onClick={() => {
+										
+									}}>
+									<IconTrash />
+								</ActionIcon>
+							</Tooltip>
+							<Tooltip label={s("add")}>
+								<ActionIcon
+									onClick={() => {
+										this.setState((old) => {
+											old.melodies.custom.push("");
+											old.customMelodiesChanged = true;
+											return old;
+										});
+									}}>
+									<IconPlus />
+								</ActionIcon>
+							</Tooltip>
+						</Tooltip.Group>
+					</Group>
+
+					<Table highlightOnHover>
+						<tbody>
+							{this.state.melodies.custom.map((m, i) =>
+								<tr key={i}>
+									<td>
+										<Grid>
+											<Grid.Col span="auto">
+												<Select
+													data={[s("delete"), ...this.state.files.map(f => f.filename)]}
+													searchable
+													nothingFound="?"
+													value={m}
+													onChange={(v) => {
+														this.setState((old) => {
+															old.melodies.custom[i] = v;
+															old.customMelodiesChanged = true;
+															return old;
+														});
+													}}
+													/>
+											</Grid.Col>
+										</Grid>
+									</td>
+								</tr>)}
+						</tbody>
+					</Table>
+
+					<Group position='right'>
+						<Button
+							color="red"
+							disabled={!this.state.customMelodiesChanged}
+							onClick={() => {
+								this.setState({
+									melodies: structuredClone(controller.melodies),
+									customMelodiesChanged: false,
+								});
+							}}>
+							{s("revert")}
+						</Button>
+						<Button
+							color="green"
+							disabled={!this.state.customMelodiesChanged}
+							onClick={() => {
+								controller.melodies.custom = this.state.melodies.custom.filter(x => x && this.state.files.some(f => f.filename == x));
+								controller.saveData();
+
+								showNotification({
+									message: s("saved"),
+									color: "green",
+								});
+						
+								this.setState({
+									melodies: structuredClone(controller.melodies),
+									customMelodiesChanged: false,
+								});
+							}}>
+							{s("save")}
+						</Button>
+					</Group>
+				</Stack>
+			</>
 		)
 	}
 }

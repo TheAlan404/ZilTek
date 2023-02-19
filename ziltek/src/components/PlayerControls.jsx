@@ -41,6 +41,21 @@ class PlayerControls extends Component {
                     </Group>
                 </Stack>
                 <Group grow>
+                    <Divider my="xs" label={s("stopAudio")} labelPosition="center" />
+                </Group>
+                <Stack align="flex-end" spacing="xl">
+                    <Group>
+                        <Text>{s("stopAudio")}</Text>
+                        <Button
+                            onClick={() => controller.stopAudio()}
+                            variant="outline"
+                            color="red"
+                            leftIcon={<IconPlayerStop />}>
+                            {s("stopButton")}
+                        </Button>
+                    </Group>
+                </Stack>
+                <Group grow>
                     <Divider my="xs" label={s("playMelody")} labelPosition="center" />
                 </Group>
                 <Stack align="flex-end" spacing="xl">
@@ -77,17 +92,27 @@ class PlayerControls extends Component {
                             {s("playButton")}
                         </Button>
                     </Group>
-                    <Group>
-                        <Text>{s("stopAudio")}</Text>
-                        <Button
-                            onClick={() => controller.stopAudio()}
-                            variant="outline"
-                            color="red"
-                            leftIcon={<IconPlayerStop />}>
-                            {s("stopButton")}
-                        </Button>
-                    </Group>
                 </Stack>
+                {controller.melodies.custom.length && <>
+                    <Group grow>
+                        <Divider my="xs" label={s("customMelodiesHeader")} labelPosition="center" />
+                    </Group>
+                    <Stack align="flex-end" spacing="xl">
+                        {controller.melodies.custom.map(m =>
+                            <Group>
+                                <Text>{m}</Text>
+                                <Button
+                                    onClick={() => controller.playAudioByName(m)}
+                                    variant="light"
+                                    color="grape"
+                                    compact
+                                    leftIcon={<IconPlayerPlay />}>
+                                    {s("playButton")}
+                                </Button>
+                            </Group>
+                        )}
+                    </Stack>
+                </>}
             </Stack>
         )
     }

@@ -1,4 +1,4 @@
-import { Autocomplete, Button, Group, Space, Stack, Text, TextInput, Image } from '@mantine/core';
+import { Autocomplete, Button, Group, Space, Stack, Text, TextInput, Image, LoadingOverlay, Center } from '@mantine/core';
 import { closeAllModals } from '@mantine/modals';
 import React, { Component } from 'react';
 import importManager from '../../importManager';
@@ -9,27 +9,30 @@ const INSTANCE = "https://tube.kuylar.dev";
 
 class YoutubeVideoRenderer extends Component {
     render() {
+        console.log("YoutubeVideoRenderer", this.props);
         return (
-            <Group noWrap>
-                <Image
-                    width={120}
-                    height={90}
-                    src={this.props.thumbnails?.[0]?.url || `https://img.youtube.com/vi/${this.props.id}/default.jpg`} />
-                <Stack>
-                    <Text fw={500}>
-                        {this.props.title}
-                    </Text>
-                    <Text>
-                        {this.props.dateText}
-                    </Text>
-                    <Text>
-                        {this.props.viewCount}
-                    </Text>
-                    <Text>
-                        {this.props.channel?.title} - {this.props.channel?.subscribers || "idk"} subs
-                    </Text>
-                </Stack>
-            </Group>
+            <Center>
+                <Group noWrap bg="dark.8" p="lg">
+                    <Image
+                        width={120}
+                        height={90}
+                        src={this.props.thumbnails?.[0]?.url || `https://img.youtube.com/vi/${this.props.id}/default.jpg`} />
+                    <div>
+                        <Text fw={500} size="md">
+                            {this.props.title}
+                        </Text>
+                        <Text c="dimmed">
+                            {this.props.dateText}
+                        </Text>
+                        <Text c="dimmed">
+                            {this.props.viewCount}
+                        </Text>
+                        <Text>
+                            {this.props.channel?.title} - {this.props.channel?.subscribers || "idk"}
+                        </Text>
+                    </div>
+                </Group>
+            </Center>
         )
     }
 }
@@ -45,18 +48,21 @@ class ImportFromYoutubeModal extends Component {
             linkValue: "",
             videoData: {},
             valid: false,
+            isLoading: false,
         }
     }
 
     setLinkValue(v) {
         this.setState({ linkValue: v });
         if (validateYTLink(v)) {
+            this.setState({ isLoading: true });
             fetch(INSTANCE + "/api/video?v=" + getVideoID(v))
                 .then((res) => res.json())
-                .then(videoData => this.setState({ valid: true, videoData }));
+                .then(videoData => this.setState({ valid: true, videoData, isLoading: false }));
         } else {
             this.setState({
                 valid: false,
+                isLoading: false,
             })
         }
     }
@@ -130,9 +136,12 @@ class ImportFromYoutubeModal extends Component {
                         value={this.state.linkValue}
                         onChange={(event) => this.setLinkValue(event.currentTarget.value)} />
 
-                    {this.state.valid && <>
-                        <YoutubeVideoRenderer {...this.state.videoData} />
-                    </>}
+                    <div>
+                        <LoadingOverlay visible={this.state.isLoading} />
+                        {this.state.valid && <>
+                            <YoutubeVideoRenderer {...this.state.videoData} />
+                        </>}
+                    </div>
 
                     <Space h="lg" />
 

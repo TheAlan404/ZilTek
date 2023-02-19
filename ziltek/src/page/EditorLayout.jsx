@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import TimetableEditorPanel from '../components/TimetableEditorPanel'
+import TimetableEditorPanel from '../components/panels/TimetableEditorPanel'
 import { Grid } from '@mantine/core'
-import FilesPanel from '../components/FilesPanel'
+import FilesPanel from '../components/panels/FilesPanel'
 import MelodyEditorPanel from '../components/panels/MelodyEditorPanel'
 
 class EditorLayout extends Component {

@@ -69,6 +69,9 @@ const STRINGS = {
     tr_fullOverride: "Üzerine yazma",
     tr_fullOverrideTooltip: "Eğer tiklenir ise, bu zaman çizelgesi bulunduğu gibi kullanılır ve ana zaman çizelgesinin üzerine yazılmaz.",
     
+    en_savedTimetable: "Timetable saved successfully",
+    tr_savedTimetable: "Başarıyla kaydedildi",
+
     en_on: "On",
     tr_on: "Açık",
     en_off: "Off",
@@ -208,6 +211,9 @@ const STRINGS = {
 
     en_melodiesHeader: "Melodies",
     tr_melodiesHeader: "Melodiler",
+
+    en_cutMelody: "Cut Audio",
+    tr_cutMelody: "Sesi Kes",
     
     // -- controller info --
     
@@ -291,14 +297,34 @@ const STRINGS = {
     en_dataDeleted: "Data deleted.",
     tr_dataDeleted: "Veriler silindi.",
 
-    en_empty: "Empty",
-    tr_empty: "Boş",
+    en_empty: "Empty...",
+    tr_empty: "Boş...",
+
+    en_emptyAddFileHint: "No files.. upload some?",
+    tr_emptyAddFileHint: "Hiç dosya yok.. belki ekleyebilirsin?",
 
     en_customMelodies: "Custom Melody Settings",
     tr_customMelodies: "Özel Melodi Ayarları",
 
     en_melodyChanged: "Melody has been changed successfully",
     tr_melodyChanged: "Melodi başarıyla değiştirildi",
+
+    en_customMelodiesHeader: "Quick Melodies",
+    tr_customMelodiesHeader: "Hızlı Melodiler",
+    en_customMelodiesDesc: "Add your audios to the list to play them quickly in view mode.",
+    tr_customMelodiesDesc: "Listeye dosyaları ekleyerek görüntüleme modunda hızlıca çalabilirsiniz.",
+
+    en_add: "Add",
+    tr_add: "Ekle",
+
+    en_saved: "Saved!",
+    tr_saved: "Kaydedildi!",
+
+    en_rename: "Rename",
+    tr_rename: "Yeniden adlandır",
+
+    en_filename: "Filename",
+    tr_filename: "Dosya İsmi",
 };
 
 /**

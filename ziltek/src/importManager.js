@@ -5,6 +5,8 @@ import JSZip, { file } from "jszip";
 import fileStorage from "./fileStorage";
 import controller from "./controller";
 import s from "./lang";
+import fetchWithProgress from "./util/fetchWithProgress";
+import { Progress } from "@mantine/core";
 
 
 const handleErr = (e) => showNotification({
@@ -202,7 +204,27 @@ class ImportManager {
             autoClose: false,
             disallowClose: true,
         })
-        fetch(link).then(res => res.blob()).then(blob => {
+        fetchWithProgress(link, {}, (prog) => {
+            updateNotification({
+                id: "downloader-" + id,
+                title: s("downloadingYT"),
+                message: (<div>
+                    {title}
+                    <Progress value={prog * 100} />
+                </div>),
+                loading: true,
+                autoClose: false,
+                disallowClose: true,
+            });
+        }).then(blob => {
+            updateNotification({
+                id: "downloader-" + id,
+                title: s("importingAudio"),
+                message: title,
+                loading: true,
+                autoClose: false,
+                disallowClose: true,
+            });
             fileStorage.putFile(id + ".webm", blob).then(() => {
                 updateNotification({
                     id: "downloader-" + id,

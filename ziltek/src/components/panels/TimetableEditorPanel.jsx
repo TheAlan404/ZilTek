@@ -3,10 +3,10 @@ import { openModal } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import { IconPlaylistX, IconWand } from '@tabler/icons';
 import React, { Component } from 'react';
-import controller from '../controller';
-import s from '../lang';
-import TimetableGenerator from './generator/TimetableGenerator';
-import TimetableGrid from './TimetableGrid';
+import controller from '../../controller';
+import s from '../../lang';
+import TimetableGenerator from '../generator/TimetableGenerator';
+import TimetableGrid from '../TimetableGrid';
 
 class TimetableEditorPanel extends Component {
 	constructor(props) {
@@ -48,10 +48,6 @@ class TimetableEditorPanel extends Component {
 		});
 	}
 
-	clearTimetableButton() {
-
-	}
-
 	setTimetableData(data) {
 		console.log("save tt data", data);
 		if (this.state.isMain) {
@@ -63,7 +59,7 @@ class TimetableEditorPanel extends Component {
 		controller.saveData();
 
 		showNotification({
-			message: "Saved",
+			message: s("savedTimetable"),
 			color: "green",
 		});
 	}
@@ -102,7 +98,13 @@ class TimetableEditorPanel extends Component {
 							<Group spacing="xs">
 								<Tooltip.Group>
 									<Tooltip label={s("clearTimetable")}>
-										<ActionIcon>
+										<ActionIcon
+											onClick={() => {
+												this.setState({
+													changes: true,
+													selectedTimetable: [],
+												});
+											}}>
 											<IconPlaylistX />
 										</ActionIcon>
 									</Tooltip>

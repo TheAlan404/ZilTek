@@ -136,6 +136,13 @@ class FileStorage {
         this.loadFiles();
     };
 
+    async renameFile(name, newname) {
+        let file = this.files.find(f => f.filename == name);
+
+        await this.putFile(newname, new Blob([file.file]));
+        await this.deleteFile(name);
+    }
+
     /**
      * 
      * @param {File[]} files 

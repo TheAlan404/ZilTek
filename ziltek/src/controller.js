@@ -30,6 +30,17 @@ class Controller {
             execUpdate: [],
             update: [],
         };
+
+        try {
+            eval(`let ngui = require('nw.gui');
+            // Get the current window
+            let nwin = ngui.Window.get();
+            nwin.show();
+            nwin.maximize();`);
+        } catch(e) {
+            console.log(e);
+            console.log("Not on NW.JS!");
+        }
     };
 
     setDefaults() {
@@ -49,6 +60,8 @@ class Controller {
             ],
             // not yet lmao no ----------string[][][3]
             overrides: [],
+            // the playersing
+            custom: [],
         };
     }
 
@@ -81,6 +94,7 @@ class Controller {
         if (json.ver === 0) {
             this.timetables = json.timetables;
             this.melodies = json.melodies;
+            this.melodies.custom ||= [];
         } else {
             showNotification({
                 title: s("error"),
