@@ -2,58 +2,62 @@ import { ActionIcon, Checkbox, Container, Grid, Group, Header, Select, Space, St
 import { openModal } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import { IconPlaylistX, IconWand } from '@tabler/icons';
-import React, { Component } from 'react';
+import { useListState } from '@mantine/hooks';
+import React, { Component, useEffect, useRef, useState } from 'react';
 import controller from '../../controller';
 import s from '../../lang';
 import TimetableGenerator from '../generator/TimetableGenerator';
 import TimetableGrid from '../TimetableGrid';
 
-class TimetableEditorPanel extends Component {
-	constructor(props) {
-		super(props)
+const DAYS = new Array(8).fill(0)
+	.map((v, i) => i ? {
+		value: i.toString(),
+		label: s("day" + (i - 1)),
+		group: "Overrides",
+	} : {
+		value: i.toString(),
+		label: s("mainTimetable"),
+		group: "Main",
+	});
 
-		this.state = {
-			selectValue: 0,
-			isMain: true,
-			isFullOverride: false,
-			selectedTimetable: controller.timetables.main,
-			changes: false,
-		};
-	}
+function TimetableEditorPanel({ }) {
+	let [tableIndex, setTableIndex] = useState(0);
+	let [changes, setChanges] = useState(false);
+	let [isFullOverride, setIsFullOverride] = useState(false);
+	let [table, handlers] = useListState([]);
 
-	componentDidMount() {
-		this.setTimetableGrid(0);
-	}
+	let fns = useRef();
 
-	setTimetableGrid(id) {
+	useEffect(() => {
+		changeTableIndex(0);
+	}, [])
+
+	const clearTimetable = () => {
+		handlers.setState([]);
+		fns.current?.setChanges(true);
+	};
+
+	const changeTableIndex = (id) => {
 		id = Number(id);
-		console.log("Changed select to", id)
-		let isMain = id === 0;
-		let table = structuredClone(isMain
+		
+		let table = structuredClone((id === 0)
 			? controller.timetables.main
 			: (controller.timetables.overrides[id - 1] || { table: [] }).table);
-		let isFullOverride = isMain ? false : (controller.timetables.overrides[id - 1] || { fullOverride: false }).fullOverride;
+		let ifo = (id === 0) ? false : (controller.timetables.overrides[id - 1] || { fullOverride: false }).fullOverride;
 
-		console.dir({
-			isMain,
-			table,
-			isFullOverride,
-		})
+		setChanges(false);
+		setIsFullOverride(ifo);
+		handlers.setState(table);
+		setTableIndex(id);
+	};
 
-		this.setState({
-			selectValue: id,
-			isMain,
-			selectedTimetable: table,
-			isFullOverride,
-		});
-	}
-
-	setTimetableData(data) {
-		console.log("save tt data", data);
-		if (this.state.isMain) {
+	const saveTable = (data) => {
+		if (tableIndex === 0) {
 			controller.timetables.main = data;
 		} else {
-			controller.timetables.overrides[this.selectValue - 1].table = data;
+			if (!controller.timetables.overrides[tableIndex - 1])
+				controller.timetables.overrides[tableIndex - 1] = { fullOverride: false, table: [] };
+			controller.timetables.overrides[tableIndex - 1].table = data;
 		};
 
 		controller.saveData();
@@ -62,110 +66,116 @@ class TimetableEditorPanel extends Component {
 			message: s("savedTimetable"),
 			color: "green",
 		});
+	};
+
+	const revert = () => {
+		changeTableIndex(tableIndex);
+	};
+
+	const changeFullOverride = (b) => {
+		if (tableIndex === 0) {
+			// ..?
+		} else {
+			if (!controller.timetables.overrides[tableIndex - 1])
+				controller.timetables.overrides[tableIndex - 1] = { fullOverride: false, table: [] };
+			controller.timetables.overrides[tableIndex - 1].fullOverride = b;
+		};
+
+		setIsFullOverride(b);
+		controller.saveData();
+
+		showNotification({
+			message: b ? s("fullOverrideSetToTrue") : s("fullOverrideSetToFalse"),
+			color: "blue",
+		});
 	}
 
-	render() {
-		return (
-			<>
+	return (
+		<>
 
-				<Header>Timetables</Header>
-				<Space h="md" />
+			<Header>Timetables</Header>
+			<Space h="md" />
 
-				<Stack>
-					<Grid justify="space-between" align="center">
-						<Grid.Col span="content">
-							<Text>{s("selectDay")}</Text>
-						</Grid.Col>
-						<Grid.Col span="auto">
-							<Select
-								data={new Array(8).fill(0)
-									.map((v, i) => i ? {
-										value: i.toString(),
-										label: s("day" + (i - 1)),
-										group: "Overrides",
-									} : {
-										value: i.toString(),
-										label: s("mainTimetable"),
-										group: "Main",
-									})}
-								defaultValue="0"
-								value={this.state.selectValue.toString()}
-								onChange={(e) => this.setTimetableGrid(e)}
-								disabled={this.state.changes}
-							/>
-						</Grid.Col>
-						<Grid.Col span="content">
-							<Group spacing="xs">
-								<Tooltip.Group>
-									<Tooltip label={s("clearTimetable")}>
-										<ActionIcon
-											onClick={() => {
-												this.setState({
-													changes: true,
-													selectedTimetable: [],
-												});
-											}}>
-											<IconPlaylistX />
-										</ActionIcon>
-									</Tooltip>
-									<Tooltip label={s("generateTimetable")}>
-										<ActionIcon
-											onClick={() => openModal({
-												title: <>
-													<Group>
-														<IconWand />
-														<Text>{s("timetableGenerator")}</Text>
-													</Group>
-												</>,
-												children: (<TimetableGenerator
-													onSave={(timetable) => {
-														this.setState({
-															selectedTimetable: timetable,
-															changes: true,
-														});
-													}}
-													/>),
-												size: "lg",
-											})}>
-											<IconWand />
-										</ActionIcon>
-									</Tooltip>
-								</Tooltip.Group>
-							</Group>
-						</Grid.Col>
-					</Grid>
-					{this.state.isMain ? <>
-						<Text>
-							{/*s("mainTimetableInfo")*/}
-						</Text>
-					</> : <Tooltip multiline inline label={s("fullOverrideTooltip")}>
-						<div>
-							<Checkbox label={s("fullOverride")} />
-						</div>
-					</Tooltip>}
-					<Container padding="md">
-						<TimetableGrid
-							timetable={this.state.selectedTimetable}
-							changes={this.state.changes}
-							onSave={(t) => {
-								this.setTimetableData(t);
-								this.setState({ changes: false });
-							}}
-							onChanges={() => {
-								this.setState({ changes: true });
-							}}
-							onRevert={() => {
-								this.setState({
-									changes: false,
-								});
-								this.setTimetableGrid(this.state.selectValue);
-							}}
+			<Stack>
+				<Grid justify="space-between" align="center">
+					<Grid.Col span="content">
+						<Text>{s("selectDay")}</Text>
+					</Grid.Col>
+					<Grid.Col span="auto">
+						<Select
+							data={DAYS}
+							defaultValue="0"
+							value={tableIndex.toString()}
+							onChange={(e) => changeTableIndex(e)}
+							disabled={changes}
 						/>
-					</Container>
-				</Stack>
-			</>
-		)
-	}
+					</Grid.Col>
+					<Grid.Col span="content">
+						<Group spacing="xs">
+							<Tooltip.Group>
+								<Tooltip label={s("clearTimetable")}>
+									<ActionIcon
+										color='red'
+										onClick={() => clearTimetable()}>
+										<IconPlaylistX />
+									</ActionIcon>
+								</Tooltip>
+								<Tooltip label={s("generateTimetable")}>
+									<ActionIcon
+										color='green'
+										onClick={() => openModal({
+											title: <>
+												<Group>
+													<IconWand />
+													<Text>{s("timetableGenerator")}</Text>
+												</Group>
+											</>,
+											children: (<TimetableGenerator
+												onSave={(timetable) => {
+													handlers.setState(timetable);
+													fns.current?.setChanges(true);
+												}}
+											/>),
+											size: "lg",
+										})}>
+										<IconWand />
+									</ActionIcon>
+								</Tooltip>
+							</Tooltip.Group>
+						</Group>
+					</Grid.Col>
+				</Grid>
+				{tableIndex === 0 ? <>
+					<Text>
+						{/*s("mainTimetableInfo")*/}
+					</Text>
+				</> : <Tooltip multiline inline label={s("fullOverrideTooltip")}>
+					<div>
+						<Checkbox
+							label={s("fullOverride")}
+							checked={isFullOverride}
+							onChange={(e) => changeFullOverride(e.target.checked)} />
+					</div>
+				</Tooltip>}
+				<Container padding="md">
+					{(tableIndex != 0 && !isFullOverride) ? <div>
+						<Text>override editor is broken, use full overwrite</Text>
+					</div> : <TimetableGrid
+						timetable={table}
+						//deps={[tableIndex]}
+						//renderMain={tableIndex != 0 && !isFullOverride}
+						//underlayer={!isFullOverride && controller.timetables.main}
+						onSave={(t) => saveTable(t)}
+						cb={(obj) => {
+							fns.current = obj;
+						}}
+						onChanges={(c) => setChanges(c)}
+						onRevert={() => revert()}
+					/>}
+				</Container>
+			</Stack>
+		</>
+	);
 }
 
 export default TimetableEditorPanel

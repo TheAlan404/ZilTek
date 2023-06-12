@@ -66,9 +66,21 @@ const STRINGS = {
     tr_generateTimetable: "Zaman çizelgesi oluşturucu",
     en_fullOverride: "Full Override",
     en_fullOverrideTooltip: "When checked, this timetable wont be overlayed on top of the main timetable and will be used as-is.",
-    tr_fullOverride: "Üzerine yazma",
-    tr_fullOverrideTooltip: "Eğer tiklenir ise, bu zaman çizelgesi bulunduğu gibi kullanılır ve ana zaman çizelgesinin üzerine yazılmaz.",
+    tr_fullOverride: "Bu tabloyu kullan",
+    tr_fullOverrideTooltip: "Tiklerseniz bu tablo kullanılır. Ana tablonun üzerine yazmak için tiklemeyin.",
     
+    en_fullOverrideSetToTrue: "Full override turned on",
+    tr_fullOverrideSetToTrue: "Artık bu gün için bu tablo kullanılıyor",
+
+    en_fullOverrideSetToFalse: "Full override turned off",
+    tr_fullOverrideSetToFalse: "Günün tablosu ana tablonun üzerine yazılacak",
+
+    en_overwritten: "Overwritten time",
+    tr_overwritten: "Üzerine yazılmış zaman",
+
+    en_notOverwritten: "Time from main timetable",
+    tr_notOverwritten: "Ana zaman çizelgesinden gelen zaman",
+
     en_savedTimetable: "Timetable saved successfully",
     tr_savedTimetable: "Başarıyla kaydedildi",
 

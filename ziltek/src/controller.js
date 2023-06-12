@@ -114,14 +114,15 @@ class Controller {
     }
 
     saveData() {
+        console.log(this.timetables);
         let raw;
 
         let conv = {
             ver: 0,
             timetables: {
                 main: this.timetables.main.map(a => a.map(d => dateToString(d))),
-                overrides: this.timetables.overrides.map(o => ({
-                    fullOverride: o.fullOverride,
+                overrides: this.timetables.overrides.map(o => o || ({ fullOverride: false, table: [] })).map(o => ({
+                    fullOverride: (o).fullOverride,
                     table: o.table.map(a => a.map(d => dateToString(d))),
                 })),
             },
@@ -252,10 +253,17 @@ class Controller {
 
     getTimetableToday() {
         let { main } = this.timetables;
-        return main
-        //let override = (this.timetables.overrides[this.getWeekday()] || { table: [] }).table || [];
+        let wd = this.getWeekday();
+        if(this.timetables.overrides[wd] && this.timetables.overrides[wd].table?.length) {
+            let override = this.timetables.overrides[wd];
+            if(override.fullOverride) {
+                return override.table;
+            };
 
-        //return mergeTimetables(main, override);
+            return mergeTimetables(main, override.table);
+        } else {
+            return main;
+        }
     };
 
     getWeekday() {
@@ -263,4 +271,8 @@ class Controller {
     };
 };
 
-export default new Controller();
+const ctr = new Controller();
+
+window.ztcontroller = ctr;
+
+export default ctr;

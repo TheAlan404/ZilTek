@@ -95,14 +95,17 @@ const mergeTimetables = (main, overrideTable) => {
         let overrideTuple = overrideTable[i] || NullTuple();
 
         table.push([
-            overrideTuple[0] || tuple[0],
-            overrideTuple[1] || tuple[1],
-            overrideTuple[2] || tuple[2],
+            dateOr(overrideTuple[0], tuple[0]),
+            dateOr(overrideTuple[1], tuple[1]),
+            dateOr(overrideTuple[2], tuple[2]),
         ]);
     };
 
     return table;
 };
+
+const dateOr = (a, b) => isNullDate(a) ? b : a;
+const isNullDate = (d) => d.getHours() == 0 && d.getMinutes() == 0;
 
 export {
     newDate,
@@ -114,4 +117,6 @@ export {
     mergeTimetables,
     NullTuple,
     DateStringRegex,
+    dateOr,
+    isNullDate,
 };

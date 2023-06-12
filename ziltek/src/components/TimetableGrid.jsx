@@ -1,162 +1,174 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { Text, Table, Button, CloseButton, Space, Group } from '@mantine/core';
 import TimeBox from './TimeBox';
-import { NullTuple } from '../timetables';
+import { NullTuple, isNullDate, mergeTimetables } from '../timetables';
 import s from '../lang';
 import controller from '../controller';
+import { useListState } from '@mantine/hooks';
 
-class TimetableGrid extends Component {
-	constructor(props) {
-		super(props)
+function TimetableGrid({
+	timetable,
+	underlayer,
+	renderMain,
+	controllerRealtime,
+	readonly,
+	onChanges,
+	onSave,
+	onRevert,
+	deps,
+	cb,
+}) {
+	let [changes, _setChanges] = useState(false);
+	let setChanges = (v) => {
+		onChanges(v);
+		_setChanges(v);
+	};
+	let [table, handlers] = useListState([[]]);
+	// isSuppressed, isPlaying, didPlay
+	let [metaTable, metaHandlers] = useListState([{}]);
 
-		this.state = {
-			timetable: this.props.timetable || [],
-			changes: this.props.changes || false,
-			lastPlayedIndex: [-1, -1],
-			suppressedIndex: [-1, -1],
+	let resetFromProps = () => {
+		handlers.setState(timetable);
+		
+		if(!controllerRealtime) metaHandlers.filter(item => item && !item.underlayer);
+
+		if(!controllerRealtime && renderMain && underlayer && underlayer.length) {
+			underlayer.forEach((tuple, x) => {
+				tuple.forEach((d, y) => {
+					if(d && !isNullDate(d)) setMeta(x, y, { underlayer: d });
+				});
+			});
 		}
-	}
-
-	componentDidMount() {
-		if(this.props.controllerRealtime) {
-			controller.sub("execUpdate", ({ type, index }) => {
-				if(type == "startPlay") {
-					this.setState({ lastPlayedIndex: index });
-				} else if (type == "endPlay") {
-					this.setState({ lastPlayedIndex: [-1, -1] });
-				};
-			})
-
-			controller.sub("suppressed", ({ index }) => {
-				this.setState({ suppressedIndex: index, lastPlayedIndex: [-1, -1] });
-			})
-		}
-	}
-
-
-	addRow() {
-		if (!this.state.changes) (this.props.onChanges || (() => { }))();
-		this.setState((state) => {
-			state.timetable.push(NullTuple());
-			state.changes = true;
-			return state;
-		});
-
-		console.log("added new row", this.state.timetable);
 	};
 
-	removeRow(i) {
-		// hax
-		if (!this.state.changes) (this.props.onChanges || (() => { }))();
-		this.setState((state) => ({
-			timetable: [...state.timetable.slice(0, i), ...state.timetable.slice(i + 1)],
-			changes: true,
-		}))
+	useEffect(() => {
+		resetFromProps();
+	}, [timetable, ...(deps || [])]);
 
-		console.log("removed row", this.state.timetable, i);
+	useEffect(() => {
+		if(cb) cb({ handlers, setChanges });
+	}, [cb]);
+
+	useEffect(() => {
+		if(controllerRealtime) {
+			controller.sub("execUpdate", ({ type, index }) => {
+				if(type == "startPlay") {
+					setMeta(...index, { isPlaying: true });
+				} else if (type == "endPlay") {
+					setMeta(...index, { didPlay: true });
+				};
+			});
+
+			controller.sub("suppressed", ({ index }) => {
+				setMeta(...index, { isSuppressed: true });
+			});
+		}
+	}, []);
+
+	let getCoords = (x, y) => x * 3 + y;
+
+	let getMeta = (x, y) => {
+		if(metaTable[getCoords(x, y)])
+			return metaTable[getCoords(x, y)];
+		return {};
+	};
+
+	let setMeta = (x, y, m) => {
+		metaHandlers.setItem(getCoords(x, y), m);
 	}
 
-	revertTable() {
-		(this.props.onRevert || (() => { }))();
-		this.setState({
-			timetable: this.props.timetable || [],
-			changes: false,
-		});
-	}
+	const revert = () => {
+		(onRevert || (()=>0))();
+		setChanges(false);
+		resetFromProps();
+	};
 
-	componentDidUpdate(prevProps) {
-		if (prevProps.timetable === this.props.timetable) return;
-		this.setState({
-			timetable: this.props.timetable,
-			changes: this.props.changes || false,
-		});
-	}
+	return (
+		<>
+			{(table.length == 0) && <>
+				<Button variant='light' disabled fullWidth>
+					-- {s("empty")} --
+				</Button>
+				<Space h="md" />
+			</>}
+			<Table>
+				<tbody>
+					{table.length > 0 && <tr>
+						<th>{s("studentBell")}</th>
+						<th>{s("teacherBell")}</th>
+						<th>{s("classBell")}</th>
+					</tr>}
+					{(renderMain ? (underlayer || []) : table).map((tuple, i) =>
+						<tr key={i}>
+							{tuple.map((t, ii) => <td key={ii}>
+								<TimeBox
+									time={t}
+									readonly={readonly}
 
-	render() {
-		return (
-			<>
-				{(this.state.timetable.length == 0) && <>
-					<Button variant='light' disabled fullWidth>
-						-- {s("empty")} --
-					</Button>
-					<Space h="md" />
-				</>}
-				<Table>
-					<tbody>
-						{this.state.timetable.length > 0 && <tr>
-							<th>{s("studentBell")}</th>
-							<th>{s("teacherBell")}</th>
-							<th>{s("classBell")}</th>
-						</tr>}
-						{this.state.timetable.map((tuple, i) =>
-							<tr key={i}>
-								{tuple.map((t, ii) => <td key={ii}>
-									<TimeBox
-										time={t}
-										readonly={this.props.readonly}
+									{...getMeta(i, ii)}
 
-										isPlaying={this.props.controllerRealtime && (this.state.lastPlayedIndex[0] == i && this.state.lastPlayedIndex[1] == ii)}
-										isSuppressed={this.props.controllerRealtime && (this.state.suppressedIndex[0] == i && this.state.suppressedIndex[1] == ii)}
-										didPlay={this.props.controllerRealtime && (
-											new Date().getHours() > t.getHours() || (new Date().getHours() == t.getHours() && new Date().getMinutes() >= t.getMinutes())
-										)}
-
-										onChange={(v) => {
-											if (!this.state.changes) (this.props.onChanges || (() => { }))();
-											this.setState((state) => {
-												state.timetable[i][ii] = v;
-												state.changes = true;
-												return state;
-											});
-											console.log("value changed", i, ii, v);
+									onChange={(v) => {
+										if (!changes) setChanges(true);
+										let obj = table[i];
+										obj[ii] = v;
+										handlers.setItem(i, obj);
+										console.log("value changed", i, ii, v);
+									}}
+								/>
+							</td>)}
+							{!readonly && <>
+								<td>
+									<CloseButton
+										onClick={() => {
+											if(!changes) setChanges(true);
+											console.log("grid: remove", i);
+											handlers.remove(i);
 										}}
 									/>
-								</td>)}
-								{(!this.props.readonly && this.state.timetable.length - 1 == i) && <>
-									<td>
-										<CloseButton
-											onClick={() => this.removeRow(i)}
-										/>
-									</td>
-								</>}
-							</tr>
-						)}
+								</td>
+							</>}
+						</tr>
+					)}
 
-					</tbody>
-				</Table>
-				{!this.props.readonly && <>
-					<Group position='apart'>
-						<Button
-							variant='light'
-							onClick={() => this.addRow()}>
-							Add new row
-						</Button>
+				</tbody>
+			</Table>
+			{!readonly && <>
+				<Group position='apart'>
+					<Button
+						variant='light'
+						onClick={() => {
+							if(!changes) setChanges(true);
+							handlers.append(NullTuple());
+						}}>
+						Add new row
+					</Button>
 
-						{this.props.onSave ? <>
-							<Group position='left'>
-								<Button
-									color="red"
-									variant='outline'
-									disabled={!this.state.changes}
-									onClick={() => this.revertTable()}>
-									Revert
-								</Button>
-								<Button
-									color="green"
-									disabled={!this.state.changes}
-									onClick={() => {
-										this.props.onSave(this.state.timetable);
-										this.setState({ changes: false });
-									}}>
-									Save
-								</Button>
-							</Group>
-						</> : <></>}
-					</Group>
-				</>}
-			</>
-		)
-	}
-}
+					{onSave ? <>
+						<Group position='left'>
+							<Button
+								color="red"
+								variant='outline'
+								disabled={!changes}
+								onClick={() => revert()}>
+								Revert
+							</Button>
+							<Button
+								color="green"
+								disabled={!changes}
+								onClick={() => {
+									onSave(table);
+									setChanges(false);
+								}}>
+								Save
+							</Button>
+						</Group>
+					</> : <></>}
+				</Group>
+			</>}
+		</>
+	);
+};
+
+
 
 export default TimetableGrid

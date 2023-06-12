@@ -22,6 +22,12 @@ class TimeBox extends Component {
 	}
 
 	render() {
+		let isLayered = !!this.props.underlayer;
+		let isOverwritten = this.props.underlayer != this.state.time;
+		let renderedValue = isLayered ? (isOverwritten ? this.state.value : this.props.underlayer) : this.state.value;
+
+		let asd = { opacity: 1 }
+
 		let element = (
 			<TimeInput
 				styles={(theme) => {
@@ -29,22 +35,39 @@ class TimeBox extends Component {
 						return {
 							input: {
 								borderColor: theme.colors.violet[theme.fn.primaryShade()],
-								borderWidth: 3
+								borderWidth: 3,
+
+								...asd,
 							},
 						}
 					} else if (this.props.isSuppressed) {
 						return {
-							input: { borderColor: theme.colors.red[theme.fn.primaryShade()] },
+							input: { borderColor: theme.colors.red[theme.fn.primaryShade()], ...asd, },
 						}
 					} else if (this.props.didPlay) {
 						return {
-							input: { borderColor: theme.colors.green[theme.fn.primaryShade()] },
+							input: { borderColor: theme.colors.green[theme.fn.primaryShade()], ...asd, },
+						};
+					} else if(isLayered && isOverwritten) {
+						return {
+							borderWidth: 3,
+							borderColor: theme.colors.blue[theme.fn.primaryShade()],
+							...asd,
+						};
+					} else if(this.props.underlayer) {
+						return {
+							input: {
+								backgroundColor: theme.colors.gray[9],
+								opacity: 0.7,
+							},
 						};
 					} else {
-						return {};
+						return {
+							...asd,
+						};
 					}
 				}}
-				value={this.state.value}
+				value={renderedValue}
 				label={this.props.label}
 				description={this.props.description}
 				defaultValue={newDate(0, 0)}
@@ -56,8 +79,12 @@ class TimeBox extends Component {
 			/>
 		);
 
-		if (this.props.isPlaying) {
-			return <Tooltip label={s("currentlyPlaying")}>
+		if (this.props.isPlaying || isOverwritten || isLayered) {
+			let t;
+			if(this.props.isPlaying) t = s("currentlyPlaying");
+			else if(isOverwritten) t = s("overwritten");
+			else if(isLayered) t = s("notOverwritten");
+			return <Tooltip label={t}>
 				{element}
 			</Tooltip>
 		} else {

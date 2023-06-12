@@ -11,3 +11,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.mantine-TimeInput-disabled {
+  opacity: 1 !important;
+  cursor: auto !important;
+}
+
+.mantine-TimeInput-timeInput {
+  cursor: auto !important;
+}
