@@ -1,4 +1,4 @@
-const STRINGS = {
+export const STRINGS = {
     en_studentBell: "Students",
     tr_studentBell: "Öğrenci",
     en_teacherBell: "Teachers",
@@ -339,18 +339,18 @@ const STRINGS = {
     tr_filename: "Dosya İsmi",
 };
 
-/**
+/*
  * @param {import("../util/TypeUtils").GetUnprefixedKeys<STRINGS>} id String ID
  * @param  {...import("../util/TypeUtils").ExtractStringArgs<STRINGS, id>} a Extra values
  * @returns {string}
- */
+ 
 const s = (id, ...a) => {
     let str = STRINGS[s.currentLang + "_" + id] || id;
     a.forEach((v, i) => str = str.replace("$"+i, v));
     return str;
-};
+};*/
 
-s.languages = [
+export const languages = [
     {
         id: "en",
         label: "English",
