@@ -1,12 +1,12 @@
 import { Button, Center, Checkbox, Divider, Text, Paper, Stack, TextInput, Title, Group, Tooltip, ActionIcon } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { IconArrowRight, IconPlus } from "@tabler/icons-react";
 
 import { LocalHost } from "./host/Local";
 
-const VERSION = "v2-dev";
+export const VERSION = "v2-dev";
 
 const AppBase = () => {
     let [hostMode, setHostMode] = useLocalStorage({
@@ -16,8 +16,6 @@ const AppBase = () => {
     let [remotesList, setRemotesList] = useLocalStorage({
         key: "ziltek-remotes-list",
         defaultValue: [],
-        serialize: JSON.stringify,
-        deserialize: JSON.parse,
     });
     let [proxyUrl, setProxyUrl] = useLocalStorage({
         key: "ziltek-proxy-url",
@@ -26,27 +24,39 @@ const AppBase = () => {
     let [currentPage, setCurrentPage] = useState(hostMode == "local" ? "local" : "selection");
     let { t } = useTranslation();
 
+    useEffect(() => {
+        if(JSON.parse(localStorage.getItem("ziltek-host-mode")) == "local") setCurrentPage("local");
+    }, []);
+
     return (
         currentPage == "selection" ? (
             <Center w="100%" h="100%">
-                <Stack align="center" gap="xl" py="md">
+                <Stack align="center" gap="xl" p="md">
                     <Title>ZilTek {VERSION}</Title>
 
-                    <Checkbox
-                        checked={hostMode == "local"}
-                        onChange={(e) => setHostMode(e.currentTarget.checked ? "local" : "rc")}
-                        label={t("mode.local.checkbox")}
-                        description={t("mode.local.desc")}
+                    <Group justify="space-between" align="center" p="md">
+                        <Checkbox
+                            checked={hostMode == "local"}
+                            onChange={(e) => setHostMode(e.currentTarget.checked ? "local" : "rc")}
+                            label={t("mode.local.checkbox")}
+                            description={t("mode.local.desc")}
                         />
 
-                    <Button
-                        onClick={() => {
-                            setCurrentPage("local")
-                        }}>
-                        {t("mode.local.button")}
-                    </Button>
+                        <Button
+                            variant="light"
+                            color="green"
+                            rightSection={<IconArrowRight />}
+                            onClick={() => {
+                                setCurrentPage("local")
+                            }}>
+                            {t("mode.local.button")}
+                        </Button>
+                    </Group>
 
-                    <Divider labelPosition="center" label={t("mode.remote.list")} />
+                    <Divider
+                        w="80%"
+                        labelPosition="center"
+                        label={t("mode.remote.list")} />
 
                     <Text>{t("mode.remote.desc")}</Text>
 
@@ -79,7 +89,7 @@ const AppBase = () => {
                             label={t("mode.proxyurl")}
                             value={proxyUrl}
                             onChange={(e) => setProxyUrl(e.currentTarget.value)}
-                            />
+                        />
                     </Paper>
                 </Stack>
             </Center>

@@ -4,6 +4,7 @@ import { useListState, useLocalStorage } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { notifications } from "@mantine/notifications";
 import { IconAlertTriangle } from "@tabler/icons-react";
+import { App } from "../app/App";
 
 const LocalHost = ({
     exitLocalMode
@@ -55,10 +56,14 @@ const LocalHost = ({
 
     return (
         <ControllerAPI.Provider value={{
-            data,
             processCommand,
-        }}>
+            audioState,
+            data,
 
+            hostMode: "local",
+            exit: () => exitLocalMode(),
+        }}>
+            <App />
         </ControllerAPI.Provider>
     );
 }
