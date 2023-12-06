@@ -28,6 +28,16 @@ const theme = createTheme({
             '#101113',
         ],
     },
+    components: {
+        Tooltip: {
+            defaultProps: {
+                color: "dark",
+            },
+            styles: {
+                color: "var(--mantine-color-text)"
+            }
+        }
+    }
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

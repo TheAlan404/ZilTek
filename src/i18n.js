@@ -14,6 +14,7 @@ let resources = {
                     checkbox: "Enable local mode for this computer",
                     desc: "When ZilTek starts, it will enter local mode automatically if enabled",
                     running: "Running in Local Mode",
+                    exit: "Exit Local Mode",
                 },
                 remote: {
                     name: "Remote Mode",
@@ -21,8 +22,18 @@ let resources = {
                     list: "Remotes List",
                     add: "Add a Remote",
                     running: "Connected to a remote ZilTek",
+                    exit: "Exit Remote Mode",
                 },
                 proxyurl: "Proxy URL",
+            },
+
+            menu: {
+                edit: "Editor",
+                view: "Main Menu"
+            },
+
+            edit: {
+                unsavedChanges: "There are unsaved changes",
             },
 
             audio: {
