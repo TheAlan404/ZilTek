@@ -12,6 +12,22 @@ import '@mantine/notifications/styles.css';
 
 import AppBase from './AppBase';
 import i18n from "./i18n";
+import { initDB } from 'react-indexed-db-hook';
+
+initDB({
+    name: "ZilTekDB",
+    version: 2,
+    objectStoresMeta: [{
+        store: "files",
+        storeConfig: {
+            keyPath: "filename",
+        },
+        storeSchema: [
+            { name: "filename", keypath: "filename", options: { unique: true } },
+            { name: "file", keypath: "file", options: { unique: false } },
+        ],
+    }],
+});
 
 const theme = createTheme({
     colors: {

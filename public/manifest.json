@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/web-manifest-combined",
   "short_name": "ZilTek",
   "name": "ZilTek",
   "icons": [

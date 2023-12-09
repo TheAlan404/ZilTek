@@ -1,6 +1,6 @@
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { ControllerAPI } from "../host/common/ControllerAPI"
+import { ControllerAPI } from "../host/ControllerAPI.tsx"
 import { ActionIcon, AppShell, Button, Checkbox, Divider, Flex, Group, Popover, Select, Stack, Text, Title, Tooltip } from "@mantine/core"
 import { IconSettings } from "@tabler/icons-react"
 import { VERSION } from "../AppBase"
@@ -10,8 +10,8 @@ import useMobile from "../hooks/useMobile"
 import { IconEdit } from "@tabler/icons-react"
 import { IconLayout } from "@tabler/icons-react"
 import { ChangesContext } from "./ChangesContext"
-import { ViewPage } from "./pages/View"
-import { EditorPage } from "./pages/Editor"
+import { ViewPage } from "./pages/View.tsx"
+import { EditorPage } from "./pages/Editor.tsx"
 
 const SettingsMenu = () => {
     const { hostMode: mode, exit } = useContext(ControllerAPI);

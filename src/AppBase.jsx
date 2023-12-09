@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import { IconArrowRight, IconPlus } from "@tabler/icons-react";
 
 import { LocalHost } from "./host/Local";
+import { NetworkingProvider } from "./host/Networking";
+import { IndexedDB } from "react-indexed-db-hook";
 
 export const VERSION = "v2-dev";
 
