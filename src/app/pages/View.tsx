@@ -20,7 +20,7 @@ const ControlsSection = () => {
 
 export const ViewPage = () => {
     return (
-        <SimpleGrid cols={{ base: 1, md: 3 }}>
+        <SimpleGrid cols={{ base: 1, md: 3 }} p="md">
             <ScheduleSection />
             <ClockSection />
             <ControlsSection />

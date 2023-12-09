@@ -20,11 +20,11 @@ initDB({
     objectStoresMeta: [{
         store: "files",
         storeConfig: {
-            keyPath: "filename",
+            keyPath: "filename"
         },
         storeSchema: [
             { name: "filename", keypath: "filename", options: { unique: true } },
-            { name: "file", keypath: "file", options: { unique: false } },
+            { name: "data", options: { unique: false } },
         ],
     }],
 });

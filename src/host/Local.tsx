@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ControllerAPI, DefaultData, AudioState, ControllerData, Log, StoredFileHandlers } from "./ControllerAPI.tsx";
+import { ControllerAPI, DefaultData, AudioState, ControllerData, Log, StoredFileHandlers, CommandRunnerList, Command, StoredFile } from "./ControllerAPI.tsx";
 import { useListState, useLocalStorage } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { notifications } from "@mantine/notifications";
@@ -11,15 +11,16 @@ import { useIndexedDB } from 'react-indexed-db-hook';
 const useFileManager = (): StoredFileHandlers => {
     const db = useIndexedDB("files");
 
-    const addFile = async ({ filename, data }: StoredFile) => {
-        return await db.add({
-            filename,
-            data,
-        }, filename);
+    const addFile = (file: StoredFile) => {
+        return db.add({
+            filename: file.filename,
+            data: file.data,
+            file: file.data,
+        });
     };
 
-    const removeFile = async (filename: string) => {
-        await db.deleteRecord(filename);
+    const removeFile = (filename: string) => {
+        return db.deleteRecord(filename);
     };
 
     const renameFile = async (from: string, to: string) => {
@@ -27,7 +28,7 @@ const useFileManager = (): StoredFileHandlers => {
         await db.add({
             ...file,
             filename: to,
-        }, file.filename);
+        });
         await db.deleteRecord(from);
     };
 
@@ -95,12 +96,53 @@ const LocalHost = ({
         }
     }, [audioRef.current.paused, isOn]);
 
-    const processCommand = ({ type, data }) => {
-        ({
+    const commands: CommandRunnerList = useMemo(() => {
+        return ({
             changeBellStatus: ({ on }) => {
                 setOn(on);
             },
-        }[type])(data);
+            addQuickMelody: () => {
+                setData((d) => ({
+                    ...d,
+                    quickMelodies: [
+                        ...d.quickMelodies,
+                        { filename: "" },
+                    ]
+                }))
+            },
+            removeQuickMelody({ index }) {
+                setData((d) => ({
+                    ...d,
+                    quickMelodies: d.quickMelodies.filter(
+                        (_, i) => i !== index
+                    ),
+                }))
+            },
+            setQuickMelody({ filename, index }) {
+                setData((d) => ({
+                    ...d,
+                    quickMelodies: d.quickMelodies.map(
+                        (m, i) => i == index ? filename : m
+                    ),
+                }))
+            },
+            setDefaultMelody({ index, filename }) {
+                setData((d) => ({
+                    ...d,
+                    schedule: {
+                        ...d.schedule,
+                        melodies: {
+                            ...d.schedule.melodies,
+                            default: d.schedule.melodies.default.map((m, i) => i === index ? filename : m),
+                        }
+                    }
+                }))
+            },
+        });
+    }, []);
+
+    const processCommand = ({ type, data }: Command) => {
+        commands[type](data);
     };
 
     return (
@@ -109,7 +151,9 @@ const LocalHost = ({
             audioState,
 
             data,
+
             fileHandlers,
+            
 
             isOn,
             setOn,

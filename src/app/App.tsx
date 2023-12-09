@@ -113,7 +113,7 @@ const App = () => {
     return (
         <AppShell
             header={{ height: 60 }}
-            padding="md">
+        >
             <AppShell.Header>
                 <Flex px="md" h="100%" justify="space-between" align="center">
                     <AppTitle />

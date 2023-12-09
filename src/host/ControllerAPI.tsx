@@ -1,9 +1,27 @@
 import React from "react";
 import { Timetable } from "../lib/timetable";
 
+const DefaultMelody: MelodyData = {
+    filename: "",
+};
+
 const DefaultData: ControllerData = {
-    melodies: [],
-    timetables: [],
+    schedule: {
+        type: "timetable",
+        melodies: {
+            default: [
+                DefaultMelody,
+                DefaultMelody,
+                DefaultMelody,
+            ],
+            overrides: [],
+        },
+        tables: {
+            default: [],
+            days: [],
+        },
+    },
+    quickMelodies: [],
 };
 
 export type LogType =
@@ -16,8 +34,18 @@ export type Log = {
 
 export type CommandsList = {
     changeBellStatus: { on: boolean },
-    playCustomAudio: { filename: string },
+    forcePlayMelody: { index: number },
+    forcePlayAudio: { filename: string },
 
+    addQuickMelody: void,
+    setQuickMelody: { index: number, filename: string },
+    removeQuickMelody: { index: number },
+
+    setDefaultMelody: { index: number, filename: string },
+}
+
+export type CommandRunnerList = {
+    [C in keyof CommandsList]: (data: CommandsList[C]) => void
 }
 
 type Wrapper = {
@@ -51,17 +79,20 @@ export type ScheduleData = {
 
 export type MelodyData = {
     filename: string,
-    offset: number,
-    length: number,
 };
+
+export type BellType = "students" | "teachers" | "classEnd";
 
 export type ControllerData = {
     schedule: ScheduleData,
+    quickMelodies: MelodyData[],
 };
 
 export type StoredFile = {
     filename: string,
     data: ArrayBuffer,
+    offset: number,
+    length: number,
 }
 
 export interface StoredFileHandlers {
@@ -76,10 +107,11 @@ export interface Controller {
     processCommand: (cmd: Command) => void,
     data: ControllerData,
     audioState: AudioState,
-    fileHandlers: StoredFileHandlers,
     isOn: boolean,
     setOn: (b: boolean) => void,
     hostMode: HostMode,
+
+    fileHandlers: StoredFileHandlers,
 }
 
 export type AudioState = "idle" | "playing" | "off";
