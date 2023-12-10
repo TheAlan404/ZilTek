@@ -28,7 +28,7 @@ export const EditorMelodies = () => {
     return (
         <SimpleGrid cols={{ base: 1, md: 2 }}>
             <Fieldset legend={t("editor.sections.melodies.title")}>
-                <Group justify="space-between">
+                <Group justify="space-between" wrap="nowrap">
                     <Text>{t("editor.sections.melodies.desc")}</Text>
                     <ReloadButton onClick={reloadFiles} />
                 </Group>
@@ -54,13 +54,13 @@ export const EditorMelodies = () => {
                 )}
             </Fieldset>
             <Fieldset legend={t("editor.sections.quickMelodies.title")}>
-                <Group justify="space-between">
+                <Group justify="space-between" wrap="nowrap">
                     <Text>{t("editor.sections.quickMelodies.desc")}</Text>
                     <ReloadButton onClick={reloadFiles} />
                 </Group>
                 <Stack p="md" py="xl">
                     {data.quickMelodies.map((melody, index) => (
-                        <Group justify="space-between" key={index}>
+                        <Group justify="space-between" key={index} wrap="nowrap">
                             <MelodySelect
                                 files={files}
                                 value={melody.filename}

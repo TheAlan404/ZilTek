@@ -38,13 +38,6 @@ export const TimeBox = ({
             value={value}
             onChange={(e) => !readonly && onChange(e.currentTarget.value)}
             bg={c}
-            inputContainer={m ? (({ children }) => (
-                <Tooltip label={m}>
-                    {children}
-                </Tooltip>
-            )) : ({ children }) => (
-                <>{children}</>
-            )}
         />
     );
 };

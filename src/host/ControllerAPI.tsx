@@ -1,11 +1,17 @@
 import React from "react";
 import { Timetable } from "../lib/timetable";
 
-const DefaultMelody: MelodyData = {
+export const DefaultMelody: MelodyData = {
     filename: "",
 };
 
-const DefaultData: ControllerData = {
+export const DefaultTimetable: Timetable = [];
+export const DefaultTimetableDay: TimetableDay = {
+    data: DefaultTimetable,
+    isFullOverride: true,
+};
+
+export const DefaultData: ControllerData = {
     schedule: {
         type: "timetable",
         melodies: {
@@ -37,6 +43,12 @@ export type CommandsList = {
     stopAllAudio: void,
     forcePlayMelody: { index: number },
     forcePlayAudio: { filename: string },
+
+    setMainTimetable: Timetable,
+    setTimetableDay: {
+        tableIndex: number,
+        tableData: Timetable,
+    },
 
     addQuickMelody: void,
     setQuickMelody: { index: number, filename: string },
@@ -119,9 +131,5 @@ export interface Controller {
 export type AudioState = "idle" | "playing" | "off";
 export type HostMode = "local" | "remote";
 
-const ControllerAPI = React.createContext<Controller>();
+export const ControllerAPI = React.createContext<Controller>();
 
-export {
-    ControllerAPI,
-    DefaultData,
-}

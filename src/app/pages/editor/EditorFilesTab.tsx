@@ -10,6 +10,7 @@ import { notifications } from "@mantine/notifications";
 import { NotifyError } from "../../../utils";
 import { t } from "i18next";
 import { FileEditRow } from "./files/FileEditRow";
+import useMobile from "../../../hooks/useMobile";
 
 const FileEditList = ({
     files,
@@ -42,7 +43,7 @@ const FileEditList = ({
             <Transition mounted={!!search} transition="slide-down">
                 {(styles) => (
                     <Text style={{ textAlign: "center", ...styles }}>
-                        {list.length ? t("edit.fileSearchResults", { amount: list.length }) : t("edit.fileSearchNoResults")}
+                        {list.length ? t("edit.fileSearchResults", { count: list.length }) : t("edit.fileSearchNoResults")}
                     </Text>
                 )}
             </Transition>
@@ -52,7 +53,7 @@ const FileEditList = ({
 }
 
 export const EditorFilesTab = () => {
-    const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
+    const isMobile = useMobile();
     const { t } = useTranslation();
     const {
         fileHandlers
@@ -104,7 +105,7 @@ export const EditorFilesTab = () => {
                 <Stack>
                     <Text>{t("editor.sections.files.desc")}</Text>
                     <Group justify="space-between">
-                        <Text fw={600}>{t("editor.sections.files.amount", { amount: files.length })}</Text>
+                        <Text fw={600}>{t("editor.sections.files.amount", { count: files.length })}</Text>
                         <Group>
                             <ActionButtonWithTooltip
                                 label={t("editor.sections.files.upload")}

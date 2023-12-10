@@ -170,6 +170,30 @@ const LocalHost = ({
                     }
                 }))
             },
+            setMainTimetable(data) {
+                setData((d) => ({
+                    ...d,
+                    schedule: {
+                        ...d.schedule,
+                        tables: {
+                            ...d.schedule.tables,
+                            default: data,
+                        }
+                    }
+                }))
+            },
+            setTimetableDay({ tableIndex, tableData }) {
+                setData((d) => ({
+                    ...d,
+                    schedule: {
+                        ...d.schedule,
+                        tables: {
+                            ...d.schedule.tables,
+                            days: d.schedule.tables.days.map((t, i) => i == tableIndex ? tableData : t),
+                        }
+                    }
+                }))
+            },
         });
     }, []);
 

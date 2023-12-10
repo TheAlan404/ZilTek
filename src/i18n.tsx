@@ -12,6 +12,16 @@ let resources = {
             },
             language: "Language",
 
+            days: [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+            ],
+
             mode: {
                 local: {
                     button: "Enter Local Mode",
@@ -48,8 +58,8 @@ let resources = {
                 bytes: "({{bytes}} bytes)",
                 renameFile: "Rename File",
                 deleteFile: "Delete File",
-                fileSearchResults: "{{amount}} result",
-                fileSearchResults_plural: "{{amount}} result",
+                fileSearchResults_one: "{{count}} result",
+                fileSearchResults_other: "{{count}} results",
                 fileSearchNoResults: "No files found",
             },
 
@@ -102,12 +112,29 @@ let resources = {
                     files: {
                         title: "Edit Files",
                         desc: "Manage the files and melodies here",
-                        amount: "{{amount}} files",
+                        amount_one: "{{count}} file",
+                        amount_other: "{{count}} files",
                         searchPlaceholder: "Search files...",
                         upload: "Upload a file",
                         downloadFromYoutube: "Download from YouTube",
                         playAudio: "Play Audio",
-                    }
+                    },
+
+                    schedule: {
+                        type: {
+                            switch: "Schedule Type",
+                            timetable: {
+                                name: "Timetables",
+                                overrides: "Overrides",
+                                mainTimetable: "Main Timetable",
+                                main: "Main",
+                                daySelect: "Select Day",
+                            },
+                            zones: {
+                                name: "Zones",
+                            },
+                        },
+                    },
                 },
             },
 
