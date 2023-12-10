@@ -36,6 +36,11 @@ let resources = {
                 view: "Main Menu"
             },
 
+            header: {
+                audioPlaying: "Playing: {{filename}}",
+                audioPlayingTooltip: "Currently playing {{filename}}, click to stop.",
+            },
+
             edit: {
                 unsavedChanges: "There are unsaved changes",
                 pickAFile: "Pick a file",
@@ -43,7 +48,9 @@ let resources = {
                 bytes: "({{bytes}} bytes)",
                 renameFile: "Rename File",
                 deleteFile: "Delete File",
-
+                fileSearchResults: "{{amount}} result",
+                fileSearchResults_plural: "{{amount}} result",
+                fileSearchNoResults: "No files found",
             },
 
             notif: {

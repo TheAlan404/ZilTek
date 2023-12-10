@@ -1,167 +1,15 @@
-import { ActionIcon, Box, Button, Center, CloseButton, Fieldset, Flex, Group, Menu, Paper, Select, SimpleGrid, Stack, Table, Text, TextInput, Tooltip, em, useCombobox } from "@mantine/core";
+import { ActionIcon, Box, Button, Center, CloseButton, Fieldset, Flex, Group, Menu, Select, SimpleGrid, Stack, Table, Text, TextInput, Tooltip, Transition, em, useCombobox } from "@mantine/core";
 import { ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ControllerAPI, StoredFile, StoredFileHandlers } from "../../../host/ControllerAPI";
-import { IconBrandYoutube, IconCheck, IconFileMusic, IconHighlight, IconPlayerPlay, IconPlus, IconReload, IconTrash, IconUpload } from "@tabler/icons-react";
+import { IconBrandYoutube, IconCheck, IconPlus, IconReload, IconUpload } from "@tabler/icons-react";
 import { ReloadButton } from "../../components/editor/ReloadButton";
 import { useMediaQuery } from "@mantine/hooks";
 import { ActionButtonWithTooltip } from "../../components/editor/ActionButtonWithTooltip";
 import { notifications } from "@mantine/notifications";
 import { NotifyError } from "../../../utils";
-import { modals } from '@mantine/modals';
 import { t } from "i18next";
-
-const FileRenameModal = ({
-    name,
-    onRename,
-}: {
-    name: string,
-    onRename: (n: string) => void,
-}) => {
-    const [renameTo, setRenameTo] = useState(name);
-
-    const renameFile = () => onRename?.(renameTo);
-
-    return (
-        <Stack p="md" justify="center" align="">
-            <TextInput
-                autoFocus
-                placeholder={name}
-                label={t("modals.renameFile.filename")}
-                value={renameTo}
-                onChange={(e) => setRenameTo(e.currentTarget.value)}
-                onSubmit={renameFile}
-            />
-            <Group>
-                <Button
-                    color="gray"
-                    onClick={() => modals.closeAll()}>
-                    {t("modals.cancel")}
-                </Button>
-                <Button onClick={renameFile}>
-                    {t("modals.renameFile.confirm")}
-                </Button>
-            </Group>
-        </Stack>
-    );
-}
-
-const FileEditRow = ({
-    file,
-    fileHandlers,
-    reloadFiles,
-}: {
-    file: StoredFile,
-    fileHandlers: StoredFileHandlers,
-    reloadFiles: () => void,
-}) => {
-    const { processCommand } = useContext(ControllerAPI);
-    const { t } = useTranslation();
-
-    const renameFile = (renameTo) => {
-        modals.closeAll();
-
-        if (!renameTo || renameTo === file.filename)
-            return;
-
-        let id = notifications.show({
-            message: t("notif.renamingFile", { filename: file.filename }),
-            loading: true,
-        });
-
-        fileHandlers.renameFile(file.filename, renameTo)
-            .then(() => {
-                notifications.update({
-                    id,
-                    loading: false,
-                    message: t("notif.fileRenamed", { from: file.filename, to: renameTo }),
-                    icon: <IconHighlight />,
-                });
-
-                reloadFiles();
-            }, NotifyError);
-    };
-
-    return (
-        <Paper withBorder p="md">
-            <Group justify="space-between">
-                <Group>
-                    <IconFileMusic />
-                    <Text>
-                        {file.filename}
-                    </Text>
-                    <Text c="dark">
-                        {t("edit.bytes", { bytes: file.data.byteLength })}
-                    </Text>
-                </Group>
-                <Group>
-                    <ActionButtonWithTooltip
-                        label={t("editor.sections.files.playAudio")}
-                        icon={<IconPlayerPlay />}
-                        color="green"
-                        onClick={() => {
-                            processCommand({
-                                type: "forcePlayAudio",
-                                data: {
-                                    filename: file.filename,
-                                },
-                            });
-                        }}
-                    />
-                    <ActionButtonWithTooltip
-                        label={t("edit.renameFile")}
-                        icon={<IconHighlight />}
-                        onClick={() => {
-                            modals.open({
-                                title: t("modals.renameFile.title"),
-                                children: <FileRenameModal
-                                    name={file.filename}
-                                    onRename={renameFile}
-                                />
-                            })
-                        }}
-                    />
-                    <ActionButtonWithTooltip
-                        label={t("edit.deleteFile")}
-                        color="red"
-                        icon={<IconTrash />}
-                        onClick={() => {
-                            modals.openConfirmModal({
-                                title: t("modals.deleteFile.title"),
-                                children: (
-                                    <Text>{t("modals.deleteFile.content", { filename: file.filename })}</Text>
-                                ),
-                                labels: {
-                                    confirm: t("modals.deleteFile.confirm"),
-                                    cancel: t("modals.cancel"),
-                                },
-                                confirmProps: { color: "red" },
-                                onConfirm: () => {
-                                    let id = notifications.show({
-                                        message: t("notif.deletingFile", { filename: file.filename }),
-                                        loading: true,
-                                    });
-
-                                    fileHandlers.removeFile(file.filename)
-                                        .then(() => {
-                                            notifications.update({
-                                                id,
-                                                loading: false,
-                                                message: t("notif.fileDeleted", { filename: file.filename }),
-                                                icon: <IconTrash />,
-                                            });
-
-                                            reloadFiles();
-                                        }, NotifyError);
-                                }
-                            })
-                        }}
-                    />
-                </Group>
-            </Group>
-        </Paper>
-    )
-}
+import { FileEditRow } from "./files/FileEditRow";
 
 const FileEditList = ({
     files,
@@ -191,7 +39,14 @@ const FileEditList = ({
                 value={search}
                 onChange={(e) => setSearch(e.currentTarget.value)}
             />
-            {list.length ? list : <Text style={{ textAlign: "center" }}>{t("edit.fileSearchNoResults")}</Text>}
+            <Transition mounted={!!search} transition="slide-down">
+                {(styles) => (
+                    <Text style={{ textAlign: "center", ...styles }}>
+                        {list.length ? t("edit.fileSearchResults", { amount: list.length }) : t("edit.fileSearchNoResults")}
+                    </Text>
+                )}
+            </Transition>
+            {list}
         </Stack>
     )
 }
@@ -226,21 +81,19 @@ export const EditorFilesTab = () => {
                     let fileList = e.currentTarget.files;
                     let files = Array.from(fileList);
                     for (let file of files) {
-                        file.arrayBuffer().then(buf => {
-                            fileHandlers.addFile({
-                                filename: file.name,
-                                data: buf,
-                            })
-                                .then(() => {
-                                    notifications.show({
-                                        title: t("notif.fileUploadedTitle"),
-                                        icon: <IconCheck />,
-                                        message: t("notif.fileUploaded", { filename: file.name }),
-                                    });
+                        fileHandlers.addFile({
+                            filename: file.name,
+                            data: file,
+                        })
+                            .then(() => {
+                                notifications.show({
+                                    title: t("notif.fileUploadedTitle"),
+                                    icon: <IconCheck />,
+                                    message: t("notif.fileUploaded", { filename: file.name }),
+                                });
 
-                                    reloadFiles();
-                                }, NotifyError);
-                        }).catch(NotifyError);
+                                reloadFiles();
+                            }, NotifyError);
                     }
                 }}
                 ref={inputRef} />

@@ -7,6 +7,7 @@ import { IconAlertTriangle } from "@tabler/icons-react";
 import { App } from "../app/App.tsx";
 import { useCallback } from "react";
 import { useIndexedDB } from 'react-indexed-db-hook';
+import { NotifyError } from "../utils.tsx";
 
 const useFileManager = (): StoredFileHandlers => {
     const db = useIndexedDB("files");
@@ -61,6 +62,7 @@ const LocalHost = ({
     // Controller
     const [isOn, setOn] = useState(true);
     const [audioState, setAudioState] = useState<AudioState>("idle");
+    const [currentlyPlayingAudio, setCurrentlyPlayingAudio] = useState<string | null>(null);
     const [data, setData] = useLocalStorage<ControllerData>({
         key: "ziltek-data",
         defaultValue: DefaultData,
@@ -71,10 +73,20 @@ const LocalHost = ({
 
     const audioRef = useRef(new Audio());
 
-    const playAudio = useCallback((file) => {
-        let url = typeof file === "string" ? file : URL.createObjectURL(file);
-        audioRef.current.url = url;
+    useEffect(() => {
+        audioRef.current.onended = () => {
+            if (audioRef.current.src) URL.revokeObjectURL(audioRef.current.src);
+            audioRef.current.src = "";
+            setCurrentlyPlayingAudio(null);
+        };
+    }, [audioRef]);
+
+    const playAudio = useCallback((file: StoredFile) => {
+        setCurrentlyPlayingAudio(file.filename);
+        let url = URL.createObjectURL(file.data);
+        audioRef.current.src = url;
         audioRef.current.play().catch(e => {
+            NotifyError(e);
             logHandlers.append({
                 date: Date.now(),
                 type: "AUDIO_PLAY_FAILED",
@@ -101,6 +113,26 @@ const LocalHost = ({
             changeBellStatus: ({ on }) => {
                 setOn(on);
             },
+
+            stopAllAudio() {
+                audioRef.current.pause();
+                audioRef.current.onended?.();
+            },
+
+            forcePlayAudio({ filename }) {
+                fileHandlers.getFile(filename)
+                    .then(file => {
+                        if (!file) return NotifyError(`File "${filename}" not found. (forcePlayAudio)`);
+
+                        playAudio(file);
+                    }, NotifyError);
+            },
+
+            forcePlayMelody({ index }) {
+                this.forcePlayAudio(data.schedule.type == "timetable"
+                    && data.schedule.melodies.default[index].filename);
+            },
+
             addQuickMelody: () => {
                 setData((d) => ({
                     ...d,
@@ -142,18 +174,21 @@ const LocalHost = ({
     }, []);
 
     const processCommand = ({ type, data }: Command) => {
-        commands[type](data);
+        try {
+            commands[type](data);
+        } catch(e) {
+            NotifyError(e);
+        }
     };
 
     return (
         <ControllerAPI.Provider value={{
             processCommand,
             audioState,
+            currentlyPlayingAudio,
 
             data,
-
             fileHandlers,
-            
 
             isOn,
             setOn,

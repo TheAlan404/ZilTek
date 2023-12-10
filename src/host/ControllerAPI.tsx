@@ -34,6 +34,7 @@ export type Log = {
 
 export type CommandsList = {
     changeBellStatus: { on: boolean },
+    stopAllAudio: void,
     forcePlayMelody: { index: number },
     forcePlayAudio: { filename: string },
 
@@ -107,6 +108,7 @@ export interface Controller {
     processCommand: (cmd: Command) => void,
     data: ControllerData,
     audioState: AudioState,
+    currentlyPlayingAudio: string | null,
     isOn: boolean,
     setOn: (b: boolean) => void,
     hostMode: HostMode,
