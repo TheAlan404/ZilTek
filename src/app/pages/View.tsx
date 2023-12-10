@@ -1,22 +1,7 @@
 import { SimpleGrid } from "@mantine/core";
-
-const ScheduleSection = () => {
-    return (
-        "todo"
-    )
-}
-
-const ClockSection = () => {
-    return (
-        "todo"
-    )
-}
-
-const ControlsSection = () => {
-    return (
-        "todo"
-    )
-}
+import { ScheduleSection } from "./view/ScheduleSection";
+import { ClockSection } from "./view/ClockSection";
+import { ControlsSection } from "./view/ControlsSection";
 
 export const ViewPage = () => {
     return (

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ControllerAPI, DefaultData, AudioState, ControllerData, Log, StoredFileHandlers, CommandRunnerList, Command, StoredFile } from "./ControllerAPI.tsx";
-import { useListState, useLocalStorage } from "@mantine/hooks";
+import { useInterval, useListState, useLocalStorage } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { notifications } from "@mantine/notifications";
 import { IconAlertTriangle } from "@tabler/icons-react";
@@ -8,6 +8,7 @@ import { App } from "../app/App.tsx";
 import { useCallback } from "react";
 import { useIndexedDB } from 'react-indexed-db-hook';
 import { NotifyError } from "../utils.tsx";
+import { constructTable } from "../lib/timetable.ts";
 
 const useFileManager = (): StoredFileHandlers => {
     const db = useIndexedDB("files");
@@ -53,23 +54,57 @@ const LocalHost = ({
 }) => {
     const [t] = useTranslation();
 
-    // Networking
+    // --- Networking ---
     // todo
 
-    // Database
-    const fileHandlers = useFileManager();
+    // --- Data ---
 
-    // Controller
-    const [isOn, setOn] = useState(true);
-    const [audioState, setAudioState] = useState<AudioState>("idle");
-    const [currentlyPlayingAudio, setCurrentlyPlayingAudio] = useState<string | null>(null);
+    const fileHandlers = useFileManager();
     const [data, setData] = useLocalStorage<ControllerData>({
         key: "ziltek-data",
         defaultValue: DefaultData,
         serialize: JSON.stringify,
         deserialize: JSON.parse,
     });
+    
+    // --- Controller ---
+
+    const [isOn, setOn] = useState(true);
+    const [audioState, setAudioState] = useState<AudioState>("idle");
+    const [currentlyPlayingAudio, setCurrentlyPlayingAudio] = useState<string | null>(null);
     const [logs, logHandlers] = useListState<Log>([]);
+
+    // --- Schedule ---
+
+    const renderedSchedule = useMemo(() => {
+        if (data.schedule.type == "timetable") {
+            if(data.schedule.tables.days[new Date().getDay()]
+                && data.schedule.tables.days[new Date().getDay()].isFullOverride) {
+                return data.schedule.tables.days[new Date().getDay()].data;
+            }
+
+            return constructTable([
+                data.schedule.tables.default,
+                ...(data.schedule.tables.days[new Date().getDay()] ? (
+                    data.schedule.tables.days[new Date().getDay()].data || []
+                ) : ([]))
+            ]);
+        } else {
+            // TODO
+        }
+    }, [data.schedule, new Date().getDay()]);
+
+    const [lastPlayedBell, setLastPlayedBell] = useState(null);
+    const interval = useInterval(() => {
+        // TODO
+    }, 1000);
+
+    useEffect(() => {
+        interval.start();
+        return interval.stop;
+    }, []);
+
+    // --- Audio ---
 
     const audioRef = useRef(new Audio());
 
@@ -107,6 +142,8 @@ const LocalHost = ({
             setAudioState("off");
         }
     }, [audioRef.current.paused, isOn]);
+
+    // --- Commands ---
 
     const commands: CommandRunnerList = useMemo(() => {
         return ({
@@ -205,11 +242,14 @@ const LocalHost = ({
         }
     };
 
+    // --- Render ---
+
     return (
         <ControllerAPI.Provider value={{
             processCommand,
             audioState,
             currentlyPlayingAudio,
+            renderedSchedule,
 
             data,
             fileHandlers,

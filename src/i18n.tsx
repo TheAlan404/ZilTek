@@ -22,6 +22,21 @@ let resources = {
                 "Saturday",
             ],
 
+            months: [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+            ],
+
             mode: {
                 local: {
                     button: "Enter Local Mode",
@@ -39,6 +54,17 @@ let resources = {
                     exit: "Exit Remote Mode",
                 },
                 proxyurl: "Proxy URL",
+            },
+
+            on: "On",
+            off: "Off",
+            controls: {
+                bellStatus: "Bell Status",
+                stopAudio: "Stop Audio",
+                stopAudioButton: "Stop",
+                playSection: "Play Melodies",
+                quickMelodies: "Quick Melodies",
+                play: "Play",
             },
 
             menu: {

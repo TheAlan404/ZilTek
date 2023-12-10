@@ -59,11 +59,11 @@ export const EditorMelodies = () => {
                     <ReloadButton onClick={reloadFiles} />
                 </Group>
                 <Stack p="md" py="xl">
-                    {data.quickMelodies.map((melody, index) => (
+                    {data.quickMelodies.map((filename, index) => (
                         <Group justify="space-between" key={index} wrap="nowrap">
                             <MelodySelect
                                 files={files}
-                                value={melody.filename}
+                                value={filename}
                                 onChange={(v) => {
                                     processCommand({
                                         type: "setQuickMelody",

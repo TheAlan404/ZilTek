@@ -5,6 +5,7 @@ import { TimeBox } from "./TimeBox";
 import { useContext, useEffect, useState } from "react";
 import { ChangesContext } from "../../ChangesContext";
 import { Time } from "../../../lib/time";
+import { notifications } from "@mantine/notifications";
 
 export interface TimetableProps {
     value: Timetable,
@@ -25,6 +26,7 @@ export const CommitableTimetable = ({
     value: Timetable,
     onChange: (t: Timetable) => void,
 }) => {
+    const { t } = useTranslation();
     const { unsavedChanges, markAsDirty, markAsReverted, markAsSaved } = useContext(ChangesContext);
     const [table, setTable] = useState<Timetable>(value);
     const dirty = unsavedChanges.includes("timetable");
@@ -53,10 +55,18 @@ export const CommitableTimetable = ({
             onRevert={() => {
                 setTable(value);
                 markAsReverted("timetable");
+                notifications.show({
+                    message: t("edit.timetableReverted"),
+                    color: "yellow",
+                })
             }}
             onSave={() => {
                 onChange(table);
                 markAsSaved("timetable");
+                notifications.show({
+                    message: t("edit.timetableSaved"),
+                    color: "green",
+                })
             }}
             removeColumn={(x) => {
                 setTable(t => t.filter((_, i) => i !== x));

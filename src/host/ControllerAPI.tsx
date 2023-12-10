@@ -53,7 +53,7 @@ export type CommandsList = {
     addQuickMelody: void,
     setQuickMelody: { index: number, filename: string },
     removeQuickMelody: { index: number },
-
+    
     setDefaultMelody: { index: number, filename: string },
 }
 
@@ -98,7 +98,7 @@ export type BellType = "students" | "teachers" | "classEnd";
 
 export type ControllerData = {
     schedule: ScheduleData,
-    quickMelodies: MelodyData[],
+    quickMelodies: string[],
 };
 
 export type StoredFile = {
@@ -124,7 +124,7 @@ export interface Controller {
     isOn: boolean,
     setOn: (b: boolean) => void,
     hostMode: HostMode,
-
+    renderedSchedule: Timetable | null,
     fileHandlers: StoredFileHandlers,
 }
 
