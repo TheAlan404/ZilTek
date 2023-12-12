@@ -9,6 +9,7 @@ import { useCallback } from "react";
 import { useIndexedDB } from 'react-indexed-db-hook';
 import { NotifyError } from "../utils.tsx";
 import { constructTable } from "../lib/timetable.ts";
+import { useCustomInterval } from "../hooks/useCustomInterval.tsx";
 
 const useFileManager = (): StoredFileHandlers => {
     const db = useIndexedDB("files");
@@ -96,8 +97,6 @@ const LocalHost = ({
     }, [data, new Date().getDay()]);
 
     const findBell = ((h, m) => {
-        //return { x: 0, y: 0, bell: { value: "00:00", variant: "idle" } };
-
         if (data.schedule.type == "timetable") {
             for (let x = 0; x < renderedSchedule.length; x++) {
                 for (let y = 0; y < renderedSchedule[x].length; y++) {
@@ -136,12 +135,7 @@ const LocalHost = ({
             data: found,
         });
     };
-    const interval = useInterval(clock, 1000);
-
-    useEffect(() => {
-        interval.start();
-        return interval.stop;
-    }, []);
+    useCustomInterval(clock, 1000, [data, renderedSchedule, lastPlayedBell]);
 
     // --- Audio ---
 
@@ -195,6 +189,7 @@ const LocalHost = ({
         },
 
         forcePlayAudio({ filename }) {
+            console.log("forcePlayAudio", filename, data);
             fileHandlers.getFile(filename)
                 .then(file => {
                     if (!file) return NotifyError(`File "${filename}" not found. (forcePlayAudio)`);
@@ -204,8 +199,11 @@ const LocalHost = ({
         },
 
         forcePlayMelody({ index }) {
-            this.forcePlayAudio(data.schedule.type == "timetable"
-                && data.schedule.melodies.default[index].filename);
+            console.log("forcePlayMelody", index, data);
+            this.forcePlayAudio({
+                filename: data.schedule.type == "timetable"
+                && data.schedule.melodies.default[index]
+            });
         },
 
         playBellAudio({ x, y = 0, bell, }) {
