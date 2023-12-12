@@ -7,6 +7,7 @@ import { useState } from "react";
 import { TimetableComponent } from "../../../../components/schedule/Timetable";
 import { Timetable, Tuple } from "../../../../../lib/timetable";
 import { AddTime, SubtractTime, Time } from "../../../../../lib/time";
+import { modals } from "@mantine/modals";
 
 export type TimetableGenSegment = ({
     type: "startTime",
@@ -21,7 +22,15 @@ export type TimetableGenSegment = ({
     studentBellOffset: number,
 });
 
-const GeneratorPresets: TimetableGenSegment[][] = [/* TODO */];
+const GeneratorPresets: TimetableGenSegment[][] = [
+    [
+        { type: "startTime", startTime: Time(9, 0), classDuration: 30, breakDuration: 10, classCount: 6 },
+    ],
+    [
+        { type: "startTime", startTime: Time(8, 50), classDuration: 40, breakDuration: 10, classCount: 5, studentBellOffset: 2 },
+        { type: "offset", offset: 50, classDuration: 40, breakDuration: 10, classCount: 3, studentBellOffset: 2 },
+    ]
+];
 
 const generateTimetable = (segments: TimetableGenSegment[]) => {
     let table: Timetable = [];
@@ -96,19 +105,19 @@ export const TimetableGenerator = ({
 
             </Paper>
 
-            <Group justify="end">
+            <Group justify="start">
                 <Button variant="light" color="red" onClick={() => setSegments([])}>
                     {t("timetableGenerator.clear")}
                 </Button>
                 {GeneratorPresets.map((preset, i) => (
-                    <Button variant="light" onClick={() => setSegments(preset.slice())}>
-                        {t("timetableGenerator.preset", { index: i })}
+                    <Button key={i} variant="light" onClick={() => setSegments(preset.slice())}>
+                        {t("timetableGenerator.preset", { index: i+1 })}
                     </Button>
                 ))}
             </Group>
 
             <SimpleGrid cols={{ base: 1, md: 2 }}>
-                <ScrollArea.Autosize>
+                <ScrollArea.Autosize mah="100%">
                     <Stack>
                         {segments.map((segment, i) => (
                             <TimetableGeneratorSegment
@@ -149,11 +158,16 @@ export const TimetableGenerator = ({
                 </Stack>
             </SimpleGrid>
 
-            <Group justify="space-between">
-
-                <Group>
-
-                </Group>
+            <Group justify="end">
+                <Button color="gray" variant="light" onClick={() => modals.closeAll()}>
+                    {t("timetableGenerator.cancel")}
+                </Button>
+                <Button variant="light" onClick={() => {
+                    onAccept(generateTimetable(segments));
+                    modals.closeAll();
+                }}>
+                    {t("timetableGenerator.save")}
+                </Button>
             </Group>
         </Stack>
     );
@@ -175,7 +189,7 @@ export const TimetableGeneratorSegment = ({
 
     return (
         <Fieldset legend={<Text>
-            {t("timetableGenerator.segment")} {index}
+            {t("timetableGenerator.segment", { index: index+1 })}
         </Text>}>
             <Stack>
                 <Group wrap="nowrap" justify={index ? "space-between" : "center"}>

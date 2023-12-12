@@ -181,7 +181,6 @@ let resources = {
 
             timetableGenerator: {
                 title: "Timetable Generator Wizard",
-                segment: "Segment",
                 classCountLabel: "Class Count",
                 classCountDesc: "Amount of classes",
                 breakDurationLabel: "Break Duration",
@@ -201,6 +200,11 @@ let resources = {
                 startTimeDesc: "Specify when this segment starts",
                 removeSegment: "Remove Segment",
                 clear: "Clear All",
+                addSegment: "Add Segment",
+                cancel: "Cancel",
+                save: "Save Timetable",
+                segment: "Segment {{index}}",
+                preset: "Preset {{index}}",
             },
 
             audio: {
