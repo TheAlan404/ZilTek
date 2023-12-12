@@ -76,7 +76,7 @@ export const TimetableComponent = ({
                     <Group>
                         <Button
                             variant="light"
-                            onClick={() => addRow()}>
+                            onClick={() => addRow(DefaultTuple())}>
                             {t("edit.newRow")}
                         </Button>
                         <Tooltip label={t("edit.duplicateRow")}>

@@ -42,7 +42,7 @@ export const CommitableTimetable = ({
                 markAsDirty("timetable");
             }}
             addRow={(row) => {
-                setTable(t => [...t, row || DefaultTuple]);
+                setTable(t => [...t, row || DefaultTuple()]);
                 markAsDirty("timetable");
             }}
             onRevert={() => {
