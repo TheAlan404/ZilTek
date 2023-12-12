@@ -12,6 +12,8 @@ interface TimeBoxProps {
     readonly: boolean,
     onChange: (v: Date) => void,
     variant: TimeBoxVariant,
+    label: string | null,
+    description: string | null,
 }
 
 export const TimeBox = ({
@@ -19,6 +21,8 @@ export const TimeBox = ({
     onChange,
     readonly,
     variant = "idle",
+    label,
+    description,
 }: TimeBoxProps) => {
     const { t } = useTranslation();
 
@@ -37,6 +41,8 @@ export const TimeBox = ({
             style={{
                 pointerEvents: readonly && "none",
             }}
+            label={label}
+            description={description}
             
             onAccept={(v) => !readonly && v !== value && onChange(v)}
             component={IMaskInput}

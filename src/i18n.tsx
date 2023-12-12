@@ -92,6 +92,8 @@ let resources = {
                 duplicateRow: "Duplicate the last row",
                 revert: "Revert",
                 save: "Save",
+                modified: "Modified",
+                noRows: "Empty",
             },
 
             notif: {
@@ -166,6 +168,8 @@ let resources = {
                                 mainTimetable: "Main Timetable",
                                 main: "Main",
                                 daySelect: "Select Day",
+                                clear: "Clear",
+                                generate: "Generate",
                             },
                             zones: {
                                 name: "Zones",
@@ -173,6 +177,30 @@ let resources = {
                         },
                     },
                 },
+            },
+
+            timetableGenerator: {
+                title: "Timetable Generator Wizard",
+                segment: "Segment",
+                classCountLabel: "Class Count",
+                classCountDesc: "Amount of classes",
+                breakDurationLabel: "Break Duration",
+                breakDurationDesc: "(in minutes)",
+                classDurationLabel: "Class Duration",
+                classDurationDesc: "(in minutes)",
+                studentBellOffsetLabel: "Student Bell Offset",
+                studentBellOffsetDesc: "How many minutes to put the students bell before the teachers bell",
+                preview: "Preview",
+                segmentType: {
+                    startTime: "Set Start Time",
+                    offset: "Offset from last segment",
+                },
+                offsetLabel: "Offset from last segment",
+                offsetDesc: "Specify how many minutes this segment should start after the last one",
+                startTimeLabel: "Segment Start Time",
+                startTimeDesc: "Specify when this segment starts",
+                removeSegment: "Remove Segment",
+                clear: "Clear All",
             },
 
             audio: {

@@ -1,16 +1,21 @@
-import { Group, Select, Stack } from "@mantine/core";
+import { ActionIcon, Button, Group, Select, Stack, Text, Tooltip } from "@mantine/core";
 import { useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChangesContext } from "../../../../ChangesContext";
 import { TimetableComponent } from "../../../../components/schedule/Timetable";
 import { ControllerAPI, DefaultData, DefaultTimetable, DefaultTimetableDay } from "../../../../../host/ControllerAPI";
 import { CommitableTimetable } from "../../../../components/schedule/CommitableTimetable";
+import { IconPlaylistX, IconWand } from "@tabler/icons-react";
+import { modals } from "@mantine/modals";
+import { TimetableGenerator } from "./TimetableGenerator";
+import useMobile from "../../../../../hooks/useMobile";
 
 export const TimetablePanel = () => {
     const { data, processCommand } = useContext(ControllerAPI);
     const { t } = useTranslation();
     const [tableIndex, setTableIndex] = useState("0");
     const { unsavedChanges } = useContext(ChangesContext);
+    const isMobile = useMobile();
     
     const DAYS = useMemo(() => {
         return [
@@ -32,8 +37,25 @@ export const TimetablePanel = () => {
                     })))
             }
         ];
-        return ;
     }, [t]);
+
+    const setTable = (table) => {
+        console.log(`TimetablePanel -> onChange`, table);
+        if (tableIndex == "0") {
+            processCommand({
+                type: "setMainTimetable",
+                data: table,
+            });
+        } else {
+            processCommand({
+                type: "setTimetableDay",
+                data: {
+                    tableIndex: tableIndex-1,
+                    tableData: table,
+                },
+            })
+        }
+    };
 
     return (
         <Stack>
@@ -48,7 +70,39 @@ export const TimetablePanel = () => {
                     disabled={!!unsavedChanges.length}
                 />
                 <Group>
-
+                    <Button
+                        leftSection={<IconPlaylistX />}
+                        color="red"
+                        variant="light"
+                        onClick={() => modals.openConfirmModal({
+                            title: t("modals.clearTimetable.title"),
+                            children: <Text>{t("modals.clearTimetable.content")}</Text>,
+                            labels: {
+                                confirm: t("modals.clearTimetable.confirm"),
+                                cancel: t("modals.cancel"),
+                            },
+                            confirmProps: { color: "red" },
+                            onConfirm() {
+                                setTable(DefaultTimetable.slice());
+                            },
+                        })}
+                    >
+                        {t("editor.sections.schedule.type.timetable.clear")}
+                    </Button>
+                    <Button
+                        leftSection={<IconWand />}
+                        color="green"
+                        variant="light"
+                        onClick={() => modals.open({
+                            title: t("timetableGenerator.title"),
+                            children: <TimetableGenerator
+                                onAccept={(table) => setTable(table)}
+                            />,
+                            fullScreen: isMobile,
+                            size: isMobile ? undefined : "calc(100vw - 3rem)",
+                        })}>
+                        {t("editor.sections.schedule.type.timetable.generate")}
+                    </Button>
                 </Group>
             </Group>
             {tableIndex != 0 && <>
@@ -59,23 +113,7 @@ export const TimetablePanel = () => {
                     tableIndex == 0
                     ? data.schedule.tables.default
                     : (data.schedule.tables.days[Number(tableIndex)-1] || DefaultTimetableDay).data)) || DefaultTimetable}
-                onChange={(table) => {
-                    console.log(`TimetablePanel -> onChange`, table);
-                    if (tableIndex == "0") {
-                        processCommand({
-                            type: "setMainTimetable",
-                            data: table,
-                        });
-                    } else {
-                        processCommand({
-                            type: "setTimetableDay",
-                            data: {
-                                tableIndex: tableIndex-1,
-                                tableData: table,
-                            },
-                        })
-                    }
-                }}
+                onChange={setTable}
             />
         </Stack>
     );

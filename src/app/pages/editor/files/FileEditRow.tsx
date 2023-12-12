@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { ControllerAPI, StoredFile, StoredFileHandlers } from "../../../../host/ControllerAPI";
 import { NotifyError } from "../../../../utils";
 import { ActionButtonWithTooltip } from "../../../components/editor/ActionButtonWithTooltip";
+import { FileRenameModal } from "./FileRenameModal";
 
 export const FileEditRow = ({
     file, fileHandlers, reloadFiles,

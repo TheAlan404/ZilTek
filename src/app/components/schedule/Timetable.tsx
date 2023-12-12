@@ -89,6 +89,8 @@ export const TimetableComponent = ({
                         </Tooltip>
                     </Group>
 
+                    {canSave && <Text fw="bold">{t("edit.modified")}</Text>}
+
                     <Group>
                         <Button
                             color="red"
