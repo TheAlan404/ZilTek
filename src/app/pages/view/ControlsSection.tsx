@@ -41,6 +41,11 @@ export const ControlsSection = () => {
                 </Button>
             </Group>
             <Divider w="100%" label={t("controls.playSection")} labelPosition="center" />
+            {data.schedule.type == "timetable" ? (
+                ["student", "teacher", "classEnd"].map((label, i) => (
+                    <QuickMelody key={label} label={t(`bells.${label}`)} filename={data.schedule.type == "timetable" && data.schedule.melodies.default[i]} />
+                ))
+            ) : "TODO"}
             {data.quickMelodies.length && (
                 <>
                     <Divider w="100%" label={t("controls.quickMelodies")} labelPosition="center" />
@@ -53,7 +58,7 @@ export const ControlsSection = () => {
     )
 }
 
-const QuickMelody = ({ filename }) => {
+const QuickMelody = ({ filename, label }) => {
     const {
         currentlyPlayingAudio,
         processCommand,
@@ -64,7 +69,7 @@ const QuickMelody = ({ filename }) => {
 
     return (
         <Group>
-            <Text>{filename}</Text>
+            <Text>{label || filename}</Text>
             <Button
                 leftSection={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
                 variant="light"

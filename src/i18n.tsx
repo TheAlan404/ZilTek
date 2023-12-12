@@ -65,6 +65,7 @@ let resources = {
                 playSection: "Play Melodies",
                 quickMelodies: "Quick Melodies",
                 play: "Play",
+                stop: "Stop",
             },
 
             menu: {
@@ -87,6 +88,10 @@ let resources = {
                 fileSearchResults_one: "{{count}} result",
                 fileSearchResults_other: "{{count}} results",
                 fileSearchNoResults: "No files found",
+                newRow: "Add new row",
+                duplicateRow: "Duplicate the last row",
+                revert: "Revert",
+                save: "Save",
             },
 
             notif: {
@@ -94,6 +99,7 @@ let resources = {
                 fileDeleted: "{{filename}} was deleted",
                 fileUploadedTitle: "File Uploaded",
                 fileUploaded: "Uploaded {{filename}} successfully",
+                changesIgnored: "Your changes were ignored",
             },
 
             modals: {
@@ -107,6 +113,11 @@ let resources = {
                     title: "Renaming File",
                     filename: "New Filename",
                     confirm: "Rename",
+                },
+                unsavedChanges: {
+                    title: "You have unsaved changes!",
+                    content: "Are you sure you want to ignore your changes?",
+                    confirm: "Ignore Changes",
                 },
             },
 

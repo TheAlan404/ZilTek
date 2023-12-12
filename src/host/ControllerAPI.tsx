@@ -1,5 +1,5 @@
 import React from "react";
-import { Timetable } from "../lib/timetable";
+import { Entry, Timetable } from "../lib/timetable";
 
 export const DefaultMelody: MelodyData = {
     filename: "",
@@ -43,6 +43,7 @@ export type CommandsList = {
     stopAllAudio: void,
     forcePlayMelody: { index: number },
     forcePlayAudio: { filename: string },
+    playBellAudio: { x: number, y: number, bell: Entry },
 
     setMainTimetable: Timetable,
     setTimetableDay: {

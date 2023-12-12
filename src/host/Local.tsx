@@ -75,18 +75,19 @@ const LocalHost = ({
     const [logs, logHandlers] = useListState<Log>([]);
 
     // --- Schedule ---
-
+    
     const renderedSchedule = useMemo(() => {
+        let currentDay = new Date().getDay();
         if (data.schedule.type == "timetable") {
-            if(data.schedule.tables.days[new Date().getDay()]
-                && data.schedule.tables.days[new Date().getDay()].isFullOverride) {
-                return data.schedule.tables.days[new Date().getDay()].data;
+            if(data.schedule.tables.days[currentDay]
+                && data.schedule.tables.days[currentDay].isFullOverride) {
+                return data.schedule.tables.days[currentDay].data;
             }
 
             return constructTable([
                 data.schedule.tables.default,
-                ...(data.schedule.tables.days[new Date().getDay()] ? (
-                    data.schedule.tables.days[new Date().getDay()].data || []
+                ...(data.schedule.tables.days[currentDay] ? (
+                    data.schedule.tables.days[currentDay].data || []
                 ) : ([]))
             ]);
         } else {
@@ -94,9 +95,45 @@ const LocalHost = ({
         }
     }, [data.schedule, new Date().getDay()]);
 
+    const findBell = useCallback((h, m) => {
+        //return { x: 0, y: 0, bell: { value: "00:00", variant: "idle" } };
+        if(data.schedule.type == "timetable") {
+            for (let x = 0; x < renderedSchedule.length; x++) {
+                for (let y = 0; y < renderedSchedule[x].length; y++) {
+                    let bell = renderedSchedule[x][y];
+                    let [bH, bM] = bell.value.split(":").map(Number);
+                    if (h === bH && m === bM) {
+                        return {
+                            x,
+                            y,
+                            bell,
+                        };
+                    }
+                }
+            }
+        }
+    }, [data, renderedSchedule]);
+
+    // this state is used to make sure you dont play the same bell every second of the minute
     const [lastPlayedBell, setLastPlayedBell] = useState(null);
     const interval = useInterval(() => {
-        // TODO
+        let now = new Date();
+        let h = now.getHours();
+        let m = now.getMinutes();
+        if (lastPlayedBell
+            && lastPlayedBell.getHours() == h
+            && lastPlayedBell.getMinutes() == m) {
+            return;
+        }
+
+        let found = findBell(h, m);
+        if(!found) return;
+
+        setLastPlayedBell(now);
+        processCommand({
+            type: "playBellAudio",
+            data: found,
+        });
     }, 1000);
 
     useEffect(() => {
@@ -170,6 +207,19 @@ const LocalHost = ({
                     && data.schedule.melodies.default[index].filename);
             },
 
+            playBellAudio(data, { audioState }) {
+                // TODO melody overrides etc
+                if (audioState == "off") {
+                    // TODO suppression notice
+                    return;
+                };
+
+                // TODO log
+                if (audioState == "playing") return; 
+
+                this.forcePlayMelody({ index: data.y });
+            },
+
             addQuickMelody: () => {
                 setData((d) => ({
                     ...d,
@@ -236,7 +286,7 @@ const LocalHost = ({
 
     const processCommand = ({ type, data }: Command) => {
         try {
-            commands[type](data);
+            commands[type](data, { audioState });
         } catch(e) {
             NotifyError(e);
         }
