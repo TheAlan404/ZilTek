@@ -3,16 +3,20 @@ import ReactDOM from 'react-dom/client';
 import { ModalsProvider } from "@mantine/modals";
 import { MantineProvider, createTheme } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import { I18nextProvider } from "react-i18next";
+import { I18nextProvider, useTranslation } from "react-i18next";
 
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
+import 'dayjs/locale/en';
+import 'dayjs/locale/tr';
 
 import AppBase from './AppBase';
 import i18n from "./i18n";
+import dayjs from 'dayjs';
 import { initDB } from 'react-indexed-db-hook';
+import { DatesProvider } from "@mantine/dates";
 
 initDB({
     name: "ZilTekDB",
@@ -56,6 +60,23 @@ const theme = createTheme({
     }
 });
 
+const Wrapper = () => {
+    const { i18n } = useTranslation();
+
+    return (
+        <DatesProvider settings={{
+            locale: i18n.language,
+            weekendDays: [0],
+            timezone: 'UTC'
+        }}>
+            <Notifications />
+            <ModalsProvider>
+                <AppBase />
+            </ModalsProvider>
+        </DatesProvider>
+    );
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <MantineProvider
@@ -64,10 +85,7 @@ root.render(
         defaultColorScheme="dark"
         theme={theme}>
         <I18nextProvider i18n={i18n} defaultNS={[]}>
-            <Notifications />
-            <ModalsProvider>
-                <AppBase />
-            </ModalsProvider>
+            <Wrapper />
         </I18nextProvider>
     </MantineProvider>
 );

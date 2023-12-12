@@ -232,7 +232,7 @@ const LocalHost = ({
                 }))
             },
         });
-    }, []);
+    }, [setData]);
 
     const processCommand = ({ type, data }: Command) => {
         try {

@@ -1,6 +1,6 @@
 import { Group, Progress, Stack, Text } from "@mantine/core"
 import { useInterval } from "@mantine/hooks"
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Time } from "../../../lib/time";
 import { useTranslation } from "react-i18next";
 
@@ -13,7 +13,7 @@ export const ClockSection = () => {
     const [progressSec, setProgressSec] = useState(0);
     const [progressMin, setProgressMin] = useState(0);
     const [progressHr, setProgressHr] = useState(0);
-    const interval = useInterval(() => {
+    const update = useCallback(() => {
         let d = new Date();
         setDate([
             d.getDate(),
@@ -28,9 +28,11 @@ export const ClockSection = () => {
         setProgressSec((d.getSeconds() / 60) * 100);
         setProgressMin((d.getMinutes() / 60) * 100);
         setProgressHr((d.getHours() / 24) * 100);
-    }, 1000);
+    });
+    const interval = useInterval(update, 1000);
 
     useEffect(() => {
+        update();
         interval.start();
         return interval.stop;
     }, []);

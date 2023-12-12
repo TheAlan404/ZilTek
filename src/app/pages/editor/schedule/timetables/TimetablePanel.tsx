@@ -2,8 +2,9 @@ import { Group, Select, Stack } from "@mantine/core";
 import { useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChangesContext } from "../../../../ChangesContext";
-import { CommitableTimetable, TimetableComponent } from "../../../../components/schedule/Timetable";
+import { TimetableComponent } from "../../../../components/schedule/Timetable";
 import { ControllerAPI, DefaultData, DefaultTimetable, DefaultTimetableDay } from "../../../../../host/ControllerAPI";
+import { CommitableTimetable } from "../../../../components/schedule/CommitableTimetable";
 
 export const TimetablePanel = () => {
     const { data, processCommand } = useContext(ControllerAPI);
@@ -59,6 +60,7 @@ export const TimetablePanel = () => {
                     ? data.schedule.tables.default
                     : (data.schedule.tables.days[Number(tableIndex)-1] || DefaultTimetableDay).data)) || DefaultTimetable}
                 onChange={(table) => {
+                    console.log(`TimetablePanel -> onChange`, table);
                     if (tableIndex == "0") {
                         processCommand({
                             type: "setMainTimetable",

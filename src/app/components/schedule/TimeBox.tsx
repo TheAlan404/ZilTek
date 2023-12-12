@@ -5,6 +5,8 @@ import { TextInput, Tooltip } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { Entry, TimeBoxVariant } from "../../../lib/timetable";
 
+import { IMaskInput, IMask } from 'react-imask';
+
 interface TimeBoxProps {
     value: Date,
     readonly: boolean,
@@ -13,17 +15,12 @@ interface TimeBoxProps {
 }
 
 export const TimeBox = ({
-    value: _value,
-    onChange: handleChange,
+    value,
+    onChange,
     readonly,
     variant = "idle",
 }: TimeBoxProps) => {
     const { t } = useTranslation();
-    let [value, onChange] = useUncontrolled({
-        value: _value,
-        finalValue: Time(),
-        onChange: handleChange,
-    });
 
     let c;
     if(variant == "playing") c = "violet";
@@ -34,10 +31,30 @@ export const TimeBox = ({
     if(variant == "suspended") m = "timebox.suspended";
 
     return (
-        <TimeInput
+        <TextInput
             value={value}
-            onChange={(e) => !readonly && onChange(e.currentTarget.value)}
             bg={c}
+            style={{
+                pointerEvents: readonly && "none",
+            }}
+            
+            onAccept={(v) => !readonly && v !== value && onChange(v)}
+            component={IMaskInput}
+            mask="h:m"
+            blocks={{
+                h: {
+                    mask: IMask.MaskedRange,
+                    from: 0,
+                    to: 24,
+                    maxLength: 2,
+                },
+                m: {
+                    mask: IMask.MaskedRange,
+                    from: 0,
+                    to: 60,
+                    maxLength: 2,
+                },
+            }}
         />
     );
 };
