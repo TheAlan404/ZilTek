@@ -181,6 +181,19 @@ let resources = {
                             },
                         },
                     },
+
+                    ziltek: {
+                        title: "ZilTek",
+                        desc: "You are running version {{version}}, build {{build}}",
+                        made_by: "ZilTek, made by {{author}}",
+                        website: "See my website!",
+                        checkingForUpdates: "Checking for updates...",
+                        upToDate: "ZilTek is up to date!",
+                        updateError: "Update check error, see console",
+                        updateAvailable: "Update available: {{current}} -> {{available}}",
+                        updateButton: "Update",
+                        recheckUpdates: "Re-check updates",
+                    },
                 },
             },
 
