@@ -30,12 +30,9 @@ export const DefaultData: ControllerData = {
     quickMelodies: [],
 };
 
-export type LogType =
-    | "AUDIO_PLAY_FAILED";
 export type Log = {
-    date: Date,
-    type: LogType,
-    message: string,
+    type: "BELL_PLAYED" | "BELL_STOPPED" | "BELL_SUSPENDED" | "PLAY_FAILED",
+    data: [number, number, Entry],
 }
 
 export type CommandsList = {
@@ -122,11 +119,13 @@ export interface Controller {
     data: ControllerData,
     audioState: AudioState,
     currentlyPlayingAudio: string | null,
+    currentlyPlayingBell: [number, number, Entry] | null,
     isOn: boolean,
     setOn: (b: boolean) => void,
     hostMode: HostMode,
     renderedSchedule: Timetable | null,
     fileHandlers: StoredFileHandlers,
+    logs: Log[],
 }
 
 export type AudioState = "idle" | "playing" | "off";

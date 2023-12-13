@@ -27,8 +27,11 @@ export const TimeBox = ({
     const { t } = useTranslation();
 
     let c;
-    if(variant == "playing") c = "violet";
-    if(variant == "suspended") c = "red";
+    if(variant == "playing") c = "var(--mantine-color-violet-outline)";
+    if(variant == "played") c = "var(--mantine-color-blue-outline)";
+    if(variant == "suspended") c = "var(--mantine-color-red-outline)";
+    if(variant == "interrupted") c = "var(--mantine-color-yellow-outline)";
+    let bigOutline = variant == "playing";
 
     let m;
     if(variant == "playing") m = "timebox.playing";
@@ -37,12 +40,19 @@ export const TimeBox = ({
     return (
         <TextInput
             value={value}
-            bg={c}
             style={{
                 pointerEvents: readonly && "none",
+                outline: c && `${bigOutline ? "0.3em" : "0.1em"} solid ${c}`,
+                borderRadius: "0.1em",
+                outlineOffset: "0.2em",
             }}
             label={label}
             description={description}
+            inputContainer={(children) => (
+                <Tooltip label={m || ""} disabled={!m}>
+                    {children}
+                </Tooltip>
+            )}
             
             onAccept={(v) => !readonly && v !== value && onChange(v)}
             component={IMaskInput}

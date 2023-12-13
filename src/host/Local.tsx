@@ -8,7 +8,7 @@ import { App } from "../app/App.tsx";
 import { useCallback } from "react";
 import { useIndexedDB } from 'react-indexed-db-hook';
 import { NotifyError } from "../utils.tsx";
-import { constructTable } from "../lib/timetable.ts";
+import { Entry, constructTable } from "../lib/timetable.ts";
 import { useCustomInterval } from "../hooks/useCustomInterval.tsx";
 
 const useFileManager = (): StoredFileHandlers => {
@@ -73,6 +73,7 @@ const LocalHost = ({
     const [isOn, setOn] = useState(true);
     const [audioState, setAudioState] = useState<AudioState>("idle");
     const [currentlyPlayingAudio, setCurrentlyPlayingAudio] = useState<string | null>(null);
+    const [currentlyPlayingBell, setCurrentlyPlayingBell] = useState<[number, number, Entry] | null>(null);
     const [logs, logHandlers] = useListState<Log>([]);
 
     // --- Schedule ---
@@ -96,6 +97,10 @@ const LocalHost = ({
         }
     }, [data, new Date().getDay()]);
 
+    useEffect(() => {
+        logHandlers.setState([]);
+    }, [new Date().getDay()]);
+
     const findBell = ((h, m) => {
         if (data.schedule.type == "timetable") {
             for (let x = 0; x < renderedSchedule.length; x++) {
@@ -115,7 +120,7 @@ const LocalHost = ({
     });
 
     // this state is used to make sure you dont play the same bell every second of the minute
-    const [lastPlayedBell, setLastPlayedBell] = useState(null);
+    const [lastPlayedBell, setLastPlayedBell] = useState<Date | null>(null);
     const clock = () => {
         let now = new Date();
         let h = now.getHours();
@@ -128,6 +133,7 @@ const LocalHost = ({
 
         let found = findBell(h, m);
         if (!found) return;
+        if (isOn) setCurrentlyPlayingBell([found.x, found.y, found.bell]);
         setLastPlayedBell(now);
 
         processCommand({
@@ -145,6 +151,15 @@ const LocalHost = ({
         audioRef.current.onended = () => {
             if (audioRef.current.src) URL.revokeObjectURL(audioRef.current.src);
             audioRef.current.src = "";
+            setCurrentlyPlayingBell((v) => {
+                if (v) {
+                    logHandlers.append({
+                        type: "BELL_PLAYED",
+                        data: v,
+                    });
+                }
+                return null;
+            });
             setCurrentlyPlayingAudio(null);
         };
     }, [audioRef]);
@@ -156,8 +171,8 @@ const LocalHost = ({
         audioRef.current.play().catch(e => {
             NotifyError(e);
             logHandlers.append({
-                date: Date.now(),
-                type: "AUDIO_PLAY_FAILED",
+                date: new Date(),
+                type: "PLAY_FAILED",
                 message: t("audio.playfailed"),
             });
             notifications.show({
@@ -181,15 +196,29 @@ const LocalHost = ({
     const commands: CommandRunnerList = {
         changeBellStatus: ({ on }) => {
             setOn(on);
+            setCurrentlyPlayingBell((v) => {
+                if (v) {
+                    logHandlers.append({
+                        type: "BELL_STOPPED",
+                        data: v,
+                    });
+                }
+                return null;
+            });
         },
 
         stopAllAudio() {
+            if(audioState == "playing" && currentlyPlayingBell) {
+                logHandlers.append({
+                    type: "BELL_STOPPED",
+                    data: currentlyPlayingBell,
+                });
+            }
             audioRef.current.pause();
             audioRef.current.onended?.();
         },
 
         forcePlayAudio({ filename }) {
-            console.log("forcePlayAudio", filename, data);
             fileHandlers.getFile(filename)
                 .then(file => {
                     if (!file) return NotifyError(`File "${filename}" not found. (forcePlayAudio)`);
@@ -199,7 +228,6 @@ const LocalHost = ({
         },
 
         forcePlayMelody({ index }) {
-            console.log("forcePlayMelody", index, data);
             this.forcePlayAudio({
                 filename: data.schedule.type == "timetable"
                 && data.schedule.melodies.default[index]
@@ -208,13 +236,18 @@ const LocalHost = ({
 
         playBellAudio({ x, y = 0, bell, }) {
             // TODO melody overrides etc
-            if (audioState == "off") {
-                // TODO suppression notice
+            if (!isOn || audioState == "off") {
+                logHandlers.append({
+                    type: "BELL_SUSPENDED",
+                    data: [x, y, bell],
+                });
                 return;
             };
 
-            // TODO log
-            if (audioState == "playing") return;
+            if (audioState == "playing") {
+                // TODO log
+                return;
+            };
 
             this.forcePlayMelody({ index: y });
         },
@@ -298,6 +331,8 @@ const LocalHost = ({
             audioState,
             currentlyPlayingAudio,
             renderedSchedule,
+            currentlyPlayingBell,
+            logs,
 
             data,
             fileHandlers,

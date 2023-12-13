@@ -121,6 +121,11 @@ let resources = {
                     content: "Are you sure you want to ignore your changes?",
                     confirm: "Ignore Changes",
                 },
+                clearTimetable: {
+                    title: "Clear Timetable?",
+                    content: "Are you sure you want to clear it? There is no undo!",
+                    confirm: "Clear",
+                },
             },
 
             bells: {

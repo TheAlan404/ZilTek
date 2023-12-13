@@ -4,7 +4,12 @@ export const createTimetable = () => {
 
 };
 
-export type TimeBoxVariant = "idle" | "playing" | "suspended";
+export type TimeBoxVariant = "idle"
+    | "playing"
+    | "suspended"
+    | "interrupted"
+    | "played"
+    | "failed";
 export const DefaultEntry: () => Entry = () => ({
     value: Time(0, 0),
     variant: "idle",
