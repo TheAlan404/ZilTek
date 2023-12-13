@@ -1,31 +1,25 @@
-import React, { useContext, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 
-export interface NetworkingCtx {
-    
-}
-
-export const Networking = React.createContext<NetworkingCtx>({
-
-});
-
-export const NetworkingProvider = ({
-    children,
-    proxyUrl,
+export const useCustomWebSocket = ({
+    url,
+    events,
+    deps = [],
 }: {
-    children: React.ReactElement,
-    proxyUrl: string,
+    url: string,
+    events: WebSocketEventMap,
+    deps: React.DependencyList,
 }) => {
-    const { sendMessage, lastMessage, readyState } = useWebSocket(proxyUrl);
-    
-    return (
-        <Networking.Provider>
-            {children}
-        </Networking.Provider>
-    )
-}
+    let ws = useRef(new WebSocket(url));
 
-export const NetworkingState = () => {
-    const {} = useContext(Networking);
+    useEffect(() => {
+        for(let [k, v] of Object.values(events)) {
+            ws.current[`on${k}`] = v;
+        }
+    }, [events]);
 
-
+    return {
+        send(msg) {
+            ws.current.send(JSON.stringify(msg));
+        }
+    };
 }

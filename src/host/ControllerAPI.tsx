@@ -1,5 +1,6 @@
 import React from "react";
 import { Entry, Timetable } from "../lib/timetable";
+import { v4 } from "uuid";
 
 export const DefaultMelody: MelodyData = {
     filename: "",
@@ -28,6 +29,9 @@ export const DefaultData: ControllerData = {
         },
     },
     quickMelodies: [],
+    authenticatedRemotes: [],
+    hostId: v4(),
+    hostKey: v4(),
 };
 
 export type Log = {
@@ -53,6 +57,8 @@ export type CommandsList = {
     removeQuickMelody: { index: number },
     
     setDefaultMelody: { index: number, filename: string },
+
+    clearAllData: void,
 }
 
 export type CommandRunnerList = {
@@ -97,6 +103,9 @@ export type BellType = "students" | "teachers" | "classEnd";
 export type ControllerData = {
     schedule: ScheduleData,
     quickMelodies: string[],
+    hostId: string,
+    hostKey: string,
+    authenticatedRemotes: string[],
 };
 
 export type StoredFile = {
@@ -126,6 +135,8 @@ export interface Controller {
     renderedSchedule: Timetable | null,
     fileHandlers: StoredFileHandlers,
     logs: Log[],
+    remoteControlEnabled: boolean | null,
+    setRemoteControlEnabled: (v: boolean) => void | null
 }
 
 export type AudioState = "idle" | "playing" | "off";

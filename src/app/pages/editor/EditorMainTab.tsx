@@ -1,9 +1,12 @@
 import { useTranslation } from "react-i18next";
 import useMobile from "../../../hooks/useMobile"
 import { BUILD, VERSION } from "../../../meta";
-import { ActionIcon, Button, Fieldset, Flex, Group, Highlight, Loader, Stack, Text, Tooltip } from "@mantine/core";
-import { IconAlertTriangle, IconCheck, IconDownload, IconExternalLink, IconInfoCircle, IconReload, IconTriangle } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { ActionIcon, Button, Checkbox, Code, Fieldset, Flex, Group, Highlight, Loader, Stack, Text, Tooltip } from "@mantine/core";
+import { IconAlertTriangle, IconCheck, IconDownload, IconExternalLink, IconInfoCircle, IconReload, IconTrash, IconTriangle } from "@tabler/icons-react";
+import { useContext, useEffect, useState } from "react";
+import { ControllerAPI } from "../../../host/ControllerAPI";
+import { modals } from "@mantine/modals";
+import { notifications } from "@mantine/notifications";
 
 const AUTHOR = "dennis";
 const highlightStyles = {
@@ -29,6 +32,7 @@ type UpdateInfo = {
 };
 
 export const EditorMainTab = () => {
+    const { hostMode } = useContext(ControllerAPI);
     const { t } = useTranslation();
     const isMobile = useMobile();
     const [updateInfo, setUpdateInfo] = useState<UpdateInfo>({ status: "checking" });
@@ -39,7 +43,7 @@ export const EditorMainTab = () => {
                 let res = await fetch(UPDATE_URL);
                 let json = await res.json();
                 console.log(json)
-                if(json.latestVersion == VERSION) {
+                if (json.latestVersion == VERSION) {
                     setUpdateInfo({
                         status: "upToDate"
                     })
@@ -48,6 +52,14 @@ export const EditorMainTab = () => {
                         lastVersion: json.latestVersion,
                         url: json.url,
                         status: "outdated",
+                    })
+
+                    notifications.show({
+                        message: t("editor.sections.ziltek.updateAvailable", {
+                            available: json.latestVersion,
+                            current: VERSION,
+                        }),
+                        color: "green",
                     })
                 }
             })().catch(e => {
@@ -58,9 +70,9 @@ export const EditorMainTab = () => {
     }, [updateInfo]);
 
     let updateIcon = <IconInfoCircle />;
-    if(updateInfo.status == "checking") updateIcon = <Loader size="sm" />;
-    if(updateInfo.status == "upToDate") updateIcon = <IconCheck color="green" />;
-    if(updateInfo.status == "error") updateIcon = <IconAlertTriangle />;
+    if (updateInfo.status == "checking") updateIcon = <Loader size="sm" />;
+    if (updateInfo.status == "upToDate") updateIcon = <IconCheck color="green" />;
+    if (updateInfo.status == "error") updateIcon = <IconAlertTriangle />;
 
     return (
         <Flex justify="center" pb="xl" mb="xl">
@@ -135,19 +147,85 @@ export const EditorMainTab = () => {
                         </Group>
                     </Stack>
                 </Fieldset>
-                <Fieldset
-                    legend={t("editor.sections.rc.title")}>
-                    <Stack>
-
-                    </Stack>
-                </Fieldset>
-                <Fieldset
-                    legend={t("editor.sections.maintenance.title")}>
-                    <Stack>
-
-                    </Stack>
-                </Fieldset>
+                {hostMode == "local" && <RemoteControlSettings />}
+                {hostMode == "local" && <MaintenanceSection />}
             </Stack>
         </Flex>
     )
+}
+
+const RemoteControlSettings = () => {
+    const { t } = useTranslation();
+    const {
+        remoteControlEnabled,
+        setRemoteControlEnabled,
+        data,
+    } = useContext(ControllerAPI);
+
+    return (
+        <Fieldset
+            legend={t("editor.sections.rc.title")}>
+            <Stack>
+                <Checkbox
+                    checked={remoteControlEnabled}
+                    onChange={(v) => setRemoteControlEnabled(v.target.checked)}
+                    label={t("rc.enabled")}
+                    description={t("rc.enabledDesc")}
+                />
+                {remoteControlEnabled && (
+                    <Group justify="space-between">
+                        <Text>
+                            {t("rc.hostId")}
+                        </Text>
+                        <Group>
+                            <Code>
+                                {data.hostId}
+                            </Code>
+                        </Group>
+                    </Group>
+                )}
+            </Stack>
+        </Fieldset>
+    )
+}
+
+const MaintenanceSection = () => {
+    const { t } = useTranslation();
+    const {
+        processCommand
+    } = useContext(ControllerAPI);
+
+    return (
+        <Fieldset
+            legend={t("editor.sections.maintenance.title")}>
+            <Stack>
+                <Group justify="center">
+                    <Button
+                        color="red"
+                        variant="light"
+                        leftSection={<IconTrash />}
+                        onClick={() => {
+                            modals.openConfirmModal({
+                                title: t("modals.clearAllData.title"),
+                                children: t("modals.clearAllData.content"),
+                                confirmProps: { color: "red" },
+                                labels: {
+                                    confirm: t("modals.clearAllData.confirm"),
+                                    cancel: t("modals.cancel")
+                                },
+                                onConfirm() {
+                                    processCommand({ type: "clearAllData" });
+                                    notifications.show({
+                                        message: t("notifs.deletedEverything"),
+                                        color: "red",
+                                    })
+                                },
+                            })
+                        }}>
+                        {t("deleteAllData")}
+                    </Button>
+                </Group>
+            </Stack>
+        </Fieldset>
+    );
 }

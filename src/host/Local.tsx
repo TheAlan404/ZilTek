@@ -10,6 +10,7 @@ import { useIndexedDB } from 'react-indexed-db-hook';
 import { NotifyError } from "../utils.tsx";
 import { Entry, constructTable } from "../lib/timetable.ts";
 import { useCustomInterval } from "../hooks/useCustomInterval.tsx";
+import useWebSocket, { ReadyState } from "react-use-websocket";
 
 const useFileManager = (): StoredFileHandlers => {
     const db = useIndexedDB("files");
@@ -51,12 +52,10 @@ const useFileManager = (): StoredFileHandlers => {
 }
 
 const LocalHost = ({
-    exitLocalMode
+    exitLocalMode,
+    proxyUrl,
 }) => {
     const [t] = useTranslation();
-
-    // --- Networking ---
-    // todo
 
     // --- Data ---
 
@@ -313,6 +312,10 @@ const LocalHost = ({
                 }
             }))
         },
+
+        clearAllData() {
+            setData(DefaultData);
+        },
     };
 
     const processCommand = ({ type, data: d }: Command) => {
@@ -322,6 +325,59 @@ const LocalHost = ({
             NotifyError(e);
         }
     };
+
+    // --- Networking ---
+
+    const [remoteControlEnabled, setRemoteControlEnabled] = useLocalStorage({
+        key: "ziltek-remote-control-enabled",
+        defaultValue: false,
+    })
+
+    const { sendJsonMessage, readyState } = useWebSocket(proxyUrl, {
+        onMessage(event) {
+            let json = JSON.parse(event.data);
+            if (json.type == "Proxy") {
+                processCommand(json.data);
+            }
+        },
+    }, remoteControlEnabled);
+
+    useEffect(() => {
+        if(readyState == ReadyState.OPEN) {
+            sendJsonMessage({
+                type: "Broadcast",
+                data: {
+                    data,
+                    audioState,
+                    currentlyPlayingAudio,
+                    renderedSchedule,
+                    currentlyPlayingBell,
+                    logs,
+                    isOn,
+                },
+            })
+        }
+    }, [
+        data,
+        audioState,
+        currentlyPlayingAudio,
+        renderedSchedule,
+        currentlyPlayingBell,
+        logs,
+        isOn,
+    ]);
+
+    useEffect(() => {
+        if (readyState == ReadyState.OPEN) {
+            sendJsonMessage({
+                type: "Register",
+                data: {
+                    hostId: data.hostId,
+                    key: data.hostKey,
+                }
+            })
+        }
+    }, [readyState]);
 
     // --- Render ---
 
@@ -333,14 +389,14 @@ const LocalHost = ({
             renderedSchedule,
             currentlyPlayingBell,
             logs,
+            isOn,
 
             data,
             fileHandlers,
 
-            isOn,
-            setOn,
-
             hostMode: "local",
+            remoteControlEnabled,
+            setRemoteControlEnabled,
             exit: () => exitLocalMode(),
         }}>
             <App />
