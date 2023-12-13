@@ -7,8 +7,7 @@ import { IconArrowRight, IconPlus } from "@tabler/icons-react";
 import { LocalHost } from "./host/Local";
 import { NetworkingProvider } from "./host/Networking";
 import { IndexedDB } from "react-indexed-db-hook";
-
-export const VERSION = "v2-dev";
+import { VERSION } from "./meta";
 
 const AppBase = () => {
     let [hostMode, setHostMode] = useLocalStorage({

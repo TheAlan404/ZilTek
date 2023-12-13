@@ -13,7 +13,7 @@ type Page = "main" | "files" | "schedule" | "melodies";
 export const EditorPage = () => {
     let { t } = useTranslation();
     let { unsavedChanges } = useContext(ChangesContext);
-    let [page, setPage] = useState<Page>("schedule");
+    let [page, setPage] = useState<Page>("main");
 
     const disabled = !!unsavedChanges.length;
 

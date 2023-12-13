@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { ActionIcon, Group, Popover, Text, Title } from "@mantine/core";
 import { IconSettings } from "@tabler/icons-react";
-import { VERSION } from "../../../AppBase.tsx"
+import { VERSION } from "../../../meta.tsx";
 import useMobile from "../../../hooks/useMobile";
 import { SettingsMenu } from "./SettingsMenu.tsx";
 

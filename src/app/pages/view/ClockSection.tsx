@@ -67,11 +67,11 @@ export const ClockSection = () => {
                     value={progressHr}
                 />
             </Stack>
-            {[...logs].reverse().map((log, i) => (
-                <Paper key={i} withBorder p="md">
-                    {log.type}: {JSON.stringify(log.data)}
+            <Stack>
+                <Paper withBorder p="md">
+                    {t("view.nextBell")}
                 </Paper>
-            ))}
+            </Stack>
         </Stack>
     )
 }
