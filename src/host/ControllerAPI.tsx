@@ -136,7 +136,8 @@ export interface Controller {
     fileHandlers: StoredFileHandlers,
     logs: Log[],
     remoteControlEnabled: boolean | null,
-    setRemoteControlEnabled: (v: boolean) => void | null
+    setRemoteControlEnabled: (v: boolean) => void | null,
+    exit: () => void,
 }
 
 export type AudioState = "idle" | "playing" | "off";

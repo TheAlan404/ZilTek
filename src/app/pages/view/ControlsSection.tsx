@@ -46,7 +46,7 @@ export const ControlsSection = () => {
                     <QuickMelody key={label} label={t(`bells.${label}`)} filename={data.schedule.type == "timetable" && data.schedule.melodies.default[i]} />
                 ))
             ) : "TODO"}
-            {data.quickMelodies.length && (
+            {!!data.quickMelodies.length && (
                 <>
                     <Divider w="100%" label={t("controls.quickMelodies")} labelPosition="center" />
                     {data.quickMelodies.map((filename, i) => (

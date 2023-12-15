@@ -10,7 +10,8 @@ import { useIndexedDB } from 'react-indexed-db-hook';
 import { NotifyError } from "../utils.tsx";
 import { Entry, constructTable } from "../lib/timetable.ts";
 import { useCustomInterval } from "../hooks/useCustomInterval.tsx";
-import useWebSocket, { ReadyState } from "react-use-websocket";
+import { useSocketIO } from "./Networking.tsx";
+import { v4 as uuidv4 } from "uuid";
 
 const useFileManager = (): StoredFileHandlers => {
     const db = useIndexedDB("files");
@@ -256,7 +257,7 @@ const LocalHost = ({
                 ...d,
                 quickMelodies: [
                     ...d.quickMelodies,
-                    { filename: "" },
+                    "",
                 ]
             }))
         },
@@ -333,31 +334,48 @@ const LocalHost = ({
         defaultValue: false,
     })
 
-    const { sendJsonMessage, readyState } = useWebSocket(proxyUrl, {
-        onMessage(event) {
-            let json = JSON.parse(event.data);
-            if (json.type == "Proxy") {
-                processCommand(json.data);
-            }
+    if(!localStorage.getItem("ziltek-host-id"))
+        localStorage.setItem("ziltek-host-id", uuidv4());
+    const hostId = useMemo(() => localStorage.getItem("ziltek-host-id"), []);
+    if(!localStorage.getItem("ziltek-host-key"))
+        localStorage.setItem("ziltek-host-key", uuidv4());
+    const hostKey = useMemo(() => localStorage.getItem("ziltek-host-key"), []);
+
+    const {
+        socket,
+        isConnected,
+        connectedRemotes,
+        remoteQueue,
+    } = useSocketIO({
+        url: proxyUrl,
+        connect: remoteControlEnabled,
+        deps: [],
+        events: {
+            processCommand,
         },
-    }, remoteControlEnabled);
+        auth: {
+            mode: "host",
+            hostId,
+            hostKey,
+        },
+    })
 
     useEffect(() => {
-        if(readyState == ReadyState.OPEN) {
-            sendJsonMessage({
-                type: "Broadcast",
-                data: {
-                    data,
-                    audioState,
-                    currentlyPlayingAudio,
-                    renderedSchedule,
-                    currentlyPlayingBell,
-                    logs,
-                    isOn,
-                },
+        console.log("the emitting of the state will begin shortly");
+        if(isConnected) {
+            console.log("LOCAL IS EMITTING STATE !!!");
+            socket.current.emit("updateState", {
+                data,
+                audioState,
+                currentlyPlayingAudio,
+                renderedSchedule,
+                currentlyPlayingBell,
+                logs,
+                isOn,
             })
         }
     }, [
+        isConnected,
         data,
         audioState,
         currentlyPlayingAudio,
@@ -366,18 +384,6 @@ const LocalHost = ({
         logs,
         isOn,
     ]);
-
-    useEffect(() => {
-        if (readyState == ReadyState.OPEN) {
-            sendJsonMessage({
-                type: "Register",
-                data: {
-                    hostId: data.hostId,
-                    key: data.hostKey,
-                }
-            })
-        }
-    }, [readyState]);
 
     // --- Render ---
 
@@ -397,6 +403,10 @@ const LocalHost = ({
             hostMode: "local",
             remoteControlEnabled,
             setRemoteControlEnabled,
+            hostId,
+            isConnected,
+            connectedRemotes,
+            remoteQueue,
             exit: () => exitLocalMode(),
         }}>
             <App />

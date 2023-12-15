@@ -53,14 +53,6 @@ export const EditorMainTab = () => {
                         url: json.url,
                         status: "outdated",
                     })
-
-                    notifications.show({
-                        message: t("editor.sections.ziltek.updateAvailable", {
-                            available: json.latestVersion,
-                            current: VERSION,
-                        }),
-                        color: "green",
-                    })
                 }
             })().catch(e => {
                 console.log(e);
@@ -159,7 +151,7 @@ const RemoteControlSettings = () => {
     const {
         remoteControlEnabled,
         setRemoteControlEnabled,
-        data,
+        hostId,
     } = useContext(ControllerAPI);
 
     return (
@@ -179,7 +171,7 @@ const RemoteControlSettings = () => {
                         </Text>
                         <Group>
                             <Code>
-                                {data.hostId}
+                                {hostId}
                             </Code>
                         </Group>
                     </Group>

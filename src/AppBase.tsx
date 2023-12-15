@@ -69,7 +69,7 @@ const AppBase = () => {
                             <Paper withBorder m="md" p="md" key={i}>
                                 <Group justify="space-between">
                                     <Stack>
-                                        <Title order={3}>{r.label}</Title>
+                                        <Title order={4}>{r.label}</Title>
                                         <Text c="dimmed">{r.id}</Text>
                                     </Stack>
                                     <Tooltip label={t("mode.remote.connect")}>
@@ -134,7 +134,7 @@ const AppBase = () => {
                 <RemoteHost
                     proxyUrl={proxyUrl}
                     hostId={connectTo}
-                    exitLocalMode={() => {
+                    exitRemoteMode={() => {
                         setCurrentPage("selection");
                     }}
                 />
