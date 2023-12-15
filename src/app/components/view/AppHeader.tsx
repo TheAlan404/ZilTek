@@ -9,7 +9,7 @@ export const AppHeader = () => {
 
     return (
         <Group>
-            {audioState == "playing" && (
+            {currentlyPlayingAudio && (
                 <Tooltip label={t("header.audioPlayingTooltip", { filename: currentlyPlayingAudio })}>
                     <Button
                         variant='light'
@@ -44,8 +44,12 @@ export const OnlineBadge = () => {
     return (
         <>
             {(remoteControlEnabled || hostMode == "remote") && (
-                <Badge color={isConnected ? "green" : "gray"} variant={isConnected ? "dot" : "light"}>
-                    {t(isConnected ? "header.online" : "header.offline")}
+                <Badge color={isConnected ? "green" : (hostMode == "local" ? "gray" : "red")} variant={"light"}>
+                    {t(hostMode == "local" ? (
+                        isConnected ? "header.online" : "header.offline"
+                    ) : (
+                        isConnected ? "header.connected" : "header.hostOffline"
+                    ))}
                 </Badge>
             )}
         </>

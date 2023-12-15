@@ -57,6 +57,7 @@ const LocalHost = ({
     proxyUrl,
 }) => {
     const [t] = useTranslation();
+    const [currentDay, setCurrentDay] = useState<number>(new Date().getDay());
 
     // --- Data ---
 
@@ -79,7 +80,6 @@ const LocalHost = ({
     // --- Schedule ---
 
     const renderedSchedule = useMemo(() => {
-        let currentDay = new Date().getDay();
         if (data.schedule.type == "timetable") {
             if (data.schedule.tables.days[currentDay]
                 && data.schedule.tables.days[currentDay].isFullOverride) {
@@ -95,11 +95,11 @@ const LocalHost = ({
         } else {
             // TODO
         }
-    }, [data, new Date().getDay()]);
+    }, [data, currentDay]);
 
     useEffect(() => {
         logHandlers.setState([]);
-    }, [new Date().getDay()]);
+    }, [currentDay]);
 
     const findBell = ((h, m) => {
         if (data.schedule.type == "timetable") {
@@ -123,6 +123,7 @@ const LocalHost = ({
     const [lastPlayedBell, setLastPlayedBell] = useState<Date | null>(null);
     const clock = () => {
         let now = new Date();
+        setCurrentDay(now.getDay());
         let h = now.getHours();
         let m = now.getMinutes();
         if (lastPlayedBell
