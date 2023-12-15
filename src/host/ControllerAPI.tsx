@@ -135,8 +135,13 @@ export interface Controller {
     renderedSchedule: Timetable | null,
     fileHandlers: StoredFileHandlers,
     logs: Log[],
+
     remoteControlEnabled: boolean | null,
     setRemoteControlEnabled: (v: boolean) => void | null,
+    isConnected: boolean | null,
+    connectedRemotes: string[] | null,
+    remoteQueue: { remoteId: string, cb: (accept: boolean) => void }[] | null,
+
     exit: () => void,
 }
 

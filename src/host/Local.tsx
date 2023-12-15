@@ -376,6 +376,7 @@ const LocalHost = ({
         }
     }, [
         isConnected,
+        connectedRemotes,
         data,
         audioState,
         currentlyPlayingAudio,

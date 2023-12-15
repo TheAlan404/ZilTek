@@ -24,6 +24,7 @@ export const RemoteHost = ({
     let {
         socket,
         isConnected,
+        isHostAlive,
     } = useSocketIO({
         url: proxyUrl,
         connect: true,
@@ -43,11 +44,12 @@ export const RemoteHost = ({
     };
 
     return (
-        bigState ? (
+        (bigState && isConnected) ? (
             <ControllerAPI.Provider value={{
                 ...bigState,
                 processCommand,
                 hostMode: "remote",
+                isConnected,
                 exit: () => exitRemoteMode(),
             }}>
                 <App />
@@ -57,12 +59,10 @@ export const RemoteHost = ({
                 <Stack align="center" ta="center">
                     <Loader />
                     <Text>
-                        {t("rc.connecting")}
+                        {t(isHostAlive ? "rc.awaitingState" : "rc.connecting")}
                     </Text>
                     <Group>
                         <Code>{remoteId}</Code>
-                        <Text>{"==>"}</Text>
-                        <Code>{hostId}</Code>
                     </Group>
                     <Button
                         color="red"

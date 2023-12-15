@@ -1,4 +1,4 @@
-import { Button, Group, Tooltip } from "@mantine/core";
+import { Badge, Button, Group, Tooltip } from "@mantine/core";
 import { useContext } from "react";
 import { ControllerAPI } from "../../../host/ControllerAPI";
 import { useTranslation } from "react-i18next";
@@ -32,6 +32,22 @@ export const AppHeader = () => {
                     </Button>
                 </Tooltip>
             )}
+            
         </Group>
     );
+}
+
+export const OnlineBadge = () => {
+    const { isConnected, remoteControlEnabled, hostMode } = useContext(ControllerAPI);
+    const { t } = useTranslation();
+    
+    return (
+        <>
+            {(remoteControlEnabled || hostMode == "remote") && (
+                <Badge color={isConnected ? "green" : "gray"} variant={isConnected ? "dot" : "light"}>
+                    {t(isConnected ? "header.online" : "header.offline")}
+                </Badge>
+            )}
+        </>
+    )
 }

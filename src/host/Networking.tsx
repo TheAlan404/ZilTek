@@ -31,8 +31,10 @@ export const useSocketIO = ({
     isConnected: boolean,
     connectedRemotes: string[],
     remoteQueue: { remoteId: string, cb: (accept: boolean) => void }[],
+    isHostAlive: boolean,
 } => {
     let [isConnected, setIsConnected] = useState(false);
+    let [isHostAlive, setIsHostAlive] = useState(false);
     let [connectedRemotes, setConnectedRemotes] = useState([]);
     let [remoteQueue, setRemoteQueue] = useState<{ remoteId: string, cb: (accept: boolean) => void }[]>([]);
     let socket = useRef<Socket<ServerToClientEvents, ClientToServerEvents>>(null);
@@ -42,11 +44,13 @@ export const useSocketIO = ({
             autoConnect: connect,
             auth,
         });
-    }, [connect, url, auth]);
+    }, [connect, url]);
 
     useEffect(() => {
-        if (connect)
+        if (connect) {
+            console.log("useEffect Networking connecting...")
             socket.current?.connect();
+        }
 
         return () => socket.current?.disconnect();
     }, [connect]);
@@ -63,17 +67,21 @@ export const useSocketIO = ({
             socket.current?.off("remoteConnected");
             socket.current?.off("remoteDisconnected");
         }
-    }, [connectedRemotes]);
+    }, [setConnectedRemotes]);
 
     useEffect(() => {
         socket.current?.on("remoteConnectionRequest", (remoteId, cb) => {
-            setRemoteQueue(r => [...r, {
+            return cb(true);
+            if (authenticatedRemotes.includes(remoteId)) {
+            }
+
+            /* setRemoteQueue(r => [...r, {
                 remoteId,
                 cb: (accept: boolean) => {
                     cb(accept);
                     setRemoteQueue(q => q.filter(x => x.remoteId !== remoteId));
                 },
-            }]);
+            }]); */
         });
 
         return () => {
@@ -92,6 +100,10 @@ export const useSocketIO = ({
             console.log("socket.io closed");
         });
 
+        socket.current?.on("updateHostState", (con) => {
+            setIsHostAlive(con);
+        });
+
         socket.current?.onAny((...a) => console.log("Networking::onAny", ...a));
 
         socket.current?.on("connect_error", (e) => console.log(e));
@@ -99,9 +111,10 @@ export const useSocketIO = ({
         return () => {
             socket.current?.off("connect");
             socket.current?.off("connect_error");
+            socket.current?.off("updateHostState");
             socket.current?.offAny();
         };
-    }, []);
+    }, [socket.current]);
 
     useEffect(() => {
         socket.current?.on("processCommand", events.processCommand);
@@ -118,5 +131,6 @@ export const useSocketIO = ({
         isConnected,
         connectedRemotes,
         remoteQueue,
+        isHostAlive,
     };
 }

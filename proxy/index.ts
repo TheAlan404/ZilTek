@@ -101,6 +101,8 @@ io.on("connection", (socket) => {
 		console.log(`Remote connected: ${remoteId} ==> ${hostId}`);
 		socket.join(`remotes-${hostId}`);
 
+		io.in(`host-${hostId}`).emit("remoteConnected", remoteId);
+
 		socket.on("processCommand", (cmd) => {
 			console.log(`processCommand [${remoteId} ==> ${hostId}]`, cmd);
 			io.to(`host-${hostId}`).emit("processCommand", cmd);
