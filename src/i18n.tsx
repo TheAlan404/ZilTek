@@ -85,6 +85,10 @@ const resources = {
                 suppressedTooltip: "Click to turn on the bell",
             },
 
+            view: {
+                nextBell: "Next Bell",
+            },
+
             edit: {
                 unsavedChanges: "There are unsaved changes",
                 pickAFile: "Pick a file",

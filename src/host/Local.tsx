@@ -315,6 +315,21 @@ const LocalHost = ({
                 }
             }))
         },
+        toggleTimetableFullOverride({ tableIndex, fullOverride }) {
+            setData((d) => ({
+                ...d,
+                schedule: {
+                    ...d.schedule,
+                    tables: {
+                        ...d.schedule.tables,
+                        days: d.schedule.tables.days.map((t, i) => i == tableIndex ? ({
+                            ...t,
+                            fullOverride,
+                        }) : t),
+                    }
+                }
+            }))
+        },
 
         clearAllData() {
             setData(DefaultData);
@@ -363,9 +378,7 @@ const LocalHost = ({
     })
 
     useEffect(() => {
-        console.log("the emitting of the state will begin shortly");
         if(isConnected) {
-            console.log("LOCAL IS EMITTING STATE !!!");
             socket.current.emit("updateState", {
                 data,
                 audioState,

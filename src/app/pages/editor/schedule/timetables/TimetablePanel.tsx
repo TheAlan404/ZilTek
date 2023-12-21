@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Group, Select, Stack, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Button, Checkbox, Group, Select, Stack, Text, Tooltip } from "@mantine/core";
 import { useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChangesContext } from "../../../../ChangesContext";
@@ -106,7 +106,18 @@ export const TimetablePanel = () => {
                 </Group>
             </Group>
             {tableIndex != 0 && <>
-                
+                <Checkbox
+                    label={t("editor.sections.schedule.type.timetable.fullOverride")}
+                    description={t("editor.sections.schedule.type.timetable.fullOverrideDesc")}
+                    checked={(data.schedule.type == "timetable" && (data.schedule.tables.days[Number(tableIndex)-1] || DefaultTimetableDay).isFullOverride)}
+                    onChange={(e) => processCommand({
+                        type: "toggleTimetableFullOverride",
+                        data: {
+                            tableIndex: tableIndex-1,
+                            fullOverride: e.currentTarget.checked,
+                        },
+                    })}
+                />
             </>}
             <CommitableTimetable
                 value={(data.schedule.type == "timetable" && (

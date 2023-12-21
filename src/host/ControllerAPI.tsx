@@ -51,6 +51,10 @@ export type CommandsList = {
         tableIndex: number,
         tableData: Timetable,
     },
+    toggleTimetableFullOverride: {
+        tableIndex: number,
+        fullOverride: boolean,
+    },
 
     addQuickMelody: void,
     setQuickMelody: { index: number, filename: string },

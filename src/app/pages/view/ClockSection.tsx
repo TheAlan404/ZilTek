@@ -1,11 +1,32 @@
 import { Group, Paper, Progress, Stack, Text } from "@mantine/core"
 import { useInterval } from "@mantine/hooks"
 import { useCallback, useContext, useEffect, useState } from "react";
-import { Time } from "../../../lib/time";
+import { Time, TimeToDate } from "../../../lib/time";
 import { useTranslation } from "react-i18next";
 import { ControllerAPI } from "../../../host/ControllerAPI";
+import { TimeBox } from "../../components/schedule/TimeBox";
+import { Entry, Timetable } from "../../../lib/timetable";
 
-const pad = (v) => v.toString().padStart(2, "0");
+const pad = (v: number) => v.toString().padStart(2, "0");
+
+const getNextPrev = (table: Timetable) => {
+    let t = Time(new Date());
+
+    let flattened = table.flat();
+    
+    let prev = flattened[0];
+    let next = flattened[0];
+
+    for(let entry of flattened) {
+        if(TimeToDate(prev.value) > TimeToDate(t))
+            prev = entry;
+
+        if(TimeToDate(next.value) < TimeToDate(t))
+            next = entry;
+    }
+
+    return [next, prev];
+}
 
 export const ClockSection = () => {
     const { t } = useTranslation();
@@ -39,6 +60,8 @@ export const ClockSection = () => {
         return interval.stop;
     }, []);
 
+    let [next, prev] = getNextPrev(renderedSchedule);
+
     return (
         <Stack>
             <Stack>
@@ -68,9 +91,17 @@ export const ClockSection = () => {
                 />
             </Stack>
             <Stack>
-                <Paper withBorder p="md">
-                    {t("view.nextBell")}
-                </Paper>
+                {next && (
+                    <Paper withBorder p="md">
+                        <Group justify="space-between">
+                            <Text>{t(`view.nextBell`)}</Text>
+                            <TimeBox
+                                value={next.value}
+                                readonly
+                            />
+                        </Group>
+                    </Paper>
+                )}
             </Stack>
         </Stack>
     )

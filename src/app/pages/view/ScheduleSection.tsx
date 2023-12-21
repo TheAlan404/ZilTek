@@ -17,9 +17,8 @@ export const renderTimetableWithVariants = (table: Timetable, logs: Log[], curre
         }
 
         let filtered = logs.filter(log => {
-            return eq(log.data, [x, y, entry]);
+            return log.data && eq(log.data, [x, y, entry]);
         });
-        console.log("---", filtered);
 
         if(filtered.some(log => log.type == "BELL_SUSPENDED")) return "suspended";
         if(filtered.some(log => log.type == "BELL_STOPPED")) return "interrupted";
