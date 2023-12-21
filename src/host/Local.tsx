@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ControllerAPI, DefaultData, AudioState, ControllerData, Log, StoredFileHandlers, CommandRunnerList, Command, StoredFile } from "./ControllerAPI.tsx";
+import { ControllerAPI, DefaultData, AudioState, ControllerData, Log, StoredFileHandlers, CommandRunnerList, Command, StoredFile, DefaultTimetableDay, DefaultTimetable } from "./ControllerAPI.tsx";
 import { useInterval, useListState, useLocalStorage } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { notifications } from "@mantine/notifications";
@@ -310,7 +310,10 @@ const LocalHost = ({
                     ...d.schedule,
                     tables: {
                         ...d.schedule.tables,
-                        days: d.schedule.tables.days.map((t, i) => i == tableIndex ? tableData : t),
+                        days: d.schedule.type == "timetable" && d.schedule.tables.days.map((t, i) => i == tableIndex ? ({
+                            data: tableData,
+                            isFullOverride: t.isFullOverride,
+                        }) : (t || DefaultTimetableDay)),
                     }
                 }
             }))
@@ -322,10 +325,10 @@ const LocalHost = ({
                     ...d.schedule,
                     tables: {
                         ...d.schedule.tables,
-                        days: d.schedule.tables.days.map((t, i) => i == tableIndex ? ({
-                            ...t,
-                            fullOverride,
-                        }) : t),
+                        days: d.schedule.type == "timetable" && d.schedule.tables.days.map((t, i) => i == tableIndex ? ({
+                            data: t.data || DefaultTimetable,
+                            isFullOverride: fullOverride,
+                        }) : (t || DefaultTimetableDay)),
                     }
                 }
             }))
@@ -338,6 +341,7 @@ const LocalHost = ({
 
     const processCommand = ({ type, data: d }: Command) => {
         try {
+            console.log("Executing Command", type, d);
             commands[type](d);
         } catch (e) {
             NotifyError(e);

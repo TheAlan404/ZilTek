@@ -9,7 +9,7 @@ export const DefaultMelody: MelodyData = {
 export const DefaultTimetable: Timetable = [];
 export const DefaultTimetableDay: TimetableDay = {
     data: DefaultTimetable,
-    isFullOverride: true,
+    isFullOverride: false,
 };
 
 export const DefaultData: ControllerData = {
@@ -25,7 +25,15 @@ export const DefaultData: ControllerData = {
         },
         tables: {
             default: [],
-            days: [],
+            days: [
+                DefaultTimetableDay,
+                DefaultTimetableDay,
+                DefaultTimetableDay,
+                DefaultTimetableDay,
+                DefaultTimetableDay,
+                DefaultTimetableDay,
+                DefaultTimetableDay,
+            ],
         },
     },
     quickMelodies: [],

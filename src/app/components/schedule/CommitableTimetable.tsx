@@ -3,13 +3,16 @@ import { DefaultTuple, Timetable } from "../../../lib/timetable";
 import { useContext, useEffect, useState } from "react";
 import { ChangesContext } from "../../ChangesContext";
 import { TimetableComponent } from "./Timetable";
+import { notifications } from "@mantine/notifications";
 
 export const CommitableTimetable = ({
     value,
     onChange,
+    deps = [],
 }: {
     value: Timetable,
     onChange: (t: Timetable) => void,
+    deps: any[],
 }) => {
     const { t } = useTranslation();
     const { unsavedChanges, markAsDirty, markAsReverted, markAsSaved } = useContext(ChangesContext);
@@ -18,7 +21,7 @@ export const CommitableTimetable = ({
 
     useEffect(() => {
         setTable(value);
-    }, [value]);
+    }, [value, ...deps]);
 
     return (
         <TimetableComponent

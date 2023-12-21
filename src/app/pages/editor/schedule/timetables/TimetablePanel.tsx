@@ -125,6 +125,7 @@ export const TimetablePanel = () => {
                     ? data.schedule.tables.default
                     : (data.schedule.tables.days[Number(tableIndex)-1] || DefaultTimetableDay).data)) || DefaultTimetable}
                 onChange={setTable}
+                deps={[tableIndex]}
             />
         </Stack>
     );
