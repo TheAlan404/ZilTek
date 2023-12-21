@@ -55,6 +55,7 @@ const useFileManager = (): StoredFileHandlers => {
 const LocalHost = ({
     exitLocalMode,
     proxyUrl,
+    setProxyUrl,
 }) => {
     const [t] = useTranslation();
     const [currentDay, setCurrentDay] = useState<number>(new Date().getDay());
@@ -409,6 +410,8 @@ const LocalHost = ({
             isConnected,
             connectedRemotes,
             remoteQueue,
+            proxyUrl,
+            setProxyUrl,
             exit: () => exitLocalMode(),
         }}>
             <App />

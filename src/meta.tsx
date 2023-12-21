@@ -1,2 +1,2 @@
-export const VERSION = "v2-dev";
-export const BUILD = "131223";
+export const VERSION = "v2";
+export const BUILD = "211223";

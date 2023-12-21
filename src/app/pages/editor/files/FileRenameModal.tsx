@@ -1,4 +1,5 @@
 import { Button, Group, Stack, TextInput } from "@mantine/core";
+import { modals } from "@mantine/modals";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 

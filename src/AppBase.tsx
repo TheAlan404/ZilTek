@@ -22,7 +22,7 @@ const AppBase = () => {
     });
     let [proxyUrl, setProxyUrl] = useLocalStorage({
         key: "ziltek-proxy-url",
-        defaultValue: "",
+        defaultValue: "ws://ziltek.kuylar.dev",
     });
     let [connectTo, setConnectTo] = useState(null);
     let [currentPage, setCurrentPage] = useState(hostMode == "local" ? "local" : "selection");
@@ -125,6 +125,7 @@ const AppBase = () => {
             currentPage == "local" ? (
                 <LocalHost
                     proxyUrl={proxyUrl}
+                    setProxyUrl={setProxyUrl}
                     exitLocalMode={() => {
                         setHostMode("rc");
                         setCurrentPage("selection");

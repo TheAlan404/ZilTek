@@ -1,7 +1,7 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-let resources = {
+const resources = {
     en: {
         translation: {
             by_dennis: "by dennis",
@@ -11,6 +11,7 @@ let resources = {
                 noFilesLong: "No files found - upload files using the buttons or drop the file into ZilTek.",
             },
             language: "Language",
+            deleteAllData: "Delete All Data",
 
             days: [
                 "Sunday",
@@ -53,7 +54,7 @@ let resources = {
                     running: "Connected to a remote ZilTek",
                     exit: "Exit Remote Mode",
                 },
-                proxyurl: "Proxy URL",
+                proxyurl: "Relay URL",
             },
 
             on: "On",
@@ -76,6 +77,12 @@ let resources = {
             header: {
                 audioPlaying: "Playing: {{filename}}",
                 audioPlayingTooltip: "Currently playing {{filename}}, click to stop.",
+                online: "Online",
+                offline: "Offline",
+                connected: "Connected",
+                hostOffline: "Host Offline",
+                suppressed: "Bell Suppressed",
+                suppressedTooltip: "Click to turn on the bell",
             },
 
             edit: {
@@ -162,6 +169,7 @@ let resources = {
                         upload: "Upload a file",
                         downloadFromYoutube: "Download from YouTube",
                         playAudio: "Play Audio",
+                        audioPlaying: "Playing Audio",
                     },
 
                     schedule: {
@@ -194,6 +202,14 @@ let resources = {
                         updateButton: "Update",
                         recheckUpdates: "Re-check updates",
                     },
+
+                    rc: {
+                        title: "Remote Control",
+                    },
+
+                    maintenance: {
+                        title: "Maintenance",
+                    },
                 },
             },
 
@@ -223,6 +239,14 @@ let resources = {
                 save: "Save Timetable",
                 segment: "Segment {{index}}",
                 preset: "Preset {{index}}",
+            },
+
+            rc: {
+                enabled: "Enable Remote Control",
+                enabledDesc: "Control ZilTek from another device",
+                hostId: "Host ID",
+                connectedRemotes: "Connected Remotes",
+                noRemotesConnected: "No remotes connected",
             },
 
             audio: {

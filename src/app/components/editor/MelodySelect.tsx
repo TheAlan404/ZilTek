@@ -17,6 +17,7 @@ export const MelodySelect = ({
 
     return (
         <Select
+            w="100%"
             searchable
             label={label}
             data={files.map(f => f.filename)}
