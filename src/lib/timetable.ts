@@ -22,7 +22,7 @@ export const DefaultTuple: () => Tuple = () => [DefaultEntry(), DefaultEntry(), 
 export type Tuple = [Entry, Entry, Entry];
 export type Timetable = Tuple[];
 
-const isNil = (entry: Entry) => !entry.value || entry.value == "00:00";
+const isNil = (entry: Entry) => !entry || !entry.value || entry.value == "00:00";
 
 export const constructTable = (layers: Timetable[]): Timetable => {
     let table: Timetable = [];
