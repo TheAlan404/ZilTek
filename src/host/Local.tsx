@@ -225,6 +225,7 @@ const LocalHost = ({
         },
 
         forcePlayAudio({ filename }) {
+            if(!filename) return NotifyError("No filename provided to forcePlayAudio");
             fileHandlers.getFile(filename)
                 .then(file => {
                     if (!file) return NotifyError(`File "${filename}" not found. (forcePlayAudio)`);
@@ -236,7 +237,7 @@ const LocalHost = ({
         forcePlayMelody({ index }) {
             this.forcePlayAudio({
                 filename: data.schedule.type == "timetable"
-                && data.schedule.melodies.default[index]
+                && data.schedule.melodies.default[index].filename
             });
         },
 

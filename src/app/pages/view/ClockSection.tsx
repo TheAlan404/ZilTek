@@ -1,11 +1,12 @@
 import { Group, Paper, Progress, Stack, Text } from "@mantine/core"
 import { useInterval } from "@mantine/hooks"
 import { useCallback, useContext, useEffect, useState } from "react";
-import { Time, TimeToDate } from "../../../lib/time";
+import { Time, TimeToDate, formatRelative } from "../../../lib/time";
 import { useTranslation } from "react-i18next";
 import { ControllerAPI } from "../../../host/ControllerAPI";
 import { TimeBox } from "../../components/schedule/TimeBox";
 import { Entry, Timetable } from "../../../lib/timetable";
+import { renderTimetableWithVariants } from "./ScheduleSection";
 
 const pad = (v: number) => v.toString().padStart(2, "0");
 
@@ -18,19 +19,18 @@ const getNextPrev = (table: Timetable) => {
     let next = flattened[0];
 
     for(let entry of flattened) {
-        if(TimeToDate(prev.value) > TimeToDate(t))
-            prev = entry;
-
-        if(TimeToDate(next.value) < TimeToDate(t))
+        if(TimeToDate(next.value) <= TimeToDate(t)) {
+            prev = next;
             next = entry;
+        }
     }
 
     return [next, prev];
 }
 
 export const ClockSection = () => {
-    const { t } = useTranslation();
-    const { renderedSchedule, logs } = useContext(ControllerAPI);
+    const { t, i18n: { language } } = useTranslation();
+    const { renderedSchedule, logs, currentlyPlayingBell } = useContext(ControllerAPI);
     const [date, setDate] = useState("");
     const [time, setTime] = useState("");
     const [progressSec, setProgressSec] = useState(0);
@@ -60,7 +60,7 @@ export const ClockSection = () => {
         return interval.stop;
     }, []);
 
-    let [next, prev] = getNextPrev(renderedSchedule);
+    let [next, prev] = getNextPrev(renderTimetableWithVariants(renderedSchedule, logs, currentlyPlayingBell));
 
     return (
         <Stack>
@@ -93,12 +93,25 @@ export const ClockSection = () => {
             <Stack>
                 {next && (
                     <Paper withBorder p="md">
-                        <Group justify="space-between">
+                        <Group justify="space-between" grow wrap="nowrap">
                             <Text>{t(`view.nextBell`)}</Text>
                             <TimeBox
                                 value={next.value}
                                 readonly
                             />
+                            <Text c="dimmed">{formatRelative(language, next.value)}</Text>
+                        </Group>
+                    </Paper>
+                )}
+                {prev && (
+                    <Paper withBorder p="md">
+                        <Group justify="space-between" grow wrap="nowrap">
+                            <Text c="dimmed">{t(`view.prevBell`)}</Text>
+                            <TimeBox
+                                value={prev.value}
+                                readonly
+                            />
+                            <Text c="dimmed">{formatRelative(language, prev.value)}</Text>
                         </Group>
                     </Paper>
                 )}

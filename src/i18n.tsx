@@ -87,6 +87,8 @@ const resources = {
 
             view: {
                 nextBell: "Next Bell",
+                prevBell: "Previous Bell",
+
             },
 
             edit: {

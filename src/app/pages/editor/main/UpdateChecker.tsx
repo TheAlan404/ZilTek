@@ -1,10 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { VERSION } from "../../../../meta";
+import { UPDATE_URL, VERSION } from "../../../../meta";
 import { ActionIcon, Button, Group, Loader, Text, Tooltip } from "@mantine/core";
 import { IconAlertTriangle, IconCheck, IconDownload, IconInfoCircle, IconReload } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-
-export const UPDATE_URL = "https://raw.githack.com/TheAlan404/ZilTekProject/main/metadata.json";
 
 export type UpdateInfo = {
     status: "error",
