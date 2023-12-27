@@ -137,6 +137,14 @@ const resources = {
                     content: "Are you sure you want to clear it? There is no undo!",
                     confirm: "Clear",
                 },
+                addRemote: {
+                    title: "Add Remote",
+                    labelName: "Label",
+                    placeholderName: "Enter custom label for the remote",
+                    labelId: "UUID",
+                    placeholderId: "UUID of the host ZilTek",
+                    add: "Add",
+                },
             },
 
             bells: {

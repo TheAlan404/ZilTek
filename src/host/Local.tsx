@@ -12,6 +12,7 @@ import { Entry, constructTable } from "../lib/timetable.ts";
 import { useCustomInterval } from "../hooks/useCustomInterval.tsx";
 import { useSocketIO } from "./Networking.tsx";
 import { v4 as uuidv4 } from "uuid";
+import { DEFAULT_RELAY } from "../meta.tsx";
 
 const useFileManager = (): StoredFileHandlers => {
     const db = useIndexedDB("files");
@@ -54,11 +55,14 @@ const useFileManager = (): StoredFileHandlers => {
 
 const LocalHost = ({
     exitLocalMode,
-    proxyUrl,
-    setProxyUrl,
 }) => {
     const [t] = useTranslation();
     const [currentDay, setCurrentDay] = useState<number>(new Date().getDay());
+    
+    let [proxyUrl, setProxyUrl] = useLocalStorage({
+        key: "ziltek-proxy-url",
+        defaultValue: DEFAULT_RELAY,
+    });
 
     // --- Data ---
 

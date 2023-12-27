@@ -2,29 +2,32 @@ import { Button, Center, Checkbox, Divider, Text, Paper, Stack, TextInput, Title
 import { useLocalStorage } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconArrowRight, IconPlus } from "@tabler/icons-react";
+import { IconArrowRight, IconPencil, IconPlus } from "@tabler/icons-react";
 
 import { LocalHost } from "./host/Local";
 import { RemoteHost } from "./host/Remote";
 import { NetworkingProvider } from "./host/Networking";
 import { IndexedDB } from "react-indexed-db-hook";
-import { VERSION } from "./meta";
+import { DEFAULT_RELAY, VERSION } from "./meta";
 import { modals } from "@mantine/modals";
+import { notifications } from "@mantine/notifications";
+
+interface Remote {
+    id: string,
+    label: string,
+    relay: string,
+}
 
 const AppBase = () => {
     let [hostMode, setHostMode] = useLocalStorage({
         key: "ziltek-host-mode",
         defaultValue: "rc",
     });
-    let [remotesList, setRemotesList] = useLocalStorage({
+    let [remotesList, setRemotesList] = useLocalStorage<Remote[]>({
         key: "ziltek-remotes-list",
         defaultValue: [],
     });
-    let [proxyUrl, setProxyUrl] = useLocalStorage({
-        key: "ziltek-proxy-url",
-        defaultValue: "ws://ziltek.kuylar.dev",
-    });
-    let [connectTo, setConnectTo] = useState(null);
+    let [connectTo, setConnectTo] = useState<Remote | null>(null);
     let [currentPage, setCurrentPage] = useState(hostMode == "local" ? "local" : "selection");
     let { t } = useTranslation();
 
@@ -64,25 +67,49 @@ const AppBase = () => {
 
                     <Text>{t("mode.remote.desc")}</Text>
 
-                    <Stack>
+                    <Stack w="100%">
                         {remotesList.map((r, i) => (
                             <Paper withBorder m="md" p="md" key={i}>
                                 <Group justify="space-between">
-                                    <Stack>
+                                    <Stack gap={0}>
                                         <Title order={4}>{r.label}</Title>
                                         <Text c="dimmed">{r.id}</Text>
+                                        <Text c="dimmed">{r.relay}</Text>
                                     </Stack>
-                                    <Tooltip label={t("mode.remote.connect")}>
-                                        <ActionIcon
-                                            variant="light"
-                                            color="green"
-                                            onClick={() => {
-                                                setConnectTo(r.id);
-                                                setCurrentPage("remote");
-                                            }}>
-                                            <IconArrowRight />
-                                        </ActionIcon>
-                                    </Tooltip>
+                                    <Group>
+                                        <Tooltip label={t("mode.remote.edit")}>
+                                            <ActionIcon
+                                                variant="light"
+                                                color="gray"
+                                                onClick={() => {
+                                                    modals.open({
+                                                        title: t("modals.addRemote.title"),
+                                                        children: <AddRemoteModal
+                                                            remote={r}
+                                                            onAdd={(r) => {
+                                                                setRemotesList(l => l.map((x,idx) => i === idx ? r : x));
+                                                            }}
+                                                            onDelete={() => {
+                                                                setRemotesList(l => l.filter((_,idx) => idx !== i));
+                                                            }}
+                                                        />
+                                                    })
+                                                }}>
+                                                <IconPencil />
+                                            </ActionIcon>
+                                        </Tooltip>
+                                        <Tooltip label={t("mode.remote.connect")}>
+                                            <ActionIcon
+                                                variant="light"
+                                                color="green"
+                                                onClick={() => {
+                                                    setConnectTo(r);
+                                                    setCurrentPage("remote");
+                                                }}>
+                                                <IconArrowRight />
+                                            </ActionIcon>
+                                        </Tooltip>
+                                    </Group>
                                 </Group>
                             </Paper>
                         ))}
@@ -100,10 +127,7 @@ const AppBase = () => {
                                         onAdd={(r) => {
                                             modals.closeAll();
 
-                                            setRemotesList(l => [...l, {
-                                                label: r,
-                                                id: r,
-                                            }])
+                                            if(r) setRemotesList(l => [...l, r]);
                                         }}
                                     />
                                 })
@@ -111,21 +135,11 @@ const AppBase = () => {
                             {t("mode.remote.add")}
                         </Button>
                     </Center>
-
-                    <Paper withBorder p="md">
-                        <TextInput
-                            label={t("mode.proxyurl")}
-                            value={proxyUrl}
-                            onChange={(e) => setProxyUrl(e.currentTarget.value)}
-                        />
-                    </Paper>
                 </Stack>
             </Center>
         ) : (
             currentPage == "local" ? (
                 <LocalHost
-                    proxyUrl={proxyUrl}
-                    setProxyUrl={setProxyUrl}
                     exitLocalMode={() => {
                         setHostMode("rc");
                         setCurrentPage("selection");
@@ -133,8 +147,8 @@ const AppBase = () => {
                 />
             ) : (
                 <RemoteHost
-                    proxyUrl={proxyUrl}
-                    hostId={connectTo}
+                    proxyUrl={connectTo?.relay}
+                    hostId={connectTo?.id}
                     exitRemoteMode={() => {
                         setCurrentPage("selection");
                     }}
@@ -145,33 +159,84 @@ const AppBase = () => {
 };
 
 export const AddRemoteModal = ({
+    remote,
     onAdd,
+    onDelete,
 }: {
-    onAdd: (n: string) => void,
+    remote: Remote | null,
+    onAdd: (n: Remote) => void,
+    onDelete: (() => void) | null,
 }) => {
     const { t } = useTranslation();
-    const [id, setId] = useState();
+    const [label, setLabel] = useState(remote?.label);
+    const [id, setId] = useState(remote?.id);
+    const [relay, setRelay] = useState(remote?.relay || DEFAULT_RELAY);
 
-    const add = () => onAdd?.(id);
+    const add = () => {
+        modals.closeAll();
+        
+        onAdd?.({
+            id,
+            label,
+            relay,
+        });
+    };
 
     return (
-        <Stack p="md" justify="center" align="">
+        <Stack p="md" justify="center">
+            <TextInput
+                placeholder={t("modals.addRemote.placeholderName")}
+                label={t("modals.addRemote.labelName")}
+                value={label}
+                onChange={(e) => setLabel(e.currentTarget.value)}
+            />
             <TextInput
                 autoFocus
-                placeholder={t("modals.addRemote.placeholder")}
-                label={t("modals.addRemote.label")}
+                placeholder={t("modals.addRemote.placeholderId")}
+                label={t("modals.addRemote.labelId")}
                 value={id}
                 onChange={(e) => setId(e.currentTarget.value)}
                 onSubmit={add}
             />
-            <Group>
+            <TextInput
+                placeholder={t("modals.addRemote.placeholderRelay")}
+                label={t("modals.addRemote.labelRelay")}
+                value={relay}
+                onChange={(e) => setRelay(e.currentTarget.value)}
+            />
+            <Group justify="space-between" grow>
                 <Button
                     color="gray"
                     onClick={() => modals.closeAll()}>
                     {t("modals.cancel")}
                 </Button>
+                {onDelete && (
+                    <Button
+                        color="red"
+                        onClick={() => {
+                            modals.openConfirmModal({
+                                title: t("modals.deleteRemote.title"),
+                                children: t("modals.deleteRemote.content"),
+                                confirmProps: { color: "red" },
+                                labels: {
+                                    confirm: t("modals.deleteRemote.confirm"),
+                                    cancel: t("modals.cancel")
+                                },
+                                onConfirm() {
+                                    onDelete();
+                                    modals.closeAll();
+                                    notifications.show({
+                                        message: t("notifs.deletedRemote"),
+                                        color: "red",
+                                    });
+                                },
+                            });
+                        }}>
+                        {t("modals.addRemote.delete")}
+                    </Button>
+                )}
                 <Button onClick={add}>
-                    {t("modals.addRemote.add")}
+                    {onDelete ? t("modals.addRemote.save") : t("modals.addRemote.add")}
                 </Button>
             </Group>
         </Stack>
