@@ -96,7 +96,7 @@ export const ClockSection = () => {
                         <Group justify="space-between" grow wrap="nowrap">
                             <Text>{t(`view.nextBell`)}</Text>
                             <TimeBox
-                                value={next.value}
+                                {...next}
                                 readonly
                             />
                             <Text c="dimmed">{formatRelative(language, next.value)}</Text>
@@ -108,7 +108,7 @@ export const ClockSection = () => {
                         <Group justify="space-between" grow wrap="nowrap">
                             <Text c="dimmed">{t(`view.prevBell`)}</Text>
                             <TimeBox
-                                value={prev.value}
+                                {...prev}
                                 readonly
                             />
                             <Text c="dimmed">{formatRelative(language, prev.value)}</Text>

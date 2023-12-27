@@ -237,7 +237,7 @@ const LocalHost = ({
         forcePlayMelody({ index }) {
             this.forcePlayAudio({
                 filename: data.schedule.type == "timetable"
-                && data.schedule.melodies.default[index].filename
+                && data.schedule.melodies.default[index]
             });
         },
 

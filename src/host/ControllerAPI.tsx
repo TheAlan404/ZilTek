@@ -94,11 +94,11 @@ export type ScheduleData = {
         days: TimetableDay[],
     },
     melodies: {
-        default: MelodyData[],
+        default: string[],
         overrides: {
             x: number,
             y: number,
-            melody: MelodyData,
+            melody: string,
         }[],
     },
 } | {
