@@ -17,9 +17,13 @@ jobs:
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
 
-      - name: Build project
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Vite Build
         run: pnpm build
+      
       - uses: actions/upload-artifact@v4
         with:
-          name: ziltek
+          name: ziltek-source
           path: dist
