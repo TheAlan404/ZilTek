@@ -7,6 +7,7 @@ import { ControllerAPI } from "../../../host/ControllerAPI";
 import { TimeBox } from "../../components/schedule/TimeBox";
 import { Entry, Timetable } from "../../../lib/timetable";
 import { renderTimetableWithVariants } from "./ScheduleSection";
+import { IconAlertTriangle } from "@tabler/icons-react";
 
 const pad = (v: number) => v.toString().padStart(2, "0");
 
@@ -30,12 +31,19 @@ const getNextPrev = (table: Timetable) => {
 
 export const ClockSection = () => {
     const { t, i18n: { language } } = useTranslation();
-    const { renderedSchedule, logs, currentlyPlayingBell } = useContext(ControllerAPI);
+    const { renderedSchedule, logs, currentlyPlayingBell, fileHandlers, data } = useContext(ControllerAPI);
+    const [files, setFiles] = useState(null);
     const [date, setDate] = useState("");
     const [time, setTime] = useState("");
     const [progressSec, setProgressSec] = useState(0);
     const [progressMin, setProgressMin] = useState(0);
     const [progressHr, setProgressHr] = useState(0);
+
+    useEffect(() => {
+        fileHandlers.getAllFiles()
+            .then((f) => setFiles(f));
+    }, []);
+
     const update = useCallback(() => {
         let d = new Date();
         setDate([
@@ -91,6 +99,11 @@ export const ClockSection = () => {
                 />
             </Stack>
             <Stack>
+                {!next && !prev && (
+                    <Paper withBorder p="md" ta="center">
+                        <Text c="dimmed" fs="italic">{t(`view.noBells`)}</Text>
+                    </Paper>
+                )}
                 {next && (
                     <Paper withBorder p="md">
                         <Group justify="space-between" grow wrap="nowrap">
@@ -112,6 +125,27 @@ export const ClockSection = () => {
                                 readonly
                             />
                             <Text c="dimmed">{formatRelative(language, prev.value)}</Text>
+                        </Group>
+                    </Paper>
+                )}
+                {Array.isArray(files) && !files.length && (
+                    <Paper withBorder p="md">
+                        <Group wrap="nowrap">
+                            <IconAlertTriangle />
+                            <Text>{t(`errors.pleaseUploadFiles`)}</Text>
+                        </Group>
+                    </Paper>
+                )}
+                {Array.isArray(files) && (data.schedule.type == "timetable" ? (
+                    data.schedule.melodies.default.some(m => !files.some(f => f.filename == m))
+                ) : (
+                    // TODO
+                    false
+                )) && (
+                    <Paper withBorder p="md">
+                        <Group wrap="nowrap">
+                            <IconAlertTriangle />
+                            <Text>{t(`errors.pleaseSetMelodies`)}</Text>
                         </Group>
                     </Paper>
                 )}

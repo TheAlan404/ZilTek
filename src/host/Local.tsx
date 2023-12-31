@@ -243,16 +243,11 @@ const LocalHost = ({
 
         playBellAudio({ x, y = 0, bell, }) {
             // TODO melody overrides etc
-            if (!isOn || audioState == "off") {
+            if (!isOn || audioState == "off" || audioState == "playing") {
                 logHandlers.append({
                     type: "BELL_SUSPENDED",
                     data: [x, y, bell],
                 });
-                return;
-            };
-
-            if (audioState == "playing") {
-                // TODO log
                 return;
             };
 

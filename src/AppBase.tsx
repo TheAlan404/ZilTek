@@ -1,4 +1,4 @@
-import { Button, Center, Checkbox, Divider, Text, Paper, Stack, TextInput, Title, Group, Tooltip, ActionIcon } from "@mantine/core";
+import { Button, Center, Checkbox, Divider, Text, Paper, Stack, TextInput, Title, Group, Tooltip, ActionIcon, SegmentedControl } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -29,7 +29,7 @@ const AppBase = () => {
     });
     let [connectTo, setConnectTo] = useState<Remote | null>(null);
     let [currentPage, setCurrentPage] = useState(hostMode == "local" ? "local" : "selection");
-    let { t } = useTranslation();
+    let { t, i18n } = useTranslation();
 
     useEffect(() => {
         if(JSON.parse(localStorage.getItem("ziltek-host-mode")) == "local") setCurrentPage("local");
@@ -39,9 +39,21 @@ const AppBase = () => {
         currentPage == "selection" ? (
             <Center w="100%" h="100%">
                 <Stack align="center" gap="xl" p="md">
-                    <Title>ZilTek {VERSION}</Title>
+                    <Title>
+                        <Group>
+                            ZilTek {VERSION}
+                            <SegmentedControl
+                                value={i18n.resolvedLanguage}
+                                onChange={(v) => i18n.changeLanguage(v)}
+                                data={[
+                                    { value: "en", label: "English" },
+                                    { value: "tr", label: "Türkçe" },
+                                ]}
+                            />
+                        </Group>
+                    </Title>
 
-                    <Group justify="space-between" align="center" p="md">
+                    <Group justify={"space-between"} align="center" p="md">
                         <Checkbox
                             checked={hostMode == "local"}
                             onChange={(e) => setHostMode(e.currentTarget.checked ? "local" : "rc")}
@@ -65,7 +77,7 @@ const AppBase = () => {
                         labelPosition="center"
                         label={t("mode.remote.list")} />
 
-                    <Text>{t("mode.remote.desc")}</Text>
+                    <Text ta="center">{t("mode.remote.desc")}</Text>
 
                     <Stack w="100%">
                         {remotesList.map((r, i) => (

@@ -33,7 +33,7 @@ export const MaintenanceSection = () => {
                                 onConfirm() {
                                     processCommand({ type: "clearAllData" });
                                     notifications.show({
-                                        message: t("notifs.deletedEverything"),
+                                        message: t("notif.deletedEverything"),
                                         color: "red",
                                     });
                                 },

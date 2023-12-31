@@ -40,6 +40,7 @@ export const useSocketIO = ({
     let socket = useRef<Socket<ServerToClientEvents, ClientToServerEvents>>(null);
 
     useEffect(() => {
+        if(socket.current) socket.current.disconnect();
         socket.current = io(url, {
             autoConnect: connect,
             auth,
