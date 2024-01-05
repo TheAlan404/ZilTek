@@ -37,9 +37,6 @@ export const DefaultData: ControllerData = {
         },
     },
     quickMelodies: [],
-    authenticatedRemotes: [],
-    hostId: v4(),
-    hostKey: v4(),
 };
 
 export type Log = {
@@ -67,9 +64,13 @@ export type CommandsList = {
     addQuickMelody: void,
     setQuickMelody: { index: number, filename: string },
     removeQuickMelody: { index: number },
-    
     setDefaultMelody: { index: number, filename: string },
 
+    renameFile: { from: string, to: string },
+    deleteFile: { filename: string },
+    addFile: { filename: string, filedata: Blob },
+
+    setAllData: { data: ControllerData },
     clearAllData: void,
 }
 
@@ -115,9 +116,6 @@ export type BellType = "students" | "teachers" | "classEnd";
 export type ControllerData = {
     schedule: ScheduleData,
     quickMelodies: string[],
-    hostId: string,
-    hostKey: string,
-    authenticatedRemotes: string[],
 };
 
 export type StoredFile = {
@@ -142,10 +140,9 @@ export interface Controller {
     currentlyPlayingAudio: string | null,
     currentlyPlayingBell: [number, number, Entry] | null,
     isOn: boolean,
-    setOn: (b: boolean) => void,
     hostMode: HostMode,
     renderedSchedule: Timetable | null,
-    fileHandlers: StoredFileHandlers,
+    files: StoredFile[],
     logs: Log[],
 
     remoteControlEnabled: boolean | null,

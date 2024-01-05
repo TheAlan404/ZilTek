@@ -13,7 +13,8 @@ import { ChangesContext } from "./ChangesContext"
 import { ViewPage } from "./pages/View.tsx"
 import { EditorPage } from "./pages/Editor.tsx"
 import { PageChangeButton } from "./components/view/PageChangeButton.tsx"
-import { AppHeader, OnlineBadge } from "./components/view/AppHeader.tsx"
+import { AppHeader } from "./components/view/AppHeader.tsx"
+import { OnlineBadge } from "./components/view/OnlineBadge.tsx"
 import { AppTitle } from "./components/view/AppTitle.tsx"
 
 const App = () => {

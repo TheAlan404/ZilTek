@@ -10,27 +10,15 @@ export const EditorMelodies = () => {
     const { t } = useTranslation();
     const {
         data,
-        fileHandlers,
+        files,
         processCommand,
     } = useContext(ControllerAPI);
-
-    const [files, setFiles] = useState([]);
-
-    const reloadFiles = async () => {
-        let allFiles = await fileHandlers.getAllFiles();
-        setFiles(allFiles);
-    };
-
-    useEffect(() => {
-        reloadFiles();
-    }, []);
     
     return (
         <SimpleGrid cols={{ base: 1, md: 2 }}>
             <Fieldset legend={t("editor.sections.melodies.title")}>
-                <Group justify="space-between" wrap="nowrap">
+                <Group wrap="nowrap">
                     <Text>{t("editor.sections.melodies.desc")}</Text>
-                    <ReloadButton onClick={reloadFiles} />
                 </Group>
                 {data.schedule.type == "timetable" ? (
                     <SimpleGrid py="xl" cols={{ base: 1, md: 3 }}>
@@ -56,7 +44,6 @@ export const EditorMelodies = () => {
             <Fieldset legend={t("editor.sections.quickMelodies.title")}>
                 <Group justify="space-between" wrap="nowrap">
                     <Text>{t("editor.sections.quickMelodies.desc")}</Text>
-                    <ReloadButton onClick={reloadFiles} />
                 </Group>
                 <Stack p="md" py="xl">
                     {data.quickMelodies.map((filename, index) => (

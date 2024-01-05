@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ControllerAPI, DefaultData, AudioState, ControllerData, Log, StoredFileHandlers, CommandRunnerList, Command, StoredFile, DefaultTimetableDay, DefaultTimetable } from "./ControllerAPI.tsx";
+import { ControllerAPI, DefaultData, AudioState, ControllerData, Log, CommandRunnerList, Command, StoredFile, DefaultTimetableDay, DefaultTimetable } from "./ControllerAPI.tsx";
 import { useInterval, useListState, useLocalStorage } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { notifications } from "@mantine/notifications";
@@ -13,45 +13,7 @@ import { useCustomInterval } from "../hooks/useCustomInterval.tsx";
 import { useSocketIO } from "./Networking.tsx";
 import { v4 as uuidv4 } from "uuid";
 import { DEFAULT_RELAY } from "../meta.tsx";
-
-const useFileManager = (): StoredFileHandlers => {
-    const db = useIndexedDB("files");
-
-    const addFile = (file: StoredFile) => {
-        return db.add({
-            filename: file.filename,
-            data: file.data,
-            file: file.data,
-        });
-    };
-
-    const removeFile = (filename: string) => {
-        return db.deleteRecord(filename);
-    };
-
-    const renameFile = async (from: string, to: string) => {
-        let file = await db.getByID<StoredFile>(from);
-        await db.add({
-            ...file,
-            filename: to,
-        });
-        await db.deleteRecord(from);
-    };
-
-    const getFile = async (filename: string): Promise<StoredFile | null> => {
-        return await db.getByID(filename);
-    }
-
-    const getAllFiles = async (): Promise<StoredFile[]> => await db.getAll();
-
-    return {
-        getFile,
-        getAllFiles,
-        addFile,
-        renameFile,
-        removeFile,
-    };
-}
+import { deserialize, serialize } from "./DataFixer.tsx";
 
 const LocalHost = ({
     exitLocalMode,
@@ -66,13 +28,23 @@ const LocalHost = ({
 
     // --- Data ---
 
-    const fileHandlers = useFileManager();
     const [data, setData] = useLocalStorage<ControllerData>({
         key: "ziltek-data",
         defaultValue: DefaultData,
-        serialize: JSON.stringify,
-        deserialize: JSON.parse,
+        serialize,
+        deserialize,
     });
+
+    // --- Files ---
+
+    const [files, setFiles] = useState<StoredFile[]>([]);
+    const db = useIndexedDB("files");
+
+    const refreshFiles = () => {
+        db.getAll().then(li => setFiles(li));
+    };
+
+    useEffect(() => { refreshFiles() }, []);
 
     // --- Controller ---
 
@@ -226,12 +198,9 @@ const LocalHost = ({
 
         forcePlayAudio({ filename }) {
             if(!filename) return NotifyError("No filename provided to forcePlayAudio");
-            fileHandlers.getFile(filename)
-                .then(file => {
-                    if (!file) return NotifyError(`File "${filename}" not found. (forcePlayAudio)`);
-
-                    playAudio(file);
-                }, NotifyError);
+            let file = files.find(f => f.filename == filename);
+            if (!file) return NotifyError(`File "${filename}" not found. (forcePlayAudio)`);
+            playAudio(file);
         },
 
         forcePlayMelody({ index }) {
@@ -334,6 +303,28 @@ const LocalHost = ({
             }))
         },
 
+        addFile({ filename, filedata }) {
+            db.add({
+                filename: filename,
+                data: filedata,
+            }).then(refreshFiles);
+        },
+        deleteFile({ filename }) {
+            db.deleteRecord(filename).then(refreshFiles);
+        },
+        renameFile({ from, to }) {
+            db.getByID<StoredFile>(from).then((file) => db.add({
+                ...file,
+                filename: to,
+            }))
+                .then(() => db.deleteRecord(from))
+                .then(refreshFiles)
+                .catch(NotifyError);
+        },
+
+        setAllData({ data }) {
+            setData(data);
+        },
         clearAllData() {
             setData(DefaultData);
         },
@@ -385,6 +376,7 @@ const LocalHost = ({
         if(isConnected) {
             socket.current.emit("updateState", {
                 data,
+                files: files.map(f => ({ ...f, data: null })),
                 audioState,
                 currentlyPlayingAudio,
                 renderedSchedule,
@@ -396,10 +388,13 @@ const LocalHost = ({
     }, [
         isConnected,
         connectedRemotes,
+
         data,
+        files,
+
         audioState,
-        currentlyPlayingAudio,
         renderedSchedule,
+        currentlyPlayingAudio,
         currentlyPlayingBell,
         logs,
         isOn,
@@ -418,7 +413,7 @@ const LocalHost = ({
             isOn,
 
             data,
-            fileHandlers,
+            files,
 
             hostMode: "local",
             remoteControlEnabled,

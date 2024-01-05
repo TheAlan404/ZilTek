@@ -14,12 +14,8 @@ import useMobile from "../../../hooks/useMobile";
 
 const FileEditList = ({
     files,
-    fileHandlers,
-    reloadFiles,
 }: {
     files: StoredFile[],
-    fileHandlers: StoredFileHandlers,
-    reloadFiles: () => void,
 }) => {
     const { t } = useTranslation();
     const [search, setSearch] = useState("");
@@ -28,8 +24,6 @@ const FileEditList = ({
         .filter((item) => item.filename.toLowerCase().includes(search.toLowerCase().trim()))
         .map((file, i) => <FileEditRow
             file={file}
-            fileHandlers={fileHandlers}
-            reloadFiles={reloadFiles}
             key={i} />);
     
     return (
@@ -56,21 +50,11 @@ export const EditorFilesTab = () => {
     const isMobile = useMobile();
     const { t } = useTranslation();
     const {
-        fileHandlers
+        files,
+        processCommand,
     } = useContext(ControllerAPI);
 
     const inputRef = useRef<HTMLInputElement>();
-
-    const [files, setFiles] = useState<StoredFile[]>([]);
-
-    const reloadFiles = async () => {
-        let allFiles = await fileHandlers.getAllFiles();
-        setFiles(allFiles);
-    };
-
-    useEffect(() => {
-        reloadFiles();
-    }, []);
 
     return (
         <Flex justify="center" pb="xl" mb="xl">
@@ -82,19 +66,19 @@ export const EditorFilesTab = () => {
                     let fileList = e.currentTarget.files;
                     let files = Array.from(fileList);
                     for (let file of files) {
-                        fileHandlers.addFile({
-                            filename: file.name,
-                            data: file,
-                        })
-                            .then(() => {
-                                notifications.show({
-                                    title: t("notif.fileUploadedTitle"),
-                                    icon: <IconCheck />,
-                                    message: t("notif.fileUploaded", { filename: file.name }),
-                                });
+                        processCommand({
+                            type: "addFile",
+                            data: {
+                                filename: file.name,
+                                filedata: file,
+                            }
+                        });
 
-                                reloadFiles();
-                            }, NotifyError);
+                        notifications.show({
+                            title: t("notif.fileUploadedTitle"),
+                            icon: <IconCheck />,
+                            message: t("notif.fileUploaded", { filename: file.name }),
+                        });
                     }
                 }}
                 ref={inputRef} />
@@ -116,15 +100,12 @@ export const EditorFilesTab = () => {
                                 label={t("editor.sections.files.downloadFromYoutube")}
                                 icon={<IconBrandYoutube />}
                             />
-                            <ReloadButton onClick={reloadFiles} />
                         </Group>
                     </Group>
                     <Stack>
                         {files.length ? (
                             <FileEditList
-                                files={files}
-                                fileHandlers={fileHandlers}
-                                reloadFiles={reloadFiles} />
+                                files={files} />
                         ) : (
                             <Text style={{ textAlign: "center" }} py="lg" my="lg">{t("errors.noFilesLong")}</Text>
                         )}

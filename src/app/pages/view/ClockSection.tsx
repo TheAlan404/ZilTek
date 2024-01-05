@@ -31,18 +31,12 @@ const getNextPrev = (table: Timetable) => {
 
 export const ClockSection = () => {
     const { t, i18n: { language } } = useTranslation();
-    const { renderedSchedule, logs, currentlyPlayingBell, fileHandlers, data } = useContext(ControllerAPI);
-    const [files, setFiles] = useState(null);
+    const { renderedSchedule, logs, currentlyPlayingBell, files, data } = useContext(ControllerAPI);
     const [date, setDate] = useState("");
     const [time, setTime] = useState("");
     const [progressSec, setProgressSec] = useState(0);
     const [progressMin, setProgressMin] = useState(0);
     const [progressHr, setProgressHr] = useState(0);
-
-    useEffect(() => {
-        fileHandlers.getAllFiles()
-            .then((f) => setFiles(f));
-    }, []);
 
     const update = useCallback(() => {
         let d = new Date();
@@ -70,6 +64,17 @@ export const ClockSection = () => {
 
     let [next, prev] = getNextPrev(renderTimetableWithVariants(renderedSchedule, logs, currentlyPlayingBell));
 
+    let noBells = !next && !prev;
+    let zeroFiles = Array.isArray(files) && !files.length;
+    let unsetMelodies = Array.isArray(files) && (data.schedule.type == "timetable" ? (
+        data.schedule.melodies.default.some(m => !files.some(f => f.filename == m))
+    ) : (
+        // TODO
+        false
+    ));
+
+    let anyErrors = zeroFiles || unsetMelodies;
+
     return (
         <Stack>
             <Stack>
@@ -77,7 +82,7 @@ export const ClockSection = () => {
                     <Text>
                         {date}
                     </Text>
-                    <Text c="dark" inline>
+                    <Text c="dimmed" inline>
                         {new Date().getFullYear()}
                     </Text>
                 </Group>
@@ -99,7 +104,29 @@ export const ClockSection = () => {
                 />
             </Stack>
             <Stack>
-                {!next && !prev && (
+                {zeroFiles && (
+                    <Paper withBorder p="md">
+                        <Group wrap="nowrap">
+                            <IconAlertTriangle />
+                            <Stack>
+                                <Text>{t(`errors.pleaseUploadFiles`)}</Text>
+                                <Text c="dimmed">{t(`errors.pleaseUploadFilesDesc`)}</Text>
+                            </Stack>
+                        </Group>
+                    </Paper>
+                )}
+                {unsetMelodies && (
+                    <Paper withBorder p="md">
+                        <Group wrap="nowrap">
+                            <IconAlertTriangle />
+                            <Stack gap="0">
+                                <Text>{t(`errors.pleaseSetMelodies`)}</Text>
+                                <Text c="dimmed">{t(`errors.pleaseSetMelodiesDesc`)}</Text>
+                            </Stack>
+                        </Group>
+                    </Paper>
+                )}
+                {!anyErrors && noBells && (
                     <Paper withBorder p="md" ta="center">
                         <Text c="dimmed" fs="italic">{t(`view.noBells`)}</Text>
                     </Paper>
@@ -125,27 +152,6 @@ export const ClockSection = () => {
                                 readonly
                             />
                             <Text c="dimmed">{formatRelative(language, prev.value)}</Text>
-                        </Group>
-                    </Paper>
-                )}
-                {Array.isArray(files) && !files.length && (
-                    <Paper withBorder p="md">
-                        <Group wrap="nowrap">
-                            <IconAlertTriangle />
-                            <Text>{t(`errors.pleaseUploadFiles`)}</Text>
-                        </Group>
-                    </Paper>
-                )}
-                {Array.isArray(files) && (data.schedule.type == "timetable" ? (
-                    data.schedule.melodies.default.some(m => !files.some(f => f.filename == m))
-                ) : (
-                    // TODO
-                    false
-                )) && (
-                    <Paper withBorder p="md">
-                        <Group wrap="nowrap">
-                            <IconAlertTriangle />
-                            <Text>{t(`errors.pleaseSetMelodies`)}</Text>
                         </Group>
                     </Paper>
                 )}

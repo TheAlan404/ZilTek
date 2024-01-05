@@ -1,8 +1,10 @@
-import { Fieldset, Stack, Checkbox, Group, Text, Code, Divider, ActionIcon, TextInput } from "@mantine/core";
-import { IconCheck, IconX } from "@tabler/icons-react";
+import { Fieldset, Stack, Checkbox, Group, Text, Code, Divider, ActionIcon, TextInput, Tooltip } from "@mantine/core";
+import { IconCheck, IconReload, IconX } from "@tabler/icons-react";
 import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { ControllerAPI } from "../../../../host/ControllerAPI";
+import { OnlineBadge } from "../../../components/view/OnlineBadge";
+import { DEFAULT_RELAY } from "../../../../meta";
 
 export const RemoteControlSettings = () => {
     const { t } = useTranslation();
@@ -21,18 +23,41 @@ export const RemoteControlSettings = () => {
         <Fieldset
             legend={t("editor.sections.rc.title")}>
             <Stack>
-                <Checkbox
-                    checked={remoteControlEnabled}
-                    onChange={(v) => setRemoteControlEnabled(v.target.checked)}
-                    label={t("rc.enabled")}
-                    description={t("rc.enabledDesc")} />
+                <Group justify="space-between" wrap="nowrap">
+                    <Checkbox
+                        checked={remoteControlEnabled}
+                        onChange={(v) => setRemoteControlEnabled(v.target.checked)}
+                        label={t("rc.enabled")}
+                        description={t("rc.enabledDesc")} />
+                    {remoteControlEnabled && <OnlineBadge />}
+                </Group>
                 {remoteControlEnabled && (
                     <Stack>
-                        <TextInput
-                            label={t("mode.proxyurl")}
-                            value={proxyUrl}
-                            onChange={(e) => setProxyUrl(e.currentTarget.value)}
-                        />
+                            <TextInput
+                                label={t("mode.proxyurl")}
+                                value={proxyUrl}
+                                onChange={(e) => setProxyUrl(e.currentTarget.value)}
+                            />
+                            {/* <Group justify="end">
+                                <Tooltip label={t("rc.clearProxyurl")}>
+                                    <ActionIcon
+                                        variant="light"
+                                        color="gray"
+                                        onClick={() => setProxyUrl("")}
+                                    >
+                                        <IconX />
+                                    </ActionIcon>
+                                </Tooltip>
+                                <Tooltip label={t("rc.resetProxyurl")}>
+                                    <ActionIcon
+                                        variant="light"
+                                        color="gray"
+                                        onClick={() => setProxyUrl(DEFAULT_RELAY)}
+                                    >
+                                        <IconReload />
+                                    </ActionIcon>
+                                </Tooltip>
+                            </Group> */}
                         <Group justify="space-between">
                             <Text>
                                 {t("rc.hostId")}
@@ -41,6 +66,9 @@ export const RemoteControlSettings = () => {
                                 <Code>
                                     {hostId}
                                 </Code>
+                                <Tooltip label={t("rc.qrcode")}>
+                                    
+                                </Tooltip>
                             </Group>
                         </Group>
                         <Stack>

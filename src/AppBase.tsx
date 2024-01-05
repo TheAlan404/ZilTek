@@ -32,26 +32,24 @@ const AppBase = () => {
     let { t, i18n } = useTranslation();
 
     useEffect(() => {
-        if(JSON.parse(localStorage.getItem("ziltek-host-mode")) == "local") setCurrentPage("local");
+        if (JSON.parse(localStorage.getItem("ziltek-host-mode")) == "local") setCurrentPage("local");
     }, []);
 
     return (
         currentPage == "selection" ? (
             <Center w="100%" h="100%">
-                <Stack align="center" gap="xl" p="md">
-                    <Title>
-                        <Group>
-                            ZilTek {VERSION}
-                            <SegmentedControl
-                                value={i18n.resolvedLanguage}
-                                onChange={(v) => i18n.changeLanguage(v)}
-                                data={[
-                                    { value: "en", label: "English" },
-                                    { value: "tr", label: "Türkçe" },
-                                ]}
-                            />
-                        </Group>
-                    </Title>
+                <Stack align="center" gap="xl" p="md" mt="md">
+                    <Group justify="space-between" align="center" px="md" w="100%">
+                        <Title>ZilTek {VERSION}</Title>
+                        <SegmentedControl
+                            value={i18n.resolvedLanguage}
+                            onChange={(v) => i18n.changeLanguage(v)}
+                            data={[
+                                { value: "en", label: "English" },
+                                { value: "tr", label: "Türkçe" },
+                            ]}
+                        />
+                    </Group>
 
                     <Group justify={"space-between"} align="center" p="md">
                         <Checkbox
@@ -99,10 +97,10 @@ const AppBase = () => {
                                                         children: <AddRemoteModal
                                                             remote={r}
                                                             onAdd={(r) => {
-                                                                setRemotesList(l => l.map((x,idx) => i === idx ? r : x));
+                                                                setRemotesList(l => l.map((x, idx) => i === idx ? r : x));
                                                             }}
                                                             onDelete={() => {
-                                                                setRemotesList(l => l.filter((_,idx) => idx !== i));
+                                                                setRemotesList(l => l.filter((_, idx) => idx !== i));
                                                             }}
                                                         />
                                                     })
@@ -139,7 +137,7 @@ const AppBase = () => {
                                         onAdd={(r) => {
                                             modals.closeAll();
 
-                                            if(r) setRemotesList(l => [...l, r]);
+                                            if (r) setRemotesList(l => [...l, r]);
                                         }}
                                     />
                                 })
@@ -186,7 +184,7 @@ export const AddRemoteModal = ({
 
     const add = () => {
         modals.closeAll();
-        
+
         onAdd?.({
             id,
             label,

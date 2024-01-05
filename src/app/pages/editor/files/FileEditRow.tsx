@@ -4,19 +4,17 @@ import { notifications } from "@mantine/notifications";
 import { IconFileMusic, IconHighlight, IconPlayerPause, IconPlayerPlay, IconTrash } from "@tabler/icons-react";
 import { useContext } from "react";
 import { useTranslation } from "react-i18next";
-import { ControllerAPI, StoredFile, StoredFileHandlers } from "../../../../host/ControllerAPI";
+import { ControllerAPI, StoredFile } from "../../../../host/ControllerAPI";
 import { NotifyError } from "../../../../utils";
 import { ActionButtonWithTooltip } from "../../../components/editor/ActionButtonWithTooltip";
 import { FileRenameModal } from "./FileRenameModal";
 
 export const FileEditRow = ({
-    file, fileHandlers, reloadFiles,
+    file,
 }: {
     file: StoredFile;
-    fileHandlers: StoredFileHandlers;
-    reloadFiles: () => void;
 }) => {
-    const { processCommand, currentlyPlayingAudio } = useContext(ControllerAPI);
+    const { processCommand, currentlyPlayingAudio, files } = useContext(ControllerAPI);
     const { t } = useTranslation();
 
     const isPlaying = currentlyPlayingAudio === file.filename;
@@ -27,22 +25,35 @@ export const FileEditRow = ({
         if (!renameTo || renameTo === file.filename)
             return;
 
-        let id = notifications.show({
-            message: t("notif.renamingFile", { filename: file.filename }),
-            loading: true,
-        });
+        const doRename = () => {
+            processCommand({
+                type: "renameFile",
+                data: {
+                    from: file.filename,
+                    to: renameTo,
+                }
+            });
+    
+            notifications.show({
+                message: t("notif.fileRenamed", { from: file.filename, to: renameTo }),
+                icon: <IconHighlight />,
+            });
+        }
 
-        fileHandlers.renameFile(file.filename, renameTo)
-            .then(() => {
-                notifications.update({
-                    id,
-                    loading: false,
-                    message: t("notif.fileRenamed", { from: file.filename, to: renameTo }),
-                    icon: <IconHighlight />,
-                });
-
-                reloadFiles();
-            }, NotifyError);
+        if(files.some(f => f.filename === renameTo)) {
+            modals.openConfirmModal({
+                title: t("modals.fileWithNameExists.title"),
+                children: t("modals.fileWithNameExists.content", { filename: renameTo }),
+                labels: {
+                    confirm: t("modals.fileWithNameExists.confirm"),
+                    cancel: t("modals.cancel"),
+                },
+                confirmProps: { color: "red" },
+                onConfirm: doRename,
+            })
+        } else {
+            doRename();
+        }
     };
 
     return (
@@ -104,17 +115,17 @@ export const FileEditRow = ({
                                         loading: true,
                                     });
 
-                                    fileHandlers.removeFile(file.filename)
-                                        .then(() => {
-                                            notifications.update({
-                                                id,
-                                                loading: false,
-                                                message: t("notif.fileDeleted", { filename: file.filename }),
-                                                icon: <IconTrash />,
-                                            });
-
-                                            reloadFiles();
-                                        }, NotifyError);
+                                    processCommand({
+                                        type: "deleteFile",
+                                        data: { filename: file.filename },
+                                    });
+                                    
+                                    notifications.update({
+                                        id,
+                                        loading: false,
+                                        message: t("notif.fileDeleted", { filename: file.filename }),
+                                        icon: <IconTrash />,
+                                    });
                                 }
                             });
                         } } />

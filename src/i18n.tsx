@@ -11,8 +11,10 @@ const resources = {
             errors: {
                 noFiles: "No files found",
                 noFilesLong: "No files found - upload files using the buttons or drop the file into ZilTek.",
-                pleaseUploadFiles: "No files found, please upload melodies using the Editor",
-                pleaseSetMelodies: "Melodies are set up incorrectly",
+                pleaseSetMelodies: "Melodies are not selected",
+                pleaseSetMelodiesDesc: "Go to Editor > Melodies and set some",
+                pleaseUploadFiles: "No files found",
+                pleaseUploadFilesDesc: "Go to Editor > Files to upload some melodies",
             },
             language: "Language",
             deleteAllData: "Delete All Data",
