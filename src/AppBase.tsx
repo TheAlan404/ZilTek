@@ -8,7 +8,7 @@ import { LocalHost } from "./host/Local";
 import { RemoteHost } from "./host/Remote";
 import { NetworkingProvider } from "./host/Networking";
 import { IndexedDB } from "react-indexed-db-hook";
-import { DEFAULT_RELAY, VERSION } from "./meta";
+import { DEFAULT_RELAY, HOST_MODE_ALLOWED, REMOTE_MODE_ALLOWED, VERSION } from "./meta";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 
@@ -51,7 +51,7 @@ const AppBase = () => {
                         />
                     </Group>
 
-                    <Group justify={"space-between"} align="center" p="md">
+                    {HOST_MODE_ALLOWED && (<Group justify={"space-between"} align="center" p="md">
                         <Checkbox
                             checked={hostMode == "local"}
                             onChange={(e) => setHostMode(e.currentTarget.checked ? "local" : "rc")}
@@ -68,83 +68,87 @@ const AppBase = () => {
                             }}>
                             {t("mode.local.button")}
                         </Button>
-                    </Group>
+                    </Group>)}
 
-                    <Divider
-                        w="80%"
-                        labelPosition="center"
-                        label={t("mode.remote.list")} />
+                    {REMOTE_MODE_ALLOWED && (
+                        <>
+                            <Divider
+                                w="80%"
+                                labelPosition="center"
+                                label={t("mode.remote.list")} />
 
-                    <Text ta="center">{t("mode.remote.desc")}</Text>
+                            <Text ta="center">{t("mode.remote.desc")}</Text>
 
-                    <Stack w="100%">
-                        {remotesList.map((r, i) => (
-                            <Paper withBorder m="md" p="md" key={i}>
-                                <Group justify="space-between">
-                                    <Stack gap={0}>
-                                        <Title order={4}>{r.label}</Title>
-                                        <Text c="dimmed">{r.id}</Text>
-                                        <Text c="dimmed">{r.relay}</Text>
-                                    </Stack>
-                                    <Group>
-                                        <Tooltip label={t("mode.remote.edit")}>
-                                            <ActionIcon
-                                                variant="light"
-                                                color="gray"
-                                                onClick={() => {
-                                                    modals.open({
-                                                        title: t("modals.addRemote.title"),
-                                                        children: <AddRemoteModal
-                                                            remote={r}
-                                                            onAdd={(r) => {
-                                                                setRemotesList(l => l.map((x, idx) => i === idx ? r : x));
-                                                            }}
-                                                            onDelete={() => {
-                                                                setRemotesList(l => l.filter((_, idx) => idx !== i));
-                                                            }}
-                                                        />
-                                                    })
-                                                }}>
-                                                <IconPencil />
-                                            </ActionIcon>
-                                        </Tooltip>
-                                        <Tooltip label={t("mode.remote.connect")}>
-                                            <ActionIcon
-                                                variant="light"
-                                                color="green"
-                                                onClick={() => {
-                                                    setConnectTo(r);
-                                                    setCurrentPage("remote");
-                                                }}>
-                                                <IconArrowRight />
-                                            </ActionIcon>
-                                        </Tooltip>
-                                    </Group>
-                                </Group>
-                            </Paper>
-                        ))}
-                    </Stack>
+                            <Stack w="100%">
+                                {remotesList.map((r, i) => (
+                                    <Paper withBorder m="md" p="md" key={i}>
+                                        <Group justify="space-between">
+                                            <Stack gap={0}>
+                                                <Title order={4}>{r.label}</Title>
+                                                <Text c="dimmed">{r.id}</Text>
+                                                <Text c="dimmed">{r.relay}</Text>
+                                            </Stack>
+                                            <Group>
+                                                <Tooltip label={t("mode.remote.edit")}>
+                                                    <ActionIcon
+                                                        variant="light"
+                                                        color="gray"
+                                                        onClick={() => {
+                                                            modals.open({
+                                                                title: t("modals.addRemote.title"),
+                                                                children: <AddRemoteModal
+                                                                    remote={r}
+                                                                    onAdd={(r) => {
+                                                                        setRemotesList(l => l.map((x, idx) => i === idx ? r : x));
+                                                                    }}
+                                                                    onDelete={() => {
+                                                                        setRemotesList(l => l.filter((_, idx) => idx !== i));
+                                                                    }}
+                                                                />
+                                                            })
+                                                        }}>
+                                                        <IconPencil />
+                                                    </ActionIcon>
+                                                </Tooltip>
+                                                <Tooltip label={t("mode.remote.connect")}>
+                                                    <ActionIcon
+                                                        variant="light"
+                                                        color="green"
+                                                        onClick={() => {
+                                                            setConnectTo(r);
+                                                            setCurrentPage("remote");
+                                                        }}>
+                                                        <IconArrowRight />
+                                                    </ActionIcon>
+                                                </Tooltip>
+                                            </Group>
+                                        </Group>
+                                    </Paper>
+                                ))}
+                            </Stack>
 
-                    <Center>
-                        <Button
-                            variant="light"
-                            color="gray"
-                            leftSection={<IconPlus />}
-                            onClick={() => {
-                                modals.open({
-                                    title: t("modals.addRemote.title"),
-                                    children: <AddRemoteModal
-                                        onAdd={(r) => {
-                                            modals.closeAll();
+                            <Center>
+                                <Button
+                                    variant="light"
+                                    color="gray"
+                                    leftSection={<IconPlus />}
+                                    onClick={() => {
+                                        modals.open({
+                                            title: t("modals.addRemote.title"),
+                                            children: <AddRemoteModal
+                                                onAdd={(r) => {
+                                                    modals.closeAll();
 
-                                            if (r) setRemotesList(l => [...l, r]);
-                                        }}
-                                    />
-                                })
-                            }}>
-                            {t("mode.remote.add")}
-                        </Button>
-                    </Center>
+                                                    if (r) setRemotesList(l => [...l, r]);
+                                                }}
+                                            />
+                                        })
+                                    }}>
+                                    {t("mode.remote.add")}
+                                </Button>
+                            </Center>
+                        </>
+                    )}
                 </Stack>
             </Center>
         ) : (

@@ -64,9 +64,10 @@ export const ClockSection = () => {
 
     let [next, prev] = getNextPrev(renderTimetableWithVariants(renderedSchedule, logs, currentlyPlayingBell));
 
+    let firstRender = date === "";
     let noBells = !next && !prev;
-    let zeroFiles = Array.isArray(files) && !files.length;
-    let unsetMelodies = Array.isArray(files) && (data.schedule.type == "timetable" ? (
+    let zeroFiles = !firstRender && Array.isArray(files) && !files.length;
+    let unsetMelodies = !firstRender && Array.isArray(files) && (data.schedule.type == "timetable" ? (
         data.schedule.melodies.default.some(m => !files.some(f => f.filename == m))
     ) : (
         // TODO

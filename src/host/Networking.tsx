@@ -10,7 +10,24 @@ export interface NetworkingAuth {
     remoteId: string | null,
 }
 
+export interface Remote {
+    remoteId: string,
+    label: string,
+    cb: ((accept: boolean) => void) | null,
+}
+
 type Sock = Socket<ServerToClientEvents, ClientToServerEvents>;
+type SockRef = React.RefObject<Sock>;
+
+interface UseSocketIOResult {
+    socket: SockRef,
+    isConnected: boolean,
+    connectedRemotes: string[],
+    remoteQueue: Remote[],
+    isHostAlive: boolean,
+}
+
+const log = (s) => console.debug(`[networking] ${s}`);
 
 export const useSocketIO = ({
     url,
@@ -25,14 +42,8 @@ export const useSocketIO = ({
     events: ServerToClientEvents,
     deps: React.DependencyList,
     auth: NetworkingAuth,
-    authenticatedRemotes: string[],
-}): {
-    socket: React.RefObject<Sock>,
-    isConnected: boolean,
-    connectedRemotes: string[],
-    remoteQueue: { remoteId: string, cb: (accept: boolean) => void }[],
-    isHostAlive: boolean,
-} => {
+    authenticatedRemotes: Remote[],
+}): UseSocketIOResult => {
     let [isConnected, setIsConnected] = useState(false);
     let [isHostAlive, setIsHostAlive] = useState(false);
     let [connectedRemotes, setConnectedRemotes] = useState([]);
@@ -49,7 +60,7 @@ export const useSocketIO = ({
 
     useEffect(() => {
         if (connect) {
-            console.log("useEffect Networking connecting...")
+            log("connecting...")
             socket.current?.connect();
         }
 
@@ -59,9 +70,11 @@ export const useSocketIO = ({
     useEffect(() => {
         socket.current?.on("remoteConnected", (remoteId) => {
             setConnectedRemotes(l => [...l, remoteId]);
+            log(`remoteConnected: ${remoteId}`);
         });
         socket.current?.on("remoteDisconnected", (remoteId) => {
             setConnectedRemotes(l => l.filter(x => x !== remoteId));
+            log(`remoteDisconnected: ${remoteId}`);
         });
 
         return () => {
@@ -72,17 +85,20 @@ export const useSocketIO = ({
 
     useEffect(() => {
         socket.current?.on("remoteConnectionRequest", (remoteId, cb) => {
-            return cb(true);
-            if (authenticatedRemotes.includes(remoteId)) {
+            if (authenticatedRemotes.some((r) => r.remoteId === remoteId)) {
+                cb(true);
+                log(`authenticated remote accepted: ${remoteId}`);
+            } else {
+                log(`unknown remote wants to connect: ${remoteId}`);
+                setRemoteQueue(r => [...r, {
+                    remoteId,
+                    cb: (accept: boolean) => {
+                        cb(accept);
+                        log(`remote ${accept ? "accepted" : "denied"}: ${remoteId}`);
+                        setRemoteQueue(q => q.filter(x => x.remoteId !== remoteId));
+                    },
+                }]);
             }
-
-            /* setRemoteQueue(r => [...r, {
-                remoteId,
-                cb: (accept: boolean) => {
-                    cb(accept);
-                    setRemoteQueue(q => q.filter(x => x.remoteId !== remoteId));
-                },
-            }]); */
         });
 
         return () => {
@@ -93,12 +109,12 @@ export const useSocketIO = ({
     useEffect(() => {
         socket.current?.on("connect", () => {
             setIsConnected(true);
-            console.log("socket.io connected");
+            log("socket.io connected");
         });
 
         socket.current?.on("disconnect", () => {
             setIsConnected(false);
-            console.log("socket.io closed");
+            log("socket.io disconnected");
         });
 
         socket.current?.on("updateHostState", (con) => {

@@ -1,10 +1,12 @@
-import { Fieldset, Stack, Checkbox, Group, Text, Code, Divider, ActionIcon, TextInput, Tooltip } from "@mantine/core";
-import { IconCheck, IconReload, IconX } from "@tabler/icons-react";
-import { useContext } from "react";
+import { Fieldset, Stack, Checkbox, Group, Text, Code, Divider, ActionIcon, TextInput, Tooltip, Popover, Image } from "@mantine/core";
+import { IconCheck, IconQrcode, IconReload, IconX } from "@tabler/icons-react";
+import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ControllerAPI } from "../../../../host/ControllerAPI";
 import { OnlineBadge } from "../../../components/view/OnlineBadge";
-import { DEFAULT_RELAY } from "../../../../meta";
+import { DEFAULT_RELAY, QRCODE_PREFIX } from "../../../../meta";
+import { ActionButtonWithTooltip } from "../../../components/editor/ActionButtonWithTooltip";
+import { QRCodeSVG } from "qrcode.react";
 
 export const RemoteControlSettings = () => {
     const { t } = useTranslation();
@@ -66,9 +68,23 @@ export const RemoteControlSettings = () => {
                                 <Code>
                                     {hostId}
                                 </Code>
-                                <Tooltip label={t("rc.qrcode")}>
-                                    
-                                </Tooltip>
+                                <Popover withArrow>
+                                    <Popover.Target>
+                                        <ActionIcon
+                                            variant="light"
+                                            color="gray"
+                                        >
+                                            <IconQrcode />
+                                        </ActionIcon>
+                                    </Popover.Target>
+                                    <Popover.Dropdown>
+                                        <QRCodeSVG
+                                            value={QRCODE_PREFIX + hostId}
+                                            bgColor="transparent"
+                                            fgColor="#ffffff"
+                                        />
+                                    </Popover.Dropdown>
+                                </Popover>
                             </Group>
                         </Group>
                         <Stack>

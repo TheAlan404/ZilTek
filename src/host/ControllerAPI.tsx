@@ -125,14 +125,6 @@ export type StoredFile = {
     length: number,
 }
 
-export interface StoredFileHandlers {
-    getFile(filename: string): Promise<StoredFile | null>;
-    getAllFiles(): Promise<StoredFile[]>;
-    addFile(file: StoredFile): Promise<void>;
-    renameFile(from: string, to: string): Promise<void>;
-    removeFile(filename: string): Promise<void>;
-}
-
 export interface Controller {
     processCommand: (cmd: Command) => void,
     data: ControllerData,

@@ -353,6 +353,11 @@ const LocalHost = ({
         localStorage.setItem("ziltek-host-key", uuidv4());
     const hostKey = useMemo(() => localStorage.getItem("ziltek-host-key"), []);
 
+    const [authenticatedRemotes, setAuthenticatedRemotes] = useLocalStorage({
+        key: "ziltek-authenticated-remotes",
+        defaultValue: [],
+    })
+
     const {
         socket,
         isConnected,
