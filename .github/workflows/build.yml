@@ -1,29 +1,44 @@
-name: Build
+name: Build & Publish
 
 on:
-  push: 
-    branches: main
+  workflow_dispatch: 
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  publish-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest, ubuntu-20.04]
+
+    runs-on: ${{ matrix.platform }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-
-      - name: Install dependencies
-        uses: bahmutov/npm-install@v1
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Vite Build
-        run: pnpm build
-      
-      - uses: actions/upload-artifact@v4
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-20.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: install frontend dependencies
+        run: pnpm install
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ziltek-source
-          path: dist
+          tagName: ZilTek-v__VERSION__
+          releaseName: "ZilTek v__VERSION__"
+          releaseBody: "evet"
+          releaseDraft: true
+          prerelease: true

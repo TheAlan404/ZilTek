@@ -47,6 +47,7 @@ export const useSocketIO = ({
     let [isConnected, setIsConnected] = useState(false);
     let [isHostAlive, setIsHostAlive] = useState(false);
     let [connectedRemotes, setConnectedRemotes] = useState([]);
+    let [socketStatus, setSocketStatus] = useState("");
     let [remoteQueue, setRemoteQueue] = useState<{ remoteId: string, cb: (accept: boolean) => void }[]>([]);
     let socket = useRef<Socket<ServerToClientEvents, ClientToServerEvents>>(null);
 
@@ -109,6 +110,7 @@ export const useSocketIO = ({
     useEffect(() => {
         socket.current?.on("connect", () => {
             setIsConnected(true);
+            setSocketStatus("rc.connected");
             log("socket.io connected");
         });
 
@@ -118,12 +120,16 @@ export const useSocketIO = ({
         });
 
         socket.current?.on("updateHostState", (con) => {
+            if(!con) setSocketStatus("errors.hostDisconnected");
             setIsHostAlive(con);
         });
 
         socket.current?.onAny((...a) => console.log("Networking::onAny", ...a));
 
-        socket.current?.on("connect_error", (e) => console.log(e));
+        socket.current?.on("connect_error", (e) => {
+            setSocketStatus("errors.socketError");
+            console.log(e);
+        });
 
         return () => {
             socket.current?.off("connect");
@@ -145,6 +151,7 @@ export const useSocketIO = ({
 
     return {
         socket,
+        socketStatus,
         isConnected,
         connectedRemotes,
         remoteQueue,

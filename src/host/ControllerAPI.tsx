@@ -1,6 +1,7 @@
 import React from "react";
 import { Entry, Timetable } from "../lib/timetable";
 import { v4 } from "uuid";
+import { Remote } from "./Networking";
 
 export const DefaultMelody: MelodyData = {
     filename: "",
@@ -140,8 +141,11 @@ export interface Controller {
     remoteControlEnabled: boolean | null,
     setRemoteControlEnabled: (v: boolean) => void | null,
     isConnected: boolean | null,
-    connectedRemotes: string[] | null,
-    remoteQueue: { remoteId: string, cb: (accept: boolean) => void }[] | null,
+    socketStatus: string,
+    connectedRemotes: Remote[] | null,
+    remoteQueue: Remote[] | null,
+    authenticatedRemotes: Remote[] | null,
+    setAuthenticatedRemotes: (v: Remote[]) => void | null,
 
     exit: () => void,
 }

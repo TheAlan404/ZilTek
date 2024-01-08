@@ -426,6 +426,8 @@ const LocalHost = ({
             hostId,
             isConnected,
             connectedRemotes,
+            authenticatedRemotes,
+            setAuthenticatedRemotes,
             remoteQueue,
             proxyUrl,
             setProxyUrl,
