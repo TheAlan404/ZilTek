@@ -47,3 +47,7 @@ jobs:
           releaseBody: "evet"
           releaseDraft: true
           prerelease: true
+          includeUpdaterJson: true
+          releaseCommitish: "HEAD"
+          owner: "TheAlan404"
+          repo: "ZilTekProject"
