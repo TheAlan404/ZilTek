@@ -50,6 +50,6 @@ jobs:
           releaseDraft: true
           prerelease: true
           includeUpdaterJson: true
-          releaseCommitish: "HEAD"
+          releaseCommitish: "main"
           owner: "TheAlan404"
           repo: "ZilTekProject"
