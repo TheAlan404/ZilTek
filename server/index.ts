@@ -2,11 +2,11 @@ import { Server } from "socket.io";
 import { v4, validate } from "uuid";
 import { createServer } from 'node:http';
 import express from 'express';
-import { JSONPreset } from 'lowdb/node'
+import { JSONFilePreset } from 'lowdb/node'
 import { existsSync } from "node:fs";
 
 const defaultData = { hosts: {} }
-const db = await JSONPreset('db.json', defaultData);
+const db = await JSONFilePreset('db.json', defaultData);
 
 const PORT = Number(process.env.PORT) || 3000;
 const ADDR = process.env.ADDR || "0.0.0.0";

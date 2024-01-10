@@ -1,13 +1,12 @@
 FROM node:16-alpine
 EXPOSE 3000
 
-USER node
-WORKDIR /home/node
+WORKDIR /app
 
-COPY . .
+COPY dist /app/dist
+COPY server /app/server
 
+WORKDIR /app/server
 RUN npm install
-RUN npm run build
-
-WORKDIR /home/node/server
+USER node
 CMD ["npx", "tsx", "index.ts"]
