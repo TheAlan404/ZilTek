@@ -58,7 +58,7 @@ export const EditorMainTab = () => {
                                 </ActionIcon>
                             </Tooltip>
                         </Group>
-                        {hostMode == "local" && <UpdateChecker />}
+                        {/* hostMode == "local" && <UpdateChecker /> */}
                     </Stack>
                 </Fieldset>
                 {hostMode == "local" && <RemoteControlSettings />}
