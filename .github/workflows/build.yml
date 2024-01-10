@@ -41,6 +41,8 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GH }}
+          TAURI_PRIVATE_KEY: ${{ secrets.KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         with:
           tagName: ZilTek-v__VERSION__
           releaseName: "ZilTek v__VERSION__"
