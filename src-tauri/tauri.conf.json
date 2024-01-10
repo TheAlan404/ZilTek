@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "ZilTek",
-    "version": "0.1.0"
+    "version": "../package.json"
   },
   "tauri": {
     "allowlist": {
@@ -50,16 +50,17 @@
       "active": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJDNjE1QUVEQTA1OTQ2MUEKUldRYVJsbWc3VnBodlAvbGFORmdjaTJObjU3QlhtU0RFZnZoTncweTQ2eFp2Vm9kaDRhSkhDMW0K",
       "endpoints": [
-        "https://github.com/TheAlan404/ZilTekProject/releases/latest/download/latest.json"
+        "https://github.com/TheAlan404/ZilTekProject/releases/download/latest/latest.json"
       ]
     },
     "windows": [
       {
-        "fullscreen": false,
+        "fullscreen": true,
         "height": 600,
         "resizable": true,
-        "title": "ZilTek v2",
-        "width": 800
+        "title": "ZilTek",
+        "width": 800,
+        "focus": true
       }
     ],
     "systemTray": {

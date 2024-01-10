@@ -1,12 +1,16 @@
 import { Server } from "socket.io";
 import { v4, validate } from "uuid";
-import fs from "node:fs";
+import { createServer } from 'node:http';
+import express from 'express';
 import { JSONPreset } from 'lowdb/node'
+import { existsSync } from "node:fs";
 
 const defaultData = { hosts: {} }
 const db = await JSONPreset('db.json', defaultData);
 
 const PORT = Number(process.env.PORT) || 3000;
+const ADDR = process.env.ADDR || "0.0.0.0";
+const REDIRECT_TO = "https://thealan404.github.io/ziltekproject";
 
 export interface ServerToClientEvents {
 	updateState: (state: object) => void;
@@ -26,12 +30,25 @@ interface InterServerEvents {}
 
 interface SocketData {}
 
+const app = express();
+const server = createServer(app);
+
+if(existsSync("../dist")) {
+	console.log("Serving ../dist");
+	app.use(express.static("../dist"));
+} else {
+	app.get("/", (req, res) => {
+		console.log("Redirecting someone");
+		res.redirect(REDIRECT_TO);
+	});
+}
+
 const io = new Server<
 	ClientToServerEvents,
 	ServerToClientEvents,
 	InterServerEvents,
 	SocketData
->({
+>(server, {
 	cors: {
 		origin: "*",
 	}
@@ -94,7 +111,7 @@ io.on("connection", (socket) => {
 		io.in(`remotes-${hostId}`).emit("updateHostState", true);
 
 		socket.on("updateState", (st) => {
-			console.log(`updateState [${hostId} ==> *]`, st);
+			//console.log(`updateState [${hostId} ==> *]`, st);
 			io.to(`remotes-${hostId}`).emit("updateState", st);
 		});
 	} else {
@@ -104,7 +121,7 @@ io.on("connection", (socket) => {
 		io.in(`host-${hostId}`).emit("remoteConnected", remoteId);
 
 		socket.on("processCommand", (cmd) => {
-			console.log(`processCommand [${remoteId} ==> ${hostId}]`, cmd);
+			//console.log(`processCommand [${remoteId} ==> ${hostId}]`, cmd);
 			io.to(`host-${hostId}`).emit("processCommand", cmd);
 		});
 	}
@@ -119,6 +136,6 @@ io.on("connection", (socket) => {
 	});
 });
 
-io.listen(PORT);
-
-console.log(`Listening on port ${PORT}`);
+server.listen(PORT, ADDR, () => {
+	console.log(`Listening on addr ${ADDR}, port ${PORT}`);
+});
