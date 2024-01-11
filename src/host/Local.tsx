@@ -386,7 +386,7 @@ const LocalHost = ({
 
     useEffect(() => {
         if(isConnected) {
-            socket.current.emit("updateState", {
+            socket.current.volatile.emit("updateState", {
                 data,
                 files: files.map(f => ({ ...f, data: null })),
                 audioState,
