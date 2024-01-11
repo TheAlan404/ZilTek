@@ -13,7 +13,6 @@ export interface NetworkingAuth {
 export interface Remote {
     remoteId: string,
     label: string,
-    cb: ((accept: boolean) => void) | null,
 }
 
 type Sock = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -25,6 +24,9 @@ interface UseSocketIOResult {
     connectedRemotes: string[],
     remoteQueue: Remote[],
     isHostAlive: boolean,
+    acceptRemote: (remoteId: string) => void,
+    denyRemote: (remoteId: string) => void,
+    kickRemote: (remoteId: string) => void,
 }
 
 const log = (s) => console.debug(`[networking] ${s}`);
@@ -48,7 +50,7 @@ export const useSocketIO = ({
     let [isHostAlive, setIsHostAlive] = useState(false);
     let [connectedRemotes, setConnectedRemotes] = useState([]);
     let [socketStatus, setSocketStatus] = useState("");
-    let [remoteQueue, setRemoteQueue] = useState<{ remoteId: string, cb: (accept: boolean) => void }[]>([]);
+    let [remoteQueue, setRemoteQueue] = useState<Remote[]>([]);
     let socket = useRef<Socket<ServerToClientEvents, ClientToServerEvents>>(null);
 
     useEffect(() => {
@@ -82,22 +84,18 @@ export const useSocketIO = ({
             socket.current?.off("remoteConnected");
             socket.current?.off("remoteDisconnected");
         }
-    }, [setConnectedRemotes]);
+    }, [socket.current]);
 
     useEffect(() => {
-        socket.current?.on("remoteConnectionRequest", (remoteId, cb) => {
+        socket.current?.on("remoteConnectionRequest", (remoteId) => {
+            console.log("authenticatedRemotes:::::::::", authenticatedRemotes);
             if (authenticatedRemotes.some((r) => r.remoteId === remoteId)) {
-                cb(true);
+                socket.current?.emit("acceptRemote", remoteId);
                 log(`authenticated remote accepted: ${remoteId}`);
             } else {
                 log(`unknown remote wants to connect: ${remoteId}`);
-                setRemoteQueue(r => [...r, {
+                setRemoteQueue(r => r.some(x => x.remoteId === remoteId) ? r : [...r, {
                     remoteId,
-                    cb: (accept: boolean) => {
-                        cb(accept);
-                        log(`remote ${accept ? "accepted" : "denied"}: ${remoteId}`);
-                        setRemoteQueue(q => q.filter(x => x.remoteId !== remoteId));
-                    },
                 }]);
             }
         });
@@ -105,7 +103,7 @@ export const useSocketIO = ({
         return () => {
             socket.current?.off("remoteConnectionRequest");
         }
-    }, [authenticatedRemotes]);
+    }, [socket.current, authenticatedRemotes.length]);
 
     useEffect(() => {
         socket.current?.on("connect", () => {
@@ -156,5 +154,16 @@ export const useSocketIO = ({
         connectedRemotes,
         remoteQueue,
         isHostAlive,
+        acceptRemote(remoteId) {
+            socket.current?.emit("acceptRemote", remoteId);
+            setRemoteQueue(q => q.filter(x => x.remoteId !== remoteId));
+        },
+        denyRemote(remoteId) {
+            socket.current?.emit("denyRemote", remoteId);
+            setRemoteQueue(q => q.filter(x => x.remoteId !== remoteId));
+        },
+        kickRemote(remoteId) {
+            socket.current?.emit("kickRemote", remoteId);
+        },
     };
 }

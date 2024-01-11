@@ -12,18 +12,23 @@ const PORT = Number(process.env.PORT) || 3000;
 const ADDR = process.env.ADDR || "0.0.0.0";
 const REDIRECT_TO = "https://thealan404.github.io/ziltekproject";
 
+export type RcHostState = "offline" | "connected" | "waiting" | "denied";
+
 export interface ServerToClientEvents {
 	updateState: (state: object) => void;
 	processCommand: (cmd: object) => void;
-	remoteConnectionRequest: (remoteId: string, callback: (accept: boolean) => void) => void;
+	remoteConnectionRequest: (remoteId: string) => void;
 	remoteConnected: (remoteId: string) => void;
 	remoteDisconnected: (remoteId: string) => void;
-	updateHostState: (isConnected: boolean) => void;
+	updateHostState: (st: RcHostState) => void;
 }
 
 export interface ClientToServerEvents {
 	updateState: (state: object) => void;
 	processCommand: (cmd: object) => void;
+	acceptRemote: (remoteId: string) => void;
+	denyRemote: (remoteId: string) => void;
+	kickRemote: (remoteId: string) => void;
 }
 
 interface InterServerEvents {}
@@ -87,13 +92,7 @@ io.use(async (socket, next) => {
 		if (!validate(hostId)) return next(new Error("invalid hostId"));
 		if (!validate(remoteId)) return next(new Error("invalid remoteId"));
 
-		io.in(`host-${hostId}`).emit("remoteConnectionRequest", remoteId, (accept) => {
-			if (accept) {
-				next();
-			} else {
-				next(new Error("access denied"));
-			}
-		});
+		next();
 	}
 });
 
@@ -108,28 +107,40 @@ io.on("connection", (socket) => {
 		console.log(`Host connected: ${hostId}`);
 		socket.join(`host-${hostId}`);
 
-		io.in(`remotes-${hostId}`).emit("updateHostState", true);
+		io.in(`remotes-${hostId}`).emit("updateHostState", "connected");
 
 		socket.on("updateState", (st) => {
 			//console.log(`updateState [${hostId} ==> *]`, st);
 			io.to(`remotes-${hostId}`).emit("updateState", st);
 		});
-	} else {
-		console.log(`Remote connected: ${remoteId} ==> ${hostId}`);
-		socket.join(`remotes-${hostId}`);
 
-		io.in(`host-${hostId}`).emit("remoteConnected", remoteId);
+		socket.on("kickRemote", (remoteId) => {
+			io.in(`remote-${remoteId}`).disconnectSockets();
+		});
+
+		socket.on("acceptRemote", (remoteId) => {
+			io.in(`remote-${remoteId}`).socketsJoin(`remotes-${hostId}`);
+			io.in(`host-${hostId}`).emit("remoteConnected", remoteId);
+			console.log(`Remote connected: ${remoteId} ==> ${hostId}`);
+		});
+
+		socket.on("denyRemote", (remoteId) => {
+			io.in(`remote-${remoteId}`).emit("updateHostState", "denied");
+		});
+	} else {
+		io.in(`host-${hostId}`).emit("remoteConnectionRequest", remoteId);
+		socket.join(`remote-${remoteId}`);
 
 		socket.on("processCommand", (cmd) => {
-			//console.log(`processCommand [${remoteId} ==> ${hostId}]`, cmd);
-			io.to(`host-${hostId}`).emit("processCommand", cmd);
+			if(socket.rooms.has(`host-${hostId}`))
+				io.to(`host-${hostId}`).emit("processCommand", cmd);
 		});
 	}
 
 	socket.on("disconnect", () => {
 		console.log(`${mode == "host" ? "Host" : "Remote"} Disconnected: ${remoteId || hostId}`);
 		if(mode == "host") {
-			io.in(`remotes-${hostId}`).emit("updateHostState", false);
+			io.in(`remotes-${hostId}`).emit("updateHostState", "offline");
 		} else {
 			io.in(`host-${hostId}`).emit("remoteDisconnected", remoteId);
 		}

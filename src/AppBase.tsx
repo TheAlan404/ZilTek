@@ -2,15 +2,16 @@ import { Button, Center, Checkbox, Divider, Text, Paper, Stack, TextInput, Title
 import { useLocalStorage } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IconArrowRight, IconPencil, IconPlus } from "@tabler/icons-react";
+import { IconArrowRight, IconDownload, IconPencil, IconPlus } from "@tabler/icons-react";
 
 import { LocalHost } from "./host/Local";
 import { RemoteHost } from "./host/Remote";
 import { NetworkingProvider } from "./host/Networking";
 import { IndexedDB } from "react-indexed-db-hook";
-import { DEFAULT_RELAY, HOST_MODE_ALLOWED, REMOTE_MODE_ALLOWED, VERSION } from "./meta";
+import { DEFAULT_RELAY, DOWNLOAD_LINK, HOST_MODE_ALLOWED, MODE, REMOTE_MODE_ALLOWED, VERSION } from "./meta";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
+import { LanguageSwitch } from "./app/components/LanguageSwitch";
 
 interface Remote {
     id: string,
@@ -29,10 +30,23 @@ const AppBase = () => {
     });
     let [connectTo, setConnectTo] = useState<Remote | null>(null);
     let [currentPage, setCurrentPage] = useState(hostMode == "local" ? "local" : "selection");
-    let { t, i18n } = useTranslation();
+    let { t } = useTranslation();
 
     useEffect(() => {
         if (JSON.parse(localStorage.getItem("ziltek-host-mode")) == "local") setCurrentPage("local");
+
+        let params = new URLSearchParams(location.search);
+
+        if (params.has("connect")) {
+            let id = params.get("connect");
+            setRemotesList((li) => li.some(x => x.id == id) ? li : [...li, {
+                id,
+                label: params.get("label") || "",
+                relay: params.get("relay") || DEFAULT_RELAY,
+            }])
+
+            location.search = "";
+        }
     }, []);
 
     return (
@@ -41,14 +55,7 @@ const AppBase = () => {
                 <Stack align="center" gap="xl" p="md" mt="md">
                     <Group justify="space-between" align="center" px="md" w="100%">
                         <Title>ZilTek {VERSION}</Title>
-                        <SegmentedControl
-                            value={i18n.resolvedLanguage}
-                            onChange={(v) => i18n.changeLanguage(v)}
-                            data={[
-                                { value: "en", label: "English" },
-                                { value: "tr", label: "Türkçe" },
-                            ]}
-                        />
+                        <LanguageSwitch />
                     </Group>
 
                     {HOST_MODE_ALLOWED && (<Group justify={"space-between"} align="center" p="md">
@@ -69,6 +76,21 @@ const AppBase = () => {
                             {t("mode.local.button")}
                         </Button>
                     </Group>)}
+
+                    {MODE === "WEB" && (
+                        <Group justify="end" align="center" px="md" w="100%">
+                            <Text>{t("download")}</Text>
+                            <ActionIcon
+                                component="a"
+                                href={DOWNLOAD_LINK}
+                                target="_blank"
+                                color="green"
+                                variant="light"
+                            >
+                                <IconDownload />
+                            </ActionIcon>
+                        </Group>
+                    )}
 
                     {REMOTE_MODE_ALLOWED && (
                         <>

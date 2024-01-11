@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Center, Code, Group, Loader, Stack, Text } from "@mantine/core";
 import { ControllerAPI } from "./ControllerAPI";
 import { v4 as uuidv4 } from "uuid";
@@ -13,11 +13,9 @@ export const RemoteHost = ({
     exitRemoteMode,
 }) => {
     let { t } = useTranslation();
-    let [remoteId, setRemoteId] = useLocalStorage({
-        key: "ziltek-remote-id",
-    });
-
-    if(!remoteId) setRemoteId(uuidv4());
+    if(!localStorage.getItem("ziltek-remote-id"))
+        localStorage.setItem("ziltek-remote-id", uuidv4());
+    const remoteId = useMemo(() => localStorage.getItem("ziltek-remote-id"), []);
 
     let [bigState, setBigState] = useState(null);
 

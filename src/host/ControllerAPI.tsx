@@ -69,6 +69,7 @@ export type CommandsList = {
 
     renameFile: { from: string, to: string },
     deleteFile: { filename: string },
+    deleteAllFiles: void,
     addFile: { filename: string, filedata: Blob },
 
     setAllData: { data: ControllerData },
@@ -142,10 +143,13 @@ export interface Controller {
     setRemoteControlEnabled: (v: boolean) => void | null,
     isConnected: boolean | null,
     socketStatus: string,
-    connectedRemotes: Remote[] | null,
+    connectedRemotes: string[] | null,
     remoteQueue: Remote[] | null,
     authenticatedRemotes: Remote[] | null,
     setAuthenticatedRemotes: (v: Remote[]) => void | null,
+    acceptRemote: (remoteId: string) => void,
+    denyRemote: (remoteId: string) => void,
+    kickRemote: (remoteId: string) => void,
 
     exit: () => void,
 }

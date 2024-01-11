@@ -16,7 +16,7 @@ export const ActionButtonWithTooltip = ({
             <ActionIcon
                 onClick={onClick}
                 color={color}
-                variant="subtle"
+                variant="light"
             >
                 {icon}
             </ActionIcon>

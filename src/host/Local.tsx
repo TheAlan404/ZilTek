@@ -312,6 +312,9 @@ const LocalHost = ({
         deleteFile({ filename }) {
             db.deleteRecord(filename).then(refreshFiles);
         },
+        deleteAllFiles() {
+            db.clear().then(refreshFiles);
+        },
         renameFile({ from, to }) {
             db.getByID<StoredFile>(from).then((file) => db.add({
                 ...file,
@@ -363,6 +366,9 @@ const LocalHost = ({
         isConnected,
         connectedRemotes,
         remoteQueue,
+        acceptRemote,
+        denyRemote,
+        kickRemote,
     } = useSocketIO({
         url: proxyUrl,
         connect: remoteControlEnabled,
@@ -375,6 +381,7 @@ const LocalHost = ({
             hostId,
             hostKey,
         },
+        authenticatedRemotes,
     })
 
     useEffect(() => {
@@ -431,6 +438,9 @@ const LocalHost = ({
             remoteQueue,
             proxyUrl,
             setProxyUrl,
+            acceptRemote,
+            denyRemote,
+            kickRemote,
             exit: () => exitLocalMode(),
         }}>
             <App />

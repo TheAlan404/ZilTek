@@ -1,16 +1,22 @@
 import { useTranslation } from "react-i18next";
 import { Button, Fieldset, Group, Stack } from "@mantine/core";
-import { IconTrash } from "@tabler/icons-react";
-import { useContext } from "react";
+import { IconDownload, IconTrash, IconUpload } from "@tabler/icons-react";
+import { useContext, useRef } from "react";
 import { ControllerAPI } from "../../../../host/ControllerAPI";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
+import { exportToZip, importFromZip } from "../../../DropzoneProvider";
 
 export const MaintenanceSection = () => {
     const { t } = useTranslation();
     const {
-        processCommand
+        processCommand,
+        data,
+        files,
+        hostMode,
     } = useContext(ControllerAPI);
+
+    const inputRef = useRef<HTMLInputElement>();
 
     return (
         <Fieldset
@@ -32,6 +38,7 @@ export const MaintenanceSection = () => {
                                 },
                                 onConfirm() {
                                     processCommand({ type: "clearAllData" });
+                                    processCommand({ type: "deleteAllFiles" });
                                     notifications.show({
                                         message: t("notif.deletedEverything"),
                                         color: "red",
@@ -40,6 +47,49 @@ export const MaintenanceSection = () => {
                             });
                         }}>
                         {t("deleteAllData")}
+                    </Button>
+
+                    <Button
+                        color="blue"
+                        variant="light"
+                        leftSection={<IconDownload />}
+                        onClick={() => {
+                            inputRef.current?.click();
+                        }}>
+                        {t("importFromZip")}
+                    </Button>
+
+                    <input style={{ display: "none" }}
+                        type="file"
+                        multiple
+                        accept="application/x-zip-compressed,application/zip"
+                        onChange={(e) => {
+                            let fileList = e.currentTarget.files;
+                            let files = Array.from(fileList);
+                            let file = files[0];
+
+                            importFromZip(processCommand, file).then(() => {
+                                notifications.show({
+                                    message: t("notif.imported"),
+                                    color: "green",
+                                });
+                            });
+                        }}
+                        ref={inputRef} />
+
+                    <Button
+                        color="blue"
+                        variant="light"
+                        leftSection={<IconUpload />}
+                        onClick={() => {
+                            exportToZip(data, files).then(() => {
+                                notifications.show({
+                                    message: t("notif.exported"),
+                                    color: "green",
+                                });
+                            })
+                        }}>
+                        {t("exportToZip")}
                     </Button>
                 </Group>
             </Stack>

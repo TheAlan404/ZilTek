@@ -18,6 +18,9 @@ const resources = {
             },
             language: "Language",
             deleteAllData: "Delete All Data",
+            download: "Download ZilTek as an App",
+            importFromZip: "Import from Zip",
+            exportToZip: "Export to Zip",
 
             days: [
                 "Sunday",
@@ -307,6 +310,9 @@ const resources = {
             },
             language: "Dil",
             deleteAllData: "Bütün verileri sil",
+            download: "ZilTek'i uygulama olarak indir",
+            importFromZip: "Zip'ten İçe Aktar",
+            exportToZip: "Zip olarak Dışa Aktar",
 
             days: [
                 "Pazar",

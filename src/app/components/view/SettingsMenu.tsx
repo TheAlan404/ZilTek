@@ -3,6 +3,7 @@ import { ControllerAPI } from "../../../host/ControllerAPI";
 import { useTranslation } from "react-i18next";
 import { Button, Divider, Group, Select, Stack, Text } from "@mantine/core";
 import { IconLogout2 } from "@tabler/icons-react";
+import { LanguageSwitch } from "../LanguageSwitch";
 
 export const SettingsMenu = () => {
     const { hostMode: mode, exit } = useContext(ControllerAPI);
@@ -14,15 +15,7 @@ export const SettingsMenu = () => {
             <Divider w="80%" />
             <Group justify="space-between">
                 <Text>{t("language")}</Text>
-                <Select
-                    value={i18n.resolvedLanguage}
-                    onChange={(v) => i18n.changeLanguage(v)}
-                    data={[
-                        { value: "en", label: "English" },
-                        { value: "tr", label: "Türkçe" },
-                    ]}
-                    comboboxProps={{ withinPortal: false }}
-                />
+                <LanguageSwitch />
             </Group>
             <Group justify="flex-end">
                 <Button

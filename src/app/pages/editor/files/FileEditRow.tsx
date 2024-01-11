@@ -65,7 +65,7 @@ export const FileEditRow = ({
                         {file.filename}
                     </Text>
                     <Text c="dark">
-                        {t("edit.bytes", { bytes: file.data.byteLength || file.data.size })}
+                        {t("edit.bytes", { bytes: file.data ? (file.data.byteLength || file.data.size) : "?" })}
                     </Text>
                 </Group>
                 <Group>
