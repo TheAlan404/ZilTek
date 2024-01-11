@@ -38,7 +38,7 @@ export const RemoteHost = ({
     });
 
     const processCommand = (cmd) => {
-        socket.current?.emit("processCommand", cmd);
+        socket.current?.volatile.emit("processCommand", cmd);
     };
 
     return (
