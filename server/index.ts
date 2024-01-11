@@ -111,7 +111,7 @@ io.on("connection", (socket) => {
 
 		socket.on("updateState", (st) => {
 			//console.log(`updateState [${hostId} ==> *]`, st);
-			io.to(`remotes-${hostId}`).emit("updateState", st);
+			io.to(`remotes-${hostId}`).volatile.emit("updateState", st);
 		});
 
 		socket.on("kickRemote", (remoteId) => {
@@ -133,7 +133,7 @@ io.on("connection", (socket) => {
 
 		socket.on("processCommand", (cmd) => {
 			if(socket.rooms.has(`host-${hostId}`))
-				io.to(`host-${hostId}`).emit("processCommand", cmd);
+				io.to(`host-${hostId}`).volatile.emit("processCommand", cmd);
 		});
 	}
 
