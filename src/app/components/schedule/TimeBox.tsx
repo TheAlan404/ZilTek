@@ -14,6 +14,7 @@ interface TimeBoxProps {
     variant: TimeBoxVariant,
     label: string | null,
     description: string | null,
+    w: string | null,
 }
 
 export const TimeBox = ({
@@ -23,6 +24,7 @@ export const TimeBox = ({
     variant = "idle",
     label,
     description,
+    w,
 }: TimeBoxProps) => {
     const { t } = useTranslation();
 
@@ -39,6 +41,7 @@ export const TimeBox = ({
 
     return (
         <TextInput
+            w={w}
             value={value}
             style={{
                 pointerEvents: readonly && "none",

@@ -26,7 +26,27 @@ const getNextPrev = (table: Timetable) => {
         }
     }
 
+    if(prev && TimeToDate(prev.value) > TimeToDate(t)) prev = null;
+    if(next && TimeToDate(next.value) < TimeToDate(t)) next = null;
+
     return [next, prev];
+}
+
+const toSecs = (d: Date) =>
+    (d.getHours() * 60 * 60) + (d.getMinutes() * 60) + (d.getSeconds());
+
+const getProgressBetween = (prev: Entry, next: Entry) => {
+    let a = TimeToDate(prev.value);
+    let b = TimeToDate(next.value);
+
+    let current = toSecs(new Date());
+    let x = toSecs(a);
+    let y = toSecs(b);
+
+    let len = y - x;
+    let progressed = current - x;
+
+    return (progressed / len) * 100;
 }
 
 export const ClockSection = () => {
@@ -78,7 +98,7 @@ export const ClockSection = () => {
 
     return (
         <Stack>
-            <Stack>
+            <Stack gap={0}>
                 <Group justify="space-between">
                     <Text>
                         {date}
@@ -88,21 +108,22 @@ export const ClockSection = () => {
                     </Text>
                 </Group>
 
-                <Text c="violet" fz="4em" w="100%">
+                <Text c="violet" fz="4em" w="100%" ta="center">
                     {time}
                 </Text>
+
                 <Progress
                     color="violet"
                     value={progressSec}
                 />
-                <Progress
+                {/* <Progress
                     color="violet"
                     value={progressMin}
                 />
                 <Progress
                     color="violet"
                     value={progressHr}
-                />
+                /> */}
             </Stack>
             <Stack>
                 {zeroFiles && (
@@ -132,7 +153,37 @@ export const ClockSection = () => {
                         <Text c="dimmed" fs="italic">{t(`view.noBells`)}</Text>
                     </Paper>
                 )}
-                {next && (
+                {prev && next && (
+                    <Paper withBorder p="md">
+                        <Stack>
+                            <Stack gap={0}>
+                                <Group justify="space-between" wrap="nowrap">
+                                    <Text>{t(`view.prevBell`)}</Text>
+                                    <Text>{t(`view.nextBell`)}</Text>
+                                </Group>
+                                <Group justify="space-between" grow={false} wrap="nowrap">
+                                    <TimeBox
+                                        {...prev}
+                                        readonly
+                                        w="5em"
+                                    />
+                                    <Text c="dimmed">{formatRelative(language, prev.value)}</Text>
+                                    <Text c="dimmed" ta="right">{formatRelative(language, next.value)}</Text>
+                                    <TimeBox
+                                        {...next}
+                                        readonly
+                                        w="5em"
+                                    />
+                                </Group>
+                            </Stack>
+                            <Progress
+                                value={getProgressBetween(prev, next)}
+                                color="violet"
+                            />
+                        </Stack>
+                    </Paper>
+                )}
+                {next && !prev && (
                     <Paper withBorder p="md">
                         <Group justify="space-between" grow wrap="nowrap">
                             <Text>{t(`view.nextBell`)}</Text>
@@ -144,7 +195,7 @@ export const ClockSection = () => {
                         </Group>
                     </Paper>
                 )}
-                {prev && (
+                {prev && !next && (
                     <Paper withBorder p="md">
                         <Group justify="space-between" grow wrap="nowrap">
                             <Text c="dimmed">{t(`view.prevBell`)}</Text>
