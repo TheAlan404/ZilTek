@@ -23,7 +23,7 @@ export const EditLabelModal = ({
             <TextInput
                 autoFocus
                 placeholder={label}
-                label={t("modals.editLabel.label")}
+                label={t("modals.editRemoteLabel.label")}
                 value={renameTo}
                 onChange={(e) => setRenameTo(e.currentTarget.value)}
                 onSubmit={renameLabel}
@@ -35,7 +35,7 @@ export const EditLabelModal = ({
                     {t("modals.cancel")}
                 </Button>
                 <Button onClick={renameLabel}>
-                    {t("modals.editLabel.confirm")}
+                    {t("modals.editRemoteLabel.confirm")}
                 </Button>
             </Group>
         </Stack>

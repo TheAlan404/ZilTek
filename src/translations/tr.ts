@@ -171,6 +171,11 @@ export default {
             content: "Bu kumandaya güvendiğinizden emin misiniz? Güvenilen kumandalar onay gerekmeden bağlanabilir.",
             confirm: "Evet",
         },
+        editRemoteLabel: {
+            title: "Etiketi Değiştir",
+            label: "Etiket",
+            confirm: "Tamam",
+        },
     },
 
     bells: {
@@ -294,6 +299,8 @@ export default {
         waitingForAcceptionDesc: "Bağlantı uzaktan kontrol kısmından kabül edilmelidir.",
         denied: "Reddedildi",
         deniedDesc: "Bağlanılan ZilTek bağlantıyı reddetti.",
+        kicked: "Bağlantı Kesildi",
+        kickedDesc: "Bağlanılan ZilTek bağlantınızı kesti.",
         hostOffline: "Çevrimdışı",
         hostOfflineDesc: "Bağlanılan ZilTek şuan çevrimdışı. Çevrimiçi olduğu zaman otomatik olarak yeniden bağlanılacak.",
 
@@ -304,6 +311,7 @@ export default {
         connected: "Bağlandı",
         editLabel: "Etiketi değiştir",
         removeTrust: "Güveni kaldır",
+        kickRemote: "Bağlantıyı Kes",
     },
 
     audio: {

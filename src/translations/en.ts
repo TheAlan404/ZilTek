@@ -176,7 +176,8 @@ export default {
         },
         editRemoteLabel: {
             title: "Edit Label",
-            
+            label: "Label",
+            confirm: "Set Label",
         },
     },
 
@@ -302,6 +303,8 @@ export default {
         waitingForAcceptionDesc: "The connection must be accepted from the remote control tab.",
         denied: "Denied",
         deniedDesc: "The host denied your connection request.",
+        kicked: "Kicked",
+        kickedDesc: "The host closed your connection",
         hostOffline: "Host Offline",
         hostOfflineDesc: "Host disconnected from relay. Once the host is online again you will automatically be reconnected.",
         
@@ -312,6 +315,7 @@ export default {
         connected: "Connected",
         editLabel: "Edit label",
         removeTrust: "Remove Trust",
+        kickRemote: "Kick Remote",
     },
 
     audio: {

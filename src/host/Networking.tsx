@@ -72,7 +72,7 @@ export const useSocketIO = ({
 
     useEffect(() => {
         socket.current?.on("remoteConnected", (remoteId) => {
-            setConnectedRemotes(l => [...l, remoteId]);
+            setConnectedRemotes(l => l.includes(remoteId) ? l : [...l, remoteId]);
             log(`remoteConnected: ${remoteId}`);
         });
         socket.current?.on("remoteDisconnected", (remoteId) => {

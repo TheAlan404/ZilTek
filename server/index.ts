@@ -12,7 +12,7 @@ const PORT = Number(process.env.PORT) || 3000;
 const ADDR = process.env.ADDR || "0.0.0.0";
 const REDIRECT_TO = "https://thealan404.github.io/ziltekproject";
 
-export type RcHostState = "offline" | "connected" | "waiting" | "denied";
+export type RcHostState = "offline" | "connected" | "waiting" | "denied" | "kicked" | "connecting";
 
 export interface ServerToClientEvents {
 	updateState: (state: object) => void;
@@ -77,8 +77,8 @@ io.use(async (socket, next) => {
 		if (!validate(hostId)) return next(new Error("invalid hostId"));
 		if (!validate(hostKey)) return next(new Error("invalid hostKey"));
 
-		//let socks = await io.in(`host-${hostId}`).fetchSockets();
-		//if(socks.length) return next(new Error("already connected?"));
+		let socks = await io.in(`host-${hostId}`).fetchSockets();
+		if(socks.length) return next(new Error("already connected?"));
 
 		if (db.data.hosts[hostId]) {
 			if (db.data.hosts[hostId] !== hostKey) return next(new Error("authentication failed"));
@@ -108,6 +108,13 @@ io.on("connection", (socket) => {
 		socket.join(`host-${hostId}`);
 
 		io.in(`remotes-${hostId}`).emit("updateHostState", "connected");
+		io.in(`remotes-${hostId}`)
+			.fetchSockets()
+			.then((sockets) => {
+				for(let remote of sockets) {
+					socket.emit("remoteConnected", remote.handshake.auth.remoteId);
+				}
+			})
 
 		socket.on("updateState", (st) => {
 			//console.log(`updateState [${hostId} ==> *]`, st);
@@ -115,7 +122,9 @@ io.on("connection", (socket) => {
 		});
 
 		socket.on("kickRemote", (remoteId) => {
-			io.in(`remote-${remoteId}`).disconnectSockets();
+			io.in(`remote-${remoteId}`).emit("updateHostState", "kicked");
+			io.in(`remote-${remoteId}`).socketsLeave(`remotes-${hostId}`);
+			io.in(`host-${hostId}`).emit("remoteDisconnected", remoteId);
 		});
 
 		socket.on("acceptRemote", (remoteId) => {
@@ -141,7 +150,8 @@ io.on("connection", (socket) => {
 	socket.on("disconnect", () => {
 		console.log(`${mode == "host" ? "Host" : "Remote"} Disconnected: ${remoteId || hostId}`);
 		if(mode == "host") {
-			io.in(`remotes-${hostId}`).emit("updateHostState", "offline");
+			io.in(`remotes-${hostId}`)
+				.emit("updateHostState", "offline");
 		} else {
 			io.in(`host-${hostId}`).emit("remoteDisconnected", remoteId);
 		}

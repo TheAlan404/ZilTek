@@ -43,7 +43,7 @@ export const RemoteHost = ({
     };
 
     return (
-        (bigState && hostState !== "offline") ? (
+        (bigState && !["offline", "kicked", "denied"].includes(hostState)) ? (
             <ControllerAPI.Provider value={{
                 ...bigState,
                 processCommand,
@@ -76,6 +76,13 @@ export const RemoteHost = ({
                                 <IconUserX />
                                 <Title order={4}>{t("rc.denied")}</Title>
                                 <Text>{t("rc.deniedDesc")}</Text>
+                            </>
+                        ),
+                        kicked: () => (
+                            <>
+                                <IconUserX />
+                                <Title order={4}>{t("rc.kicked")}</Title>
+                                <Text>{t("rc.kickedDesc")}</Text>
                             </>
                         ),
                         offline: () => (
