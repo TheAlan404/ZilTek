@@ -5,7 +5,7 @@ import { ChangesContext } from "../../../../ChangesContext";
 import { TimetableComponent } from "../../../../components/schedule/Timetable";
 import { ControllerAPI, DefaultData, DefaultTimetable, DefaultTimetableDay } from "../../../../../host/ControllerAPI";
 import { CommitableTimetable } from "../../../../components/schedule/CommitableTimetable";
-import { IconPlaylistX, IconWand } from "@tabler/icons-react";
+import { IconCopy, IconPlaylistX, IconWand } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
 import { TimetableGenerator } from "./TimetableGenerator";
 import useMobile from "../../../../../hooks/useMobile";
@@ -57,9 +57,19 @@ export const TimetablePanel = () => {
         }
     };
 
+    const copyFromMain = () => {
+        processCommand({
+            type: "setTimetableDay",
+            data: {
+                tableIndex: tableIndex-1,
+                tableData: [...data.schedule.tables.default],
+            },
+        })
+    }
+
     return (
         <Stack>
-            <Group justify="space-between">
+            <Group wrap="nowrap" align="end" justify="space-between">
                 <Select
                     data={DAYS}
                     label={t("editor.sections.schedule.type.timetable.daySelect")}
@@ -69,7 +79,15 @@ export const TimetablePanel = () => {
                     onChange={(v) => setTableIndex(v)}
                     disabled={!!unsavedChanges.length}
                 />
-                <Group>
+                <Group wrap="nowrap">
+                    {tableIndex !== "0" && <Button
+                        leftSection={<IconCopy />}
+                        color="blue"
+                        variant="light"
+                        onClick={() => copyFromMain()}
+                    >
+                        {t("editor.sections.schedule.type.timetable.copyFromMain")}
+                    </Button>}
                     <Button
                         leftSection={<IconPlaylistX />}
                         color="red"

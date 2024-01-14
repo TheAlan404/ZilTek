@@ -14,7 +14,7 @@ const pad = (v: number) => v.toString().padStart(2, "0");
 const getNextPrev = (table: Timetable) => {
     let t = Time(new Date());
 
-    let flattened = table.flat();
+    let flattened = table.flat().filter(x => x.value !== "00:00");
     
     let prev = flattened[0];
     let next = flattened[0];

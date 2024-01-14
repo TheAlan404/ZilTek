@@ -229,6 +229,7 @@ export default {
                         daySelect: "Select Day",
                         clear: "Clear",
                         generate: "Generate",
+                        copyFromMain: "Copy from Main",
                         fullOverride: "Full Override",
                         fullOverrideDesc: "When turned on, completely uses this table instead of overriding based on main table",
                     },
