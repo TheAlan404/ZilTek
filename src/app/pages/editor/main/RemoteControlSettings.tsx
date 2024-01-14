@@ -1,30 +1,22 @@
-import { Fieldset, Stack, Checkbox, Group, Text, Code, Divider, ActionIcon, TextInput, Tooltip, Popover, Image } from "@mantine/core";
-import { IconCheck, IconEdit, IconKey, IconKeyOff, IconLock, IconQrcode, IconReload, IconUserCheck, IconX } from "@tabler/icons-react";
-import { useContext, useEffect, useState } from "react";
+import { Fieldset, Stack, Checkbox, Group, Text, Code, Divider, ActionIcon, TextInput, Tooltip, Popover } from "@mantine/core";
+import { IconCheck, IconEdit, IconKey, IconKeyOff, IconQrcode, IconUserCheck, IconX } from "@tabler/icons-react";
+import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { ControllerAPI } from "../../../../host/ControllerAPI";
 import { OnlineBadge } from "../../../components/view/OnlineBadge";
-import { DEFAULT_RELAY, QRCODE_PREFIX } from "../../../../meta";
+import { QRCODE_PREFIX } from "../../../../meta";
 import { ActionButtonWithTooltip } from "../../../components/editor/ActionButtonWithTooltip";
 import { QRCodeSVG } from "qrcode.react";
 import { modals } from "@mantine/modals";
+import { EditLabelModal } from "../remoteControl/EditLabelModal";
+import { AuthenticatedRemote } from "../remoteControl/AuthenticatedRemote";
+import { UnknownRemote } from "../remoteControl/UnknownRemote";
+
 
 export const RemoteControlSettings = () => {
     const { t } = useTranslation();
     const {
-        proxyUrl,
-        setProxyUrl,
-        remoteControlEnabled,
-        setRemoteControlEnabled,
-        hostId,
-        isConnected,
-        connectedRemotes,
-        authenticatedRemotes,
-        setAuthenticatedRemotes,
-        remoteQueue,
-        acceptRemote,
-        denyRemote,
-        kickRemote,
+        proxyUrl, setProxyUrl, remoteControlEnabled, setRemoteControlEnabled, hostId, isConnected, connectedRemotes, authenticatedRemotes, setAuthenticatedRemotes, remoteQueue, acceptRemote, denyRemote, kickRemote,
     } = useContext(ControllerAPI);
 
     let qrcodeValue = QRCODE_PREFIX + "?" + new URLSearchParams({
@@ -51,8 +43,7 @@ export const RemoteControlSettings = () => {
                         <TextInput
                             label={t("mode.proxyurl")}
                             value={proxyUrl}
-                            onChange={(e) => setProxyUrl(e.currentTarget.value)}
-                        />
+                            onChange={(e) => setProxyUrl(e.currentTarget.value)} />
                         <Group justify="space-between">
                             <Text>
                                 {t("rc.hostId")}
@@ -74,8 +65,7 @@ export const RemoteControlSettings = () => {
                                         <QRCodeSVG
                                             value={qrcodeValue}
                                             bgColor="transparent"
-                                            fgColor="#ffffff"
-                                        />
+                                            fgColor="#ffffff" />
                                     </Popover.Dropdown>
                                 </Popover>
                             </Group>
@@ -85,28 +75,12 @@ export const RemoteControlSettings = () => {
                                 <>
                                     <Divider label={t("rc.authenticatedRemotes")} />
                                     {authenticatedRemotes.map((remote, i) => (
-                                        <Group justify="end" key={i}>
-                                            <Code key={i}>{remote.remoteId}</Code>
-                                            {connectedRemotes?.includes(remote.remoteId) && (
-                                                <Tooltip label={t("rc.connected")}>
-                                                    <IconUserCheck color="var(--mantine-color-green-9)" />
-                                                </Tooltip>
-                                            )}
-                                            <ActionButtonWithTooltip
-                                                color="blue"
-                                                label={t("rc.editLabel")}
-                                                icon={<IconEdit />}
-                                                onClick={() => {
-
-                                                }}
-                                            />
-                                            <ActionButtonWithTooltip
-                                                color="yellow"
-                                                label={t("rc.removeTrust")}
-                                                icon={<IconKeyOff />}
-                                                onClick={() => setAuthenticatedRemotes(li => li.filter(r => r.remoteId !== remote.remoteId))}
-                                            />
-                                        </Group>
+                                        <AuthenticatedRemote
+                                            connectedRemotes={connectedRemotes}
+                                            onChange={setAuthenticatedRemotes}
+                                            remote={remote}
+                                            key={i}
+                                        />
                                     ))}
                                 </>
                             )}
@@ -114,43 +88,18 @@ export const RemoteControlSettings = () => {
                                 <>
                                     <Divider label={t("rc.connectedRemotes")} />
                                     {untrustedConnected.map((remoteId, i) => (
-                                            <Group justify="end" key={i}>
-                                                <Code key={i}>{remoteId}</Code>
-                                                <ActionButtonWithTooltip
-                                                    color="yellow"
-                                                    label={t("rc.trustRemote")}
-                                                    icon={<IconKey />}
-                                                    onClick={() => {
-                                                        modals.openConfirmModal({
-                                                            title: t("modals.trustRemote.title"),
-                                                            children: t("modals.trustRemote.content"),
-                                                            confirmProps: { color: "yellow" },
-                                                            labels: {
-                                                                confirm: t("modals.trustRemote.confirm"),
-                                                                cancel: t("modals.cancel")
-                                                            },
-                                                            onConfirm() {
-                                                                setAuthenticatedRemotes(li => [...li, {
-                                                                    label: "",
-                                                                    remoteId,
-                                                                }]);
-                                                            }
-                                                        })
-                                                    }}
-                                                />
-                                                <ActionButtonWithTooltip
-                                                    color="red"
-                                                    label={t("rc.kickRemote")}
-                                                    icon={<IconX />}
-                                                    onClick={() => kickRemote(remoteId)}
-                                                />
-                                            </Group>
-                                        )
+                                        <UnknownRemote
+                                            key={i}
+                                            kickRemote={kickRemote}
+                                            remoteId={remoteId}
+                                            setAuthenticatedRemotes={setAuthenticatedRemotes}
+                                        />
+                                    )
                                     )}
                                 </>
                             )}
                             {!!remoteQueue?.length && (
-                                <Stack>
+                                <>
                                     <Divider label={t("rc.connectionRequests")} />
                                     {remoteQueue.map(({ remoteId }, i) => (
                                         <Group justify="end" key={i}>
@@ -173,7 +122,7 @@ export const RemoteControlSettings = () => {
                                             </Group>
                                         </Group>
                                     ))}
-                                </Stack>
+                                </>
                             )}
                         </Stack>
                     </Stack>

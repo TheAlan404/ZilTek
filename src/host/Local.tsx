@@ -109,6 +109,9 @@ const LocalHost = ({
             return;
         }
 
+        // 00:00
+        if (!h && !m) return;
+
         let found = findBell(h, m);
         if (!found) return;
         if (isOn) setCurrentlyPlayingBell([found.x, found.y, found.bell]);

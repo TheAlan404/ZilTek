@@ -32,6 +32,7 @@ export const ControlsSection = () => {
     
     useHotkeys([
         ["q", () => processCommand({ type: "stopAllAudio" })],
+        ["space", () => processCommand({ type: "stopAllAudio" })],
     ])
 
     return (

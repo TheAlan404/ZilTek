@@ -16,6 +16,7 @@ import { PageChangeButton } from "./components/view/PageChangeButton.tsx"
 import { AppHeader } from "./components/view/AppHeader.tsx"
 import { OnlineBadge } from "./components/view/OnlineBadge.tsx"
 import { AppTitle } from "./components/view/AppTitle.tsx"
+import { DropzoneProvider } from "./DropzoneProvider.tsx"
 
 const App = () => {
     let [currentPage, setCurrentPage] = useState("view");
@@ -59,8 +60,8 @@ const App = () => {
                     </Flex>
                 </AppShell.Header>
                 <AppShell.Main>
-
                     {currentPage == "view" ? <ViewPage /> : <EditorPage />}
+                    <DropzoneProvider />
                 </AppShell.Main>
             </AppShell>
         </ChangesContext.Provider>
