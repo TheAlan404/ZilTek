@@ -128,11 +128,12 @@ io.on("connection", (socket) => {
 			io.in(`remote-${remoteId}`).emit("updateHostState", "denied");
 		});
 	} else {
-		io.in(`host-${hostId}`).emit("remoteConnectionRequest", remoteId);
 		socket.join(`remote-${remoteId}`);
+		socket.emit("updateHostState", "waiting");
+		io.in(`host-${hostId}`).emit("remoteConnectionRequest", remoteId);
 
 		socket.on("processCommand", (cmd) => {
-			if(socket.rooms.has(`host-${hostId}`))
+			if(socket.rooms.has(`remotes-${hostId}`))
 				io.to(`host-${hostId}`).volatile.emit("processCommand", cmd);
 		});
 	}

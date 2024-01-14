@@ -177,7 +177,6 @@ const AppBase = () => {
             currentPage == "local" ? (
                 <LocalHost
                     exitLocalMode={() => {
-                        setHostMode("rc");
                         setCurrentPage("selection");
                     }}
                 />

@@ -7,6 +7,7 @@ import { OnlineBadge } from "../../../components/view/OnlineBadge";
 import { DEFAULT_RELAY, QRCODE_PREFIX } from "../../../../meta";
 import { ActionButtonWithTooltip } from "../../../components/editor/ActionButtonWithTooltip";
 import { QRCodeSVG } from "qrcode.react";
+import { modals } from "@mantine/modals";
 
 export const RemoteControlSettings = () => {
     const { t } = useTranslation();
@@ -119,10 +120,29 @@ export const RemoteControlSettings = () => {
                                                     color="yellow"
                                                     label={t("rc.trustRemote")}
                                                     icon={<IconKey />}
-                                                    onClick={() => setAuthenticatedRemotes(li => [...li, {
-                                                        label: "",
-                                                        remoteId,
-                                                    }])}
+                                                    onClick={() => {
+                                                        modals.openConfirmModal({
+                                                            title: t("modals.trustRemote.title"),
+                                                            children: t("modals.trustRemote.content"),
+                                                            confirmProps: { color: "yellow" },
+                                                            labels: {
+                                                                confirm: t("modals.trustRemote.confirm"),
+                                                                cancel: t("modals.cancel")
+                                                            },
+                                                            onConfirm() {
+                                                                setAuthenticatedRemotes(li => [...li, {
+                                                                    label: "",
+                                                                    remoteId,
+                                                                }]);
+                                                            }
+                                                        })
+                                                    }}
+                                                />
+                                                <ActionButtonWithTooltip
+                                                    color="red"
+                                                    label={t("rc.kickRemote")}
+                                                    icon={<IconX />}
+                                                    onClick={() => kickRemote(remoteId)}
                                                 />
                                             </Group>
                                         )

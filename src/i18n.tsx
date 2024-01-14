@@ -290,6 +290,18 @@ const resources = {
                 hostId: "Host ID",
                 connectedRemotes: "Connected Remotes",
                 noRemotesConnected: "No remotes connected",
+
+                connecting: "Connecting...",
+                connectingDesc: "Connecting to remote...",
+                waitingForAcception: "Waiting for acception...",
+                waitingForAcceptionDesc: "The connection must be accepted from the remote control tab.",
+                denied: "Denied",
+                deniedDesc: "The host denied your connection request.",
+                hostOffline: "Host Offline",
+                hostOfflineDesc: "Host disconnected from relay. Once the host is online again you will automatically be reconnected.",
+                
+                remoteId: "This remote's ID:",
+                disconnect: "Disconnect",
             },
 
             audio: {
@@ -580,6 +592,18 @@ const resources = {
                 hostId: "Host ID",
                 connectedRemotes: "Bağlananlar",
                 noRemotesConnected: "Hiçbir kumanda bağlanmadı",
+
+                connecting: "Bağlanılıyor...",
+                connectingDesc: "Lütfen bekleyin...",
+                waitingForAcception: "Kabül bekleniyor...",
+                waitingForAcceptionDesc: "Bağlantı uzaktan kontrol kısmından kabül edilmelidir.",
+                denied: "Reddedildi",
+                deniedDesc: "Bağlanılan ZilTek bağlantıyı reddetti.",
+                hostOffline: "Çevrimdışı",
+                hostOfflineDesc: "Bağlanılan ZilTek şuan çevrimdışı. Çevrimiçi olduğu zaman otomatik olarak yeniden bağlanılacak.",
+
+                remoteId: "Bu kumandanın ID'si:",
+                disconnect: "Bağlantıyı Kes",
             },
 
             audio: {

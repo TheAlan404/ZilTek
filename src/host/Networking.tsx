@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import io, { Socket } from "socket.io-client";
-import { ServerToClientEvents, ClientToServerEvents } from "../../proxy/index";
+import { ServerToClientEvents, ClientToServerEvents, RcHostState } from "../../server/index";
 import { notifications } from "@mantine/notifications";
 
 export interface NetworkingAuth {
@@ -23,7 +23,7 @@ interface UseSocketIOResult {
     isConnected: boolean,
     connectedRemotes: string[],
     remoteQueue: Remote[],
-    isHostAlive: boolean,
+    hostState: RcHostState,
     acceptRemote: (remoteId: string) => void,
     denyRemote: (remoteId: string) => void,
     kickRemote: (remoteId: string) => void,
@@ -47,7 +47,7 @@ export const useSocketIO = ({
     authenticatedRemotes: Remote[],
 }): UseSocketIOResult => {
     let [isConnected, setIsConnected] = useState(false);
-    let [isHostAlive, setIsHostAlive] = useState(false);
+    let [hostState, setHostState] = useState(false);
     let [connectedRemotes, setConnectedRemotes] = useState([]);
     let [socketStatus, setSocketStatus] = useState("");
     let [remoteQueue, setRemoteQueue] = useState<Remote[]>([]);
@@ -88,7 +88,6 @@ export const useSocketIO = ({
 
     useEffect(() => {
         socket.current?.on("remoteConnectionRequest", (remoteId) => {
-            console.log("authenticatedRemotes:::::::::", authenticatedRemotes);
             if (authenticatedRemotes.some((r) => r.remoteId === remoteId)) {
                 socket.current?.emit("acceptRemote", remoteId);
                 log(`authenticated remote accepted: ${remoteId}`);
@@ -119,7 +118,7 @@ export const useSocketIO = ({
 
         socket.current?.on("updateHostState", (con) => {
             if(!con) setSocketStatus("errors.hostDisconnected");
-            setIsHostAlive(con);
+            setHostState(con);
         });
 
         socket.current?.onAny((...a) => console.log("Networking::onAny", ...a));
@@ -153,7 +152,7 @@ export const useSocketIO = ({
         isConnected,
         connectedRemotes,
         remoteQueue,
-        isHostAlive,
+        hostState,
         acceptRemote(remoteId) {
             socket.current?.emit("acceptRemote", remoteId);
             setRemoteQueue(q => q.filter(x => x.remoteId !== remoteId));

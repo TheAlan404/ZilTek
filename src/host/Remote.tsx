@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Center, Code, Group, Loader, Stack, Text } from "@mantine/core";
+import { Button, Center, Code, Group, Loader, Stack, Text, Title } from "@mantine/core";
 import { ControllerAPI } from "./ControllerAPI";
 import { v4 as uuidv4 } from "uuid";
 import { useSocketIO } from "./Networking";
 import { useLocalStorage } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { App } from "../app/App";
+import { IconPlugX, IconUserX } from "@tabler/icons-react";
 
 export const RemoteHost = ({
     proxyUrl,
@@ -22,7 +23,7 @@ export const RemoteHost = ({
     let {
         socket,
         isConnected,
-        isHostAlive,
+        hostState,
     } = useSocketIO({
         url: proxyUrl,
         connect: true,
@@ -42,7 +43,7 @@ export const RemoteHost = ({
     };
 
     return (
-        (bigState && isConnected) ? (
+        (bigState && hostState !== "offline") ? (
             <ControllerAPI.Provider value={{
                 ...bigState,
                 processCommand,
@@ -54,14 +55,49 @@ export const RemoteHost = ({
             </ControllerAPI.Provider>
         ) : (
             <Center h="100%" p="xl">
-                <Stack align="center" ta="center">
-                    <Loader />
-                    <Text>
-                        {t(isHostAlive ? "rc.awaitingState" : "rc.connecting")}
-                    </Text>
-                    <Group>
-                        <Code>{remoteId}</Code>
-                    </Group>
+                <Stack align="center" ta="center" gap="xl" mt="xl">
+                    {(({
+                        connecting: () => (
+                            <>
+                                <Loader />
+                                <Title order={4}>{t("rc.connecting")}</Title>
+                                <Text>{t("rc.connectingDesc")}</Text>
+                            </>
+                        ),
+                        waiting: () => (
+                            <>
+                                <Loader />
+                                <Title order={4}>{t("rc.waitingForAcception")}</Title>
+                                <Text>{t("rc.waitingForAcceptionDesc")}</Text>
+                            </>
+                        ),
+                        denied: () => (
+                            <>
+                                <IconUserX />
+                                <Title order={4}>{t("rc.denied")}</Title>
+                                <Text>{t("rc.deniedDesc")}</Text>
+                            </>
+                        ),
+                        offline: () => (
+                            <>
+                                <IconPlugX />
+                                <Title order={4}>{t("rc.hostOffline")}</Title>
+                                <Text>{t("rc.hostOfflineDesc")}</Text>
+                            </>
+                        ),
+                    })[hostState || "connecting"] || (() => (
+                        <Text>{hostState}</Text>
+                    )))()}
+                    
+                    <Stack>
+                        <Group>
+                            <Text>
+                                {t("rc.remoteId")}
+                            </Text>
+                            <Code>{remoteId}</Code>
+                        </Group>
+                    </Stack>
+
                     <Button
                         color="red"
                         variant="light"
