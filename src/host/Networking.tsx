@@ -2,12 +2,14 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import io, { Socket } from "socket.io-client";
 import { ServerToClientEvents, ClientToServerEvents, RcHostState } from "../../server/index";
 import { notifications } from "@mantine/notifications";
+import { VERSION } from "../meta";
 
 export interface NetworkingAuth {
     mode: "host" | "remote",
     hostId: string,
     hostKey: string | null,
     remoteId: string | null,
+    ver: string,
 }
 
 export interface Remote {
@@ -24,6 +26,7 @@ interface UseSocketIOResult {
     connectedRemotes: string[],
     remoteQueue: Remote[],
     hostState: RcHostState,
+    isIncompatible: boolean,
     acceptRemote: (remoteId: string) => void,
     denyRemote: (remoteId: string) => void,
     kickRemote: (remoteId: string) => void,
@@ -47,6 +50,7 @@ export const useSocketIO = ({
     authenticatedRemotes: Remote[],
 }): UseSocketIOResult => {
     let [isConnected, setIsConnected] = useState(false);
+    let [isIncompatible, setIsIncompatible] = useState(false);
     let [hostState, setHostState] = useState(false);
     let [connectedRemotes, setConnectedRemotes] = useState([]);
     let [socketStatus, setSocketStatus] = useState("");
@@ -56,19 +60,21 @@ export const useSocketIO = ({
     useEffect(() => {
         if(socket.current) socket.current.disconnect();
         socket.current = io(url, {
-            autoConnect: connect,
-            auth,
+            autoConnect: false,
+            auth: {
+                ...auth,
+                ver: VERSION,
+            },
         });
-    }, [connect, url]);
 
-    useEffect(() => {
         if (connect) {
+            setIsIncompatible(false);
             log("connecting...")
             socket.current?.connect();
         }
 
         return () => socket.current?.disconnect();
-    }, [connect]);
+    }, [connect, url]);
 
     useEffect(() => {
         socket.current?.on("remoteConnected", (remoteId) => {
@@ -128,10 +134,19 @@ export const useSocketIO = ({
             console.log(e);
         });
 
+        socket.current?.on("versionIncompatible", (serverVersion) => {
+            log(`version incompatible`);
+            log(`ours: ${VERSION}`);
+            log(`server: ${serverVersion}`);
+
+            setIsIncompatible(true);
+        });
+
         return () => {
             socket.current?.off("connect");
             socket.current?.off("connect_error");
             socket.current?.off("updateHostState");
+            socket.current?.off("versionIncompatible");
             socket.current?.offAny();
         };
     }, [socket.current]);
@@ -153,6 +168,7 @@ export const useSocketIO = ({
         connectedRemotes,
         remoteQueue,
         hostState,
+        isIncompatible,
         acceptRemote(remoteId) {
             socket.current?.emit("acceptRemote", remoteId);
             setRemoteQueue(q => q.filter(x => x.remoteId !== remoteId));

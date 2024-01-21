@@ -10,9 +10,18 @@ const db = await JSONFilePreset('db.json', defaultData);
 
 const PORT = Number(process.env.PORT) || 3000;
 const ADDR = process.env.ADDR || "0.0.0.0";
-const REDIRECT_TO = "https://thealan404.github.io/ziltekproject";
+const REDIRECT_TO = "https://deniz.blue/ZilTekProject";
 
-export type RcHostState = "offline" | "connected" | "waiting" | "denied" | "kicked" | "connecting";
+// TODO: use ../package.json
+const VERSION = "0.2.1";
+
+export type RcHostState =
+	"offline"
+	| "connected"
+	| "waiting"
+	| "denied"
+	| "kicked"
+	| "connecting";
 
 export interface ServerToClientEvents {
 	updateState: (state: object) => void;
@@ -21,6 +30,7 @@ export interface ServerToClientEvents {
 	remoteConnected: (remoteId: string) => void;
 	remoteDisconnected: (remoteId: string) => void;
 	updateHostState: (st: RcHostState) => void;
+	versionIncompatible: (serverVersion: string) => void,
 }
 
 export interface ClientToServerEvents {
@@ -101,7 +111,13 @@ io.on("connection", (socket) => {
 		mode,
 		hostId,
 		remoteId,
+		ver,
 	} = socket.handshake.auth;
+
+	if (ver !== VERSION) {
+		socket.emit("versionIncompatible", VERSION);
+		return;
+	}
 
 	if (mode == "host") {
 		console.log(`Host connected: ${hostId}`);

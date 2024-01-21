@@ -55,11 +55,10 @@
     },
     "windows": [
       {
-        "fullscreen": true,
-        "height": 600,
+        "fullscreen": false,
+        "maximized": true,
         "resizable": true,
         "title": "ZilTek",
-        "width": 800,
         "focus": true
       }
     ],

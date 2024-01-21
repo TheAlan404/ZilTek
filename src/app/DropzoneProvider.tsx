@@ -4,6 +4,7 @@ import { Command, ControllerAPI, ControllerData, StoredFile } from "../host/Cont
 import { IconUpload } from "@tabler/icons-react";
 import JSZip from "jszip";
 import { saveAs } from 'file-saver';
+import { deserialize } from "../host/DataFixer";
 
 export const exportToZip = async (data: ControllerData, files: StoredFile[]) => {
     let zip = new JSZip();
@@ -24,7 +25,7 @@ export const exportToZip = async (data: ControllerData, files: StoredFile[]) => 
 export const importFromZip = async (processCommand: (cmd: Command)=>void, file: FileWithPath) => {
     let zip = await JSZip.loadAsync(new Blob([file]));
         
-    let dataJson = JSON.parse(await zip.file("db.json")?.async("string"));
+    let dataJson = deserialize(await zip.file("db.json")?.async("string"));
 
     processCommand({
         type: "setAllData",

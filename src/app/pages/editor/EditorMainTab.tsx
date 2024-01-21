@@ -51,7 +51,7 @@ export const EditorMainTab = () => {
                                 <ActionIcon
                                     component="a"
                                     variant="subtle"
-                                    href="https://thealan404.github.io/"
+                                    href="https://deniz.blue/"
                                     target="_blank"
                                     color="dark">
                                     <IconExternalLink />

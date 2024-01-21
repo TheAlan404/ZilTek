@@ -11,6 +11,8 @@ import { NotifyError } from "../../../utils";
 import { t } from "i18next";
 import { FileEditRow } from "./files/FileEditRow";
 import useMobile from "../../../hooks/useMobile";
+import { modals } from "@mantine/modals";
+import { YouTubeVideoPicker } from "./files/youtube/YouTubeVideoPicker";
 
 const FileEditList = ({
     files,
@@ -99,6 +101,15 @@ export const EditorFilesTab = () => {
                             <ActionButtonWithTooltip
                                 label={t("editor.sections.files.downloadFromYoutube")}
                                 icon={<IconBrandYoutube />}
+                                onClick={() => {
+                                    modals.open({
+                                        title: t("editor.sections.files.downloadFromYoutube"),
+                                        size: "xl",
+                                        children: <YouTubeVideoPicker
+                                            processCommand={processCommand}
+                                        />,
+                                    })
+                                }}
                             />
                         </Group>
                     </Group>
