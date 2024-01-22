@@ -12,7 +12,7 @@ import { t } from "i18next";
 import { FileEditRow } from "./files/FileEditRow";
 import useMobile from "../../../hooks/useMobile";
 import { modals } from "@mantine/modals";
-import { YouTubeVideoPicker } from "./files/youtube/YouTubeVideoPicker";
+import { YouTubeVideoPicker } from "./files/YouTubeVideoPicker";
 
 const FileEditList = ({
     files,

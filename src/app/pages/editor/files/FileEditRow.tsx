@@ -1,13 +1,14 @@
 import { Group, Paper, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconFileMusic, IconHighlight, IconPlayerPause, IconPlayerPlay, IconTrash } from "@tabler/icons-react";
+import { IconCut, IconFileMusic, IconHighlight, IconPlayerPause, IconPlayerPlay, IconTrash } from "@tabler/icons-react";
 import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { ControllerAPI, StoredFile } from "../../../../host/ControllerAPI";
 import { NotifyError } from "../../../../utils";
 import { ActionButtonWithTooltip } from "../../../components/editor/ActionButtonWithTooltip";
 import { FileRenameModal } from "./FileRenameModal";
+import { FileCutModal } from "./FileCutModal";
 
 export const FileEditRow = ({
     file,
@@ -84,6 +85,19 @@ export const FileEditRow = ({
                             });
                         } } />
                     <ActionButtonWithTooltip
+                        label={t("edit.cutFile")}
+                        icon={<IconCut />}
+                        color="blue"
+                        onClick={() => {
+                            modals.open({
+                                title: t("modals.cutFile.title"),
+                                size: "xl",
+                                children: <FileCutModal
+                                    file={file}
+                                />,
+                            });
+                        } } />
+                    <ActionButtonWithTooltip
                         label={t("edit.renameFile")}
                         icon={<IconHighlight />}
                         onClick={() => {
@@ -91,7 +105,8 @@ export const FileEditRow = ({
                                 title: t("modals.renameFile.title"),
                                 children: <FileRenameModal
                                     name={file.filename}
-                                    onRename={renameFile} />
+                                    onRename={renameFile}
+                                />,
                             });
                         } } />
                     <ActionButtonWithTooltip

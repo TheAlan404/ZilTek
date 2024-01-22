@@ -1,0 +1,4 @@
+.mantine-Slider-mark {
+    transform: scale(150%);
+    border-color: "var(--mantine-color-green-light)"
+}
