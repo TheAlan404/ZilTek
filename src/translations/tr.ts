@@ -112,6 +112,7 @@ export default {
         save: "Kaydet",
         modified: "Değiştirildi",
         noRows: "Boş",
+        cutFile: "Dosyayı Kes",
     },
 
     notif: {
@@ -177,6 +178,12 @@ export default {
             title: "Etiketi Değiştir",
             label: "Etiket",
             confirm: "Tamam",
+        },
+        cutFile: {
+            loading: "Yükleniyor...",
+            title: "Dosyayı Kes",
+            duration: "Süre",
+            confirm: "Kes",
         },
     },
 
@@ -315,6 +322,12 @@ export default {
         editLabel: "Etiketi değiştir",
         removeTrust: "Güveni kaldır",
         kickRemote: "Bağlantıyı Kes",
+    },
+
+    yt: {
+        search: "Ara",
+        beginSearching: "Arama butonuna basarak arayın",
+        pick: "Seç",
     },
 
     audio: {

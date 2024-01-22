@@ -113,6 +113,7 @@ export default {
         save: "Save",
         modified: "Modified",
         noRows: "Empty",
+        cutFile: "Cut File",
     },
 
     notif: {
@@ -178,6 +179,12 @@ export default {
             title: "Edit Label",
             label: "Label",
             confirm: "Set Label",
+        },
+        cutFile: {
+            loading: "Loading...",
+            title: "Cut File",
+            duration: "Duration",
+            confirm: "Cut",
         },
     },
 
@@ -317,6 +324,12 @@ export default {
         editLabel: "Edit label",
         removeTrust: "Remove Trust",
         kickRemote: "Kick Remote",
+    },
+
+    yt: {
+        search: "Search",
+        beginSearching: "Press Search to search",
+        pick: "Select",
     },
 
     audio: {

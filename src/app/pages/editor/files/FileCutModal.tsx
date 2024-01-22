@@ -15,7 +15,7 @@ export const FileCutModal = ({
     const { t } = useTranslation();
 
     const [duration, setDuration] = useState(null);
-    const [value, setValue] = useState([0, 0]);
+    const [value, setValue] = useState([file.startTime || 0, file.endTime || 0]);
     const audioRef = useRef(new Audio());
     const [playing, setPlaying] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -27,13 +27,13 @@ export const FileCutModal = ({
                 let temp = () => {
                     audioRef.current.removeEventListener("timeupdate", temp);
                     setDuration(Math.round(audioRef.current.duration));
-                    setValue([0, Math.round(audioRef.current.duration)]);
+                    setValue([file.startTime || 0, file.endTime || Math.round(audioRef.current.duration)]);
                     audioRef.current.currentTime = 0;
                 };
                 audioRef.current.addEventListener("timeupdate", temp);
             } else {
                 setDuration(Math.round(audioRef.current.duration));
-                setValue([0, Math.round(audioRef.current.duration)]);
+                setValue([file.startTime || 0, file.endTime || Math.round(audioRef.current.duration)]);
             }
         }
 
@@ -94,6 +94,7 @@ export const FileCutModal = ({
                         thumbSize={14}
                         min={0}
                         max={duration}
+                        minRange={1}
                         label={label}
                         py="xl"
                         my="xl"

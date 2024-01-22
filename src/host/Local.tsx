@@ -149,6 +149,14 @@ const LocalHost = ({
         setCurrentlyPlayingAudio(file.filename);
         let url = URL.createObjectURL(file.data);
         audioRef.current.src = url;
+        audioRef.current.currentTime = file.startTime || 0;
+        audioRef.current.ontimeupdate = () => {
+            if(audioRef.current.currentTime > (file.endTime || Infinity)) {
+                audioRef.current.pause();
+                audioRef.current.onended();
+                audioRef.current.ontimeupdate = null;
+            }
+        };
         audioRef.current.play().catch(e => {
             NotifyError(e);
             logHandlers.append({
@@ -324,6 +332,18 @@ const LocalHost = ({
                 filename: to,
             }))
                 .then(() => db.deleteRecord(from))
+                .then(refreshFiles)
+                .catch(NotifyError);
+        },
+        cutFile({ filename, startTime, endTime }) {
+            db.getByID<StoredFile>(filename)
+                .then(f => 
+                    db.update<Partial<StoredFile>>({
+                        filename,
+                        startTime,
+                        endTime,
+                        ...f,
+                    }))
                 .then(refreshFiles)
                 .catch(NotifyError);
         },

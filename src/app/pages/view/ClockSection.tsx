@@ -130,7 +130,7 @@ export const ClockSection = () => {
                     <Paper withBorder p="md">
                         <Group wrap="nowrap">
                             <IconAlertTriangle />
-                            <Stack>
+                            <Stack gap="0">
                                 <Text>{t(`errors.pleaseUploadFiles`)}</Text>
                                 <Text c="dimmed">{t(`errors.pleaseUploadFilesDesc`)}</Text>
                             </Stack>

@@ -3,7 +3,7 @@ import pkg from "../package.json";
 export const MODE = import.meta.env.VITE_MODE;
 
 export const VERSION = pkg.version;
-export const BUILD = "240121";
+export const BUILD = "240122";
 export const DEFAULT_RELAY = "wss://ziltek.deniz.blue";
 export const UPDATE_URL = "https://raw.githack.com/TheAlan404/ZilTekProject/main/metadata.json";
 export const WEBSITE = "https://deniz.blue/ZilTekProject";

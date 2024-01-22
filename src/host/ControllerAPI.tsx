@@ -71,6 +71,7 @@ export type CommandsList = {
     deleteFile: { filename: string },
     deleteAllFiles: void,
     addFile: { filename: string, filedata: Blob },
+    cutFile: { filename: string, startTime: number, endTime: number },
 
     setAllData: { data: ControllerData },
     clearAllData: void,
@@ -123,8 +124,8 @@ export type ControllerData = {
 export type StoredFile = {
     filename: string,
     data: ArrayBuffer,
-    offset: number,
-    length: number,
+    startTime: number | null,
+    endTime: number | null,
 }
 
 export interface Controller {
@@ -158,4 +159,6 @@ export type AudioState = "idle" | "playing" | "off";
 export type HostMode = "local" | "remote";
 
 export const ControllerAPI = React.createContext<Controller>();
+
+ControllerAPI.displayName = "ControllerAPI";
 

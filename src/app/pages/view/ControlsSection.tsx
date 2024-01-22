@@ -101,6 +101,7 @@ const QuickMelody = ({ filename, label }) => {
                 leftSection={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
                 variant="light"
                 color={isPlaying ? "yellow" : "green"}
+                disabled={!filename.length}
                 size="compact-md"
                 onClick={() => {
                     if (isPlaying) {

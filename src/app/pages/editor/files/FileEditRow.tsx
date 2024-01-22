@@ -1,4 +1,4 @@
-import { Group, Paper, Text } from "@mantine/core";
+import { Group, Paper, Stack, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconCut, IconFileMusic, IconHighlight, IconPlayerPause, IconPlayerPlay, IconTrash } from "@tabler/icons-react";
@@ -59,17 +59,19 @@ export const FileEditRow = ({
 
     return (
         <Paper withBorder p="md">
-            <Group justify="space-between">
-                <Group>
+            <Group justify="space-between" wrap="nowrap">
+                <Group wrap="nowrap">
                     <IconFileMusic />
-                    <Text>
-                        {file.filename}
-                    </Text>
-                    <Text c="dark">
-                        {t("edit.bytes", { bytes: file.data ? (file.data.byteLength || file.data.size) : "?" })}
-                    </Text>
+                    <Stack gap={0}>
+                        <Text>
+                            {file.filename}
+                        </Text>
+                        <Text c="dark">
+                            {t("edit.bytes", { bytes: file.data ? (file.data.byteLength || file.data.size) : "?" })}
+                        </Text>
+                    </Stack>
                 </Group>
-                <Group>
+                <Group wrap="nowrap">
                     <ActionButtonWithTooltip
                         label={isPlaying ? t("editor.sections.files.audioPlaying") : t("editor.sections.files.playAudio")}
                         icon={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
@@ -94,6 +96,17 @@ export const FileEditRow = ({
                                 size: "xl",
                                 children: <FileCutModal
                                     file={file}
+                                    onCut={([startTime, endTime]) => {
+                                        modals.closeAll();
+                                        processCommand({
+                                            type: "cutFile",
+                                            data: {
+                                                startTime,
+                                                endTime,
+                                                filename: file.filename,
+                                            }
+                                        })
+                                    }}
                                 />,
                             });
                         } } />
