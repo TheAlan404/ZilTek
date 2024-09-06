@@ -40,6 +40,9 @@
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
+        "webviewInstallMode": {
+          "type": "offlineInstaller"
+        },
         "timestampUrl": ""
       }
     },
