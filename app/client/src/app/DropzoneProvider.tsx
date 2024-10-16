@@ -1,6 +1,6 @@
 import { Dropzone, FileWithPath } from "@mantine/dropzone";
 import { useContext } from "react";
-import { Command, ControllerAPI, ControllerData, StoredFile } from "../host/ControllerAPI";
+import { Command, Controller, ControllerData, StoredFile } from "../host/ControllerAPI";
 import { IconUpload } from "@tabler/icons-react";
 import JSZip from "jszip";
 import { saveAs } from 'file-saver';
@@ -54,7 +54,7 @@ export const importFromZip = async (processCommand: (cmd: Command)=>void, file: 
 }
 
 export const DropzoneProvider = () => {
-    const { processCommand } = useContext(ControllerAPI);
+    const { processCommand } = useContext(Controller);
     
     return (
         <Dropzone.FullScreen

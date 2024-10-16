@@ -1,12 +1,12 @@
 import { Button, Divider, Group, SegmentedControl, Stack, Text } from "@mantine/core"
 import { useContext } from "react";
 import { useTranslation } from "react-i18next"
-import { ControllerAPI } from "../../../host/ControllerAPI";
+import { Controller } from "../../../host/ControllerAPI";
 import { IconPlayerPause, IconPlayerPlay, IconPlayerStop } from "@tabler/icons-react";
 import { useHotkeys } from "@mantine/hooks";
 
 export const ControlsSection = () => {
-    const { isOn, processCommand, data } = useContext(ControllerAPI);
+    const { isOn, processCommand, data } = useContext(Controller);
     const { t } = useTranslation();
 
     useHotkeys(new Array(10).fill(1).map((_,i)=>i).slice(1).map((i) => (
@@ -89,7 +89,7 @@ const QuickMelody = ({ filename, label }) => {
     const {
         currentlyPlayingAudio,
         processCommand,
-    } = useContext(ControllerAPI);
+    } = useContext(Controller);
     const { t } = useTranslation();
 
     const isPlaying = filename === currentlyPlayingAudio;

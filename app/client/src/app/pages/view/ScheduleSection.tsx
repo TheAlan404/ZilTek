@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { ControllerAPI, Log } from "../../../host/ControllerAPI"
+import { Controller, Log } from "../../../host/ControllerAPI"
 import { TimetableComponent } from "../../components/schedule/Timetable";
 import { Entry, TimeBoxVariant, Timetable } from "../../../lib/timetable";
 import { Time, getVariant } from "@ziltek/common/src/Time";
@@ -27,7 +27,7 @@ export const ScheduleSection = () => {
         renderedSchedule,
         logs,
         currentlyPlayingBell,
-    } = useContext(ControllerAPI);
+    } = useContext(Controller);
     if(!renderedSchedule) return <></>;
 
     let schedule = renderTimetableWithVariants(renderedSchedule, logs, currentlyPlayingBell);

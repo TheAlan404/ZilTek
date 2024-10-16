@@ -2,7 +2,7 @@ import { Fieldset, Stack, Checkbox, Group, Text, Code, Divider, ActionIcon, Text
 import { IconCheck, IconEdit, IconKey, IconKeyOff, IconQrcode, IconUserCheck, IconX } from "@tabler/icons-react";
 import { useContext } from "react";
 import { useTranslation } from "react-i18next";
-import { ControllerAPI } from "../../../../host/ControllerAPI";
+import { Controller } from "../../../../host/ControllerAPI";
 import { OnlineBadge } from "../../../components/view/OnlineBadge";
 import { QRCODE_PREFIX } from "../../../../meta";
 import { ActionButtonWithTooltip } from "../../../components/editor/ActionButtonWithTooltip";
@@ -17,7 +17,7 @@ export const RemoteControlSettings = () => {
     const { t } = useTranslation();
     const {
         proxyUrl, setProxyUrl, remoteControlEnabled, setRemoteControlEnabled, hostId, isConnected, connectedRemotes, authenticatedRemotes, setAuthenticatedRemotes, remoteQueue, acceptRemote, denyRemote, kickRemote,
-    } = useContext(ControllerAPI);
+    } = useContext(Controller);
 
     let qrcodeValue = QRCODE_PREFIX + "?" + new URLSearchParams({
         connect: hostId,

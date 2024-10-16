@@ -1,7 +1,7 @@
 import { ActionIcon, Button, Center, Code, Group, Loader, RangeSlider, Slider, Stack, Text } from "@mantine/core"
 import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next"
-import { ControllerAPI, StoredFile } from "../../../../host/ControllerAPI";
+import { Controller, StoredFile } from "../../../../host/ControllerAPI";
 import { IconPlayerPause, IconPlayerPlay } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
 import { TimeBox } from "../../../components/schedule/TimeBox";

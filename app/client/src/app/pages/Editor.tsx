@@ -7,13 +7,13 @@ import { useTranslation } from "react-i18next";
 import { EditorMelodies } from "./editor/EditorMelodies";
 import { IconFileMusic, IconListDetails, IconMusic, IconSettings, IconSettings2 } from "@tabler/icons-react";
 import { ChangesContext } from "../ChangesContext";
-import { ControllerAPI } from "../../host/ControllerAPI";
+import { Controller } from "../../host/ControllerAPI";
 
 type Page = "main" | "files" | "schedule" | "melodies";
 
 export const EditorPage = () => {
     let { t } = useTranslation();
-    let { hostMode } = useContext(ControllerAPI);
+    let { hostMode } = useContext(Controller);
     let { unsavedChanges } = useContext(ChangesContext);
     let [page, setPage] = useState<Page>("main");
 

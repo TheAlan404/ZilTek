@@ -4,7 +4,7 @@ import { notifications } from "@mantine/notifications";
 import { IconCut, IconFileMusic, IconHighlight, IconPlayerPause, IconPlayerPlay, IconTrash } from "@tabler/icons-react";
 import { useContext } from "react";
 import { useTranslation } from "react-i18next";
-import { ControllerAPI, StoredFile } from "../../../../host/ControllerAPI";
+import { Controller, StoredFile } from "../../../../host/ControllerAPI";
 import { NotifyError } from "../../../../utils";
 import { ActionButtonWithTooltip } from "../../../components/editor/ActionButtonWithTooltip";
 import { FileRenameModal } from "./FileRenameModal";
@@ -15,7 +15,7 @@ export const FileEditRow = ({
 }: {
     file: StoredFile;
 }) => {
-    const { processCommand, currentlyPlayingAudio, files } = useContext(ControllerAPI);
+    const { processCommand, currentlyPlayingAudio, files } = useContext(Controller);
     const { t } = useTranslation();
 
     const isPlaying = currentlyPlayingAudio === file.filename;

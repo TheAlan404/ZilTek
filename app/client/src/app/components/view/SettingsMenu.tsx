@@ -1,12 +1,12 @@
 import { useContext } from "react";
-import { ControllerAPI } from "../../../host/ControllerAPI";
+import { Controller } from "../../../host/ControllerAPI";
 import { useTranslation } from "react-i18next";
 import { Button, Divider, Group, Select, Stack, Text } from "@mantine/core";
 import { IconLogout2 } from "@tabler/icons-react";
 import { LanguageSwitch } from "../LanguageSwitch";
 
 export const SettingsMenu = () => {
-    const { hostMode: mode, exit } = useContext(ControllerAPI);
+    const { hostMode: mode, exit } = useContext(Controller);
     const { t, i18n } = useTranslation();
 
     return (

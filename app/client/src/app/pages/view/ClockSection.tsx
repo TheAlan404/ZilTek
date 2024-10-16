@@ -3,7 +3,7 @@ import { useInterval } from "@mantine/hooks"
 import { useCallback, useContext, useEffect, useState } from "react";
 import { Time, TimeToDate, timeToRelativeString } from "@ziltek/common/src/Time";
 import { useTranslation } from "react-i18next";
-import { ControllerAPI } from "../../../host/ControllerAPI";
+import { Controller } from "../../../host/ControllerAPI";
 import { TimeBox } from "../../components/schedule/TimeBox";
 import { Entry, Timetable } from "../../../lib/timetable";
 import { renderTimetableWithVariants } from "./ScheduleSection";
@@ -51,7 +51,7 @@ const getProgressBetween = (prev: Entry, next: Entry) => {
 
 export const ClockSection = () => {
     const { t, i18n: { language } } = useTranslation();
-    const { renderedSchedule, logs, currentlyPlayingBell, files, data } = useContext(ControllerAPI);
+    const { renderedSchedule, logs, currentlyPlayingBell, files, data } = useContext(Controller);
     const [date, setDate] = useState("");
     const [time, setTime] = useState("");
     const [progressSec, setProgressSec] = useState(0);

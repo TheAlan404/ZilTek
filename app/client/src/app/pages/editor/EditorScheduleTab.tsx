@@ -1,12 +1,12 @@
 import { useContext } from "react"
-import { ControllerAPI } from "../../../host/ControllerAPI"
+import { Controller } from "../../../host/ControllerAPI"
 import { Flex, Group, Paper, SegmentedControl, Stack, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import useMobile from "../../../hooks/useMobile";
 import { TimetablePanel } from "./schedule/timetables/TimetablePanel";
 
 export const EditorScheduleTab = () => {
-    const { processCommand, data } = useContext(ControllerAPI);
+    const { processCommand, data } = useContext(Controller);
     const { t } = useTranslation();
     const isMobile = useMobile();
 

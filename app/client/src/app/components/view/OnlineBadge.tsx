@@ -1,11 +1,11 @@
 import { Badge } from "@mantine/core";
 import { useContext } from "react";
-import { ControllerAPI } from "../../../host/ControllerAPI";
+import { Controller } from "../../../host/ControllerAPI";
 import { useTranslation } from "react-i18next";
 
 
 export const OnlineBadge = () => {
-    const { isConnected, remoteControlEnabled, hostMode } = useContext(ControllerAPI);
+    const { isConnected, remoteControlEnabled, hostMode } = useContext(Controller);
     const { t } = useTranslation();
 
     return (

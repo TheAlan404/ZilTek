@@ -3,7 +3,7 @@ import { useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChangesContext } from "../../../../ChangesContext";
 import { TimetableComponent } from "../../../../components/schedule/Timetable";
-import { ControllerAPI, DefaultData, DefaultTimetable, DefaultTimetableDay } from "../../../../../host/ControllerAPI";
+import { Controller, DefaultData, DefaultTimetable, DefaultTimetableDay } from "../../../../../host/ControllerAPI";
 import { CommitableTimetable } from "../../../../components/schedule/CommitableTimetable";
 import { IconCopy, IconPlaylistX, IconWand } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
@@ -11,7 +11,7 @@ import { TimetableGenerator } from "./TimetableGenerator";
 import useMobile from "../../../../../hooks/useMobile";
 
 export const TimetablePanel = () => {
-    const { data, processCommand } = useContext(ControllerAPI);
+    const { data, processCommand } = useContext(Controller);
     const { t } = useTranslation();
     const [tableIndex, setTableIndex] = useState("0");
     const { unsavedChanges } = useContext(ChangesContext);

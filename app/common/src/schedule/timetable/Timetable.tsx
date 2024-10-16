@@ -9,6 +9,8 @@ export const createTimetableRow = (): TimetableRow => [
     createTimetableEntry()
 ];
 
+export const createTimetable = (): Timetable => [];
+
 const isNil = (entry: TimetableEntry) => !entry || !entry.value || entry.value == "00:00";
 
 export const overlayTimetables = (layers: Timetable[]): Timetable => {

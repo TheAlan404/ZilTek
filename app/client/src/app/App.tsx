@@ -1,6 +1,6 @@
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { ControllerAPI } from "../host/ControllerAPI.tsx"
+import { Controller } from "../host/ControllerAPI.tsx"
 import { ActionIcon, AppShell, Button, Checkbox, Divider, Flex, Group, Popover, Select, Stack, Text, Title, Tooltip } from "@mantine/core"
 import { IconSettings } from "@tabler/icons-react"
 import { VERSION } from "../AppBase.tsx/index.ts"

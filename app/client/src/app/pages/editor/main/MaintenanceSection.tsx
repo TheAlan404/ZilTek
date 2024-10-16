@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Button, Fieldset, Group, Stack } from "@mantine/core";
 import { IconDownload, IconTrash, IconUpload } from "@tabler/icons-react";
 import { useContext, useRef } from "react";
-import { ControllerAPI } from "../../../../host/ControllerAPI";
+import { Controller } from "../../../../host/ControllerAPI";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { exportToZip, importFromZip } from "../../../DropzoneProvider";
@@ -14,7 +14,7 @@ export const MaintenanceSection = () => {
         data,
         files,
         hostMode,
-    } = useContext(ControllerAPI);
+    } = useContext(Controller);
 
     const inputRef = useRef<HTMLInputElement>();
 

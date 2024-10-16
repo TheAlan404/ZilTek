@@ -1,7 +1,7 @@
 import { ActionIcon, Button, Center, CloseButton, Fieldset, Flex, Group, Select, SimpleGrid, Stack, Table, Text, Tooltip } from "@mantine/core";
 import { ReactNode, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ControllerAPI, StoredFile } from "../../../host/ControllerAPI";
+import { Controller, StoredFile } from "../../../host/ControllerAPI";
 import { IconPlus, IconReload } from "@tabler/icons-react";
 import { ReloadButton } from "../../components/editor/ReloadButton";
 import { MelodySelect } from "../../components/editor/MelodySelect";
@@ -12,7 +12,7 @@ export const EditorMelodies = () => {
         data,
         files,
         processCommand,
-    } = useContext(ControllerAPI);
+    } = useContext(Controller);
     
     return (
         <SimpleGrid cols={{ base: 1, md: 2 }}>

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useDebouncedValue } from "@mantine/hooks";
 import { title } from "process";
 import { IconPlayerPause, IconPlayerPlay, IconSearch } from "@tabler/icons-react";
-import { ControllerAPI } from "../../../../host/ControllerAPI";
+import { Controller } from "../../../../host/ControllerAPI";
 import { downloadWithProgress } from "../../../../lib/downloadWithProgress";
 import { modals } from "@mantine/modals";
 

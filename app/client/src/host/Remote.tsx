@@ -1,50 +1,45 @@
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Button, Center, Code, Group, Loader, Stack, Text, Title } from "@mantine/core";
-import { ControllerAPI } from "./ControllerAPI";
-import { v4 as uuidv4 } from "uuid";
-import { useSocketIO } from "./Networking";
-import { useLocalStorage } from "@mantine/hooks";
-import { useTranslation } from "react-i18next";
+import { Controller } from "./ControllerAPI";
 import { App } from "../app/App";
-import { IconPlugX, IconUserX } from "@tabler/icons-react";
+import { NetworkingContext } from "./NetworkingContext";
+import { createState, State } from "@ziltek/common/src/state/State";
+import { useEventListener } from "../hooks/useEvents";
 
-export const RemoteHost = ({
-    proxyUrl,
-    hostId,
-    exitRemoteMode,
-}) => {
-    let { t } = useTranslation();
-    if(!localStorage.getItem("ziltek-remote-id"))
-        localStorage.setItem("ziltek-remote-id", uuidv4());
-    const remoteId = useMemo(() => localStorage.getItem("ziltek-remote-id"), []);
-
-    let [bigState, setBigState] = useState(null);
-
-    let {
-        socket,
+export const RemoteHost = () => {
+    const {
+        emitter,
+        processCommand,
         isConnected,
-        hostState,
-    } = useSocketIO({
-        url: proxyUrl,
-        connect: true,
-        deps: [],
-        events: {
-            updateState: setBigState,
-        },
-        auth: {
-            mode: "remote",
-            hostId,
-            remoteId,
-        },
-    });
+    } = useContext(NetworkingContext);
+    
+    let [state, setState] = useState<State | null>(null);
+    
+    useEffect(() => {
+        // on disconnect (?)
+        if(!isConnected) setState(null);
+    }, [isConnected]);
 
-    const processCommand = (cmd) => {
-        socket.current?.volatile.emit("processCommand", cmd);
-    };
+    useEventListener(emitter, "UpdateState", (st: State) => setState(st));
+
+    if(!state) return (
+        ""
+    );
 
     return (
+        <Controller.Provider
+            value={{
+                ...(state!),
+                processCommand,
+            }}
+        >
+            
+        </Controller.Provider>
+    )
+
+    /* return (
         (bigState && !["offline", "kicked", "denied"].includes(hostState)) ? (
-            <ControllerAPI.Provider value={{
+            <Controller.Provider value={{
                 ...bigState,
                 processCommand,
                 hostMode: "remote",
@@ -52,7 +47,7 @@ export const RemoteHost = ({
                 exit: () => exitRemoteMode(),
             }}>
                 <App />
-            </ControllerAPI.Provider>
+            </Controller.Provider>
         ) : (
             <Center h="100%" p="xl">
                 <Stack align="center" ta="center" gap="xl" mt="xl">
@@ -117,5 +112,5 @@ export const RemoteHost = ({
                 </Stack>
             </Center>
         )
-    );
+    ); */
 }

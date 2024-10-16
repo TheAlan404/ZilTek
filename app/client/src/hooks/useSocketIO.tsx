@@ -2,10 +2,7 @@ import { ClientAuth } from "@ziltek/common/src/networking/ClientAuth";
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { VERSION } from "../meta";
-
-type EventOf<I extends Record<string, any>> = {
-    [P in keyof I]: [P, I[P]]
-}[keyof I];
+import { EmitOf, ListenerOf } from "./useEvents";
 
 export const useSocketIO = <I extends Record<string, any>, O extends Record<string, any>>({
     url,
@@ -15,8 +12,8 @@ export const useSocketIO = <I extends Record<string, any>, O extends Record<stri
 }: {
     url: string;
     connect: boolean;
-    auth: Omit<ClientAuth, "version">;
-    onMessage: (...m: EventOf<I>) => void;
+    auth: ClientAuth;
+    onMessage: (...m: NoInfer<EmitOf<I>>) => void;
 }) => {
     const socket = useRef<Socket<I, O> | null>(null);
     const [isConnected, setConnected] = useState(false);
@@ -49,14 +46,14 @@ export const useSocketIO = <I extends Record<string, any>, O extends Record<stri
             setConnected(false);
         });
 
-        socket.current.onAny((...e: EventOf<I>) => {
+        socket.current.onAny((...e: EmitOf<I>) => {
             onMessage(...e);
         });
 
         return dispose;
     }, [url, connect]);
 
-    const sendMessage = (...e: EventOf<O>) => {
+    const sendMessage = (...e: EmitOf<O>) => {
         socket.current?.send(...e);
     };
 

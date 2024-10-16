@@ -4,7 +4,7 @@ import { BUILD, VERSION } from "../../../meta";
 import { ActionIcon, Fieldset, Flex, Group, Highlight, Stack, Tooltip } from "@mantine/core";
 import { IconExternalLink, IconTriangle } from "@tabler/icons-react";
 import { useContext } from "react";
-import { ControllerAPI } from "../../../host/ControllerAPI";
+import { Controller } from "../../../host/ControllerAPI";
 import { RemoteControlSettings } from "./main/RemoteControlSettings";
 import { MaintenanceSection } from "./main/MaintenanceSection";
 import { UpdateChecker } from "./main/UpdateChecker";
@@ -19,7 +19,7 @@ const highlightStyles = {
 };
 
 export const EditorMainTab = () => {
-    const { hostMode } = useContext(ControllerAPI);
+    const { hostMode } = useContext(Controller);
     const { t } = useTranslation();
     const isMobile = useMobile();
 

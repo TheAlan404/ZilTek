@@ -1,7 +1,7 @@
 import { ActionIcon, Box, Button, Center, CloseButton, Fieldset, Flex, Group, Menu, Select, SimpleGrid, Stack, Table, Text, TextInput, Tooltip, Transition, em, useCombobox } from "@mantine/core";
 import { ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ControllerAPI, StoredFile, StoredFileHandlers } from "../../../host/ControllerAPI";
+import { Controller, StoredFile, StoredFileHandlers } from "../../../host/ControllerAPI";
 import { IconBrandYoutube, IconCheck, IconPlus, IconReload, IconUpload } from "@tabler/icons-react";
 import { ReloadButton } from "../../components/editor/ReloadButton";
 import { useMediaQuery } from "@mantine/hooks";
@@ -54,7 +54,7 @@ export const EditorFilesTab = () => {
     const {
         files,
         processCommand,
-    } = useContext(ControllerAPI);
+    } = useContext(Controller);
 
     const inputRef = useRef<HTMLInputElement>();
 

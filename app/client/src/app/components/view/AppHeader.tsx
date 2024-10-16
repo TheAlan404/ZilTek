@@ -1,10 +1,10 @@
 import { Button, Group, Tooltip } from "@mantine/core";
 import { useContext } from "react";
-import { ControllerAPI } from "../../../host/ControllerAPI";
+import { Controller } from "../../../host/ControllerAPI";
 import { useTranslation } from "react-i18next";
 
 export const AppHeader = () => {
-    const { audioState, currentlyPlayingAudio, processCommand } = useContext(ControllerAPI);
+    const { audioState, currentlyPlayingAudio, processCommand } = useContext(Controller);
     const { t } = useTranslation();
 
     return (

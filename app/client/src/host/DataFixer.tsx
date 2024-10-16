@@ -1,12 +1,12 @@
 import { notifications } from "@mantine/notifications";
-import { DefaultData } from "./ControllerAPI";
 import { t } from "i18next";
-import { Data } from "@ziltek/common/src/types/data/Data";
-import { Time } from "@ziltek/common/src/types/time";
-import { Timetable } from "@ziltek/common/src/types/schedule/timetable/Timetable";
-import { Melody } from "@ziltek/common/src/types/Melody";
-import { Schedule } from "@ziltek/common/src/types/schedule/Schedule";
-import { TimetableDay } from "@ziltek/common/src/types/schedule/timetable/TimetableDay";
+import { createData, Data } from "@ziltek/common/src/data/Data";
+import { Melody } from "@ziltek/common/src/Melody";
+import { Schedule } from "@ziltek/common/src/schedule/Schedule";
+import { Timetable, TimetableRow } from "@ziltek/common/src/schedule/timetable/Timetable";
+import { TimetableEntry } from "@ziltek/common/src/schedule/timetable/TimetableEntry";
+import { TimetableDay } from "@ziltek/common/src/schedule/timetable/TimetableDay";
+import { Time } from "@ziltek/common/src/Time";
 
 export const serialize = (value: Data): string => {
     return JSON.stringify({
@@ -15,21 +15,48 @@ export const serialize = (value: Data): string => {
     });
 };
 
-export const deserialize = (value: string): Data => {
+export const deserialize = (value?: string): Data => {
+    if(!value) return createData();
+    
     let data = JSON.parse(value);
 
     if (data.ver == 2) {
         return data;
     };
 
-    const strToMelody = (filename: string) => ({ filename } as Melody);
-    const strArrToMelodyArr = (s?: string[]) => (s || []).map(strToMelody);
+    const strToMelody = (s: string | { filename: string }) => ({
+        filename: typeof s == "string" ? s : s.filename,
+    } as Melody);
+    const strArrToMelodyArr = (l?: string[]) => (l || []).map(strToMelody);
 
     if (data.ver == 1) {
+        const fixTable = (rows: any[]): Timetable => rows.map((row: any[]) => row.map((ent: { value: string }) => (
+            ({ value }) as TimetableEntry
+        )) as TimetableRow) as Timetable;
+
         let d: Data = {
             quickMelodies: strArrToMelodyArr(data.quickMelodies),
             schedule: Schedule.Timetable({
-                
+                melodies: {
+                    default: {
+                        students: strToMelody(data.schedule.melodies.default[0]),
+                        teachers: strToMelody(data.schedule.melodies.default[1]),
+                        classEnd: strToMelody(data.schedule.melodies.default[2]),
+                    },
+                },
+                tables: {
+                    default: fixTable(data.schedule.tables.default),
+                    days: data.schedule.tables.days.map(({ isFullOverride, data }: {
+                        isFullOverride: boolean;
+                        data: Timetable;
+                    }) => (
+                        {
+                            isFullOverride,
+                            table: data,
+                            enabled: true,
+                        }
+                    ) as TimetableDay)
+                },
             }),
         };
 
@@ -71,6 +98,6 @@ export const deserialize = (value: string): Data => {
         message: t("errors.unknownDataVersion", { version: data.ver }),
     });
 
-    return DefaultData;
+    return createData();
 };
 
