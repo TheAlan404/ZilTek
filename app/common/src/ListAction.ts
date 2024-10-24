@@ -9,7 +9,7 @@ export type ListAction<T> = Enum<{
     Set: T[];
 }>;
 
-export const modifyList = <T>(list: T[], action: ListAction<T>): T[] => {
+export const applyListAction = <T>(list: T[], action: ListAction<T>): T[] => {
     return match<ListAction<T>, T[]>(action)({
         Add: (v) => [...list, v],
         Prepend: (v) => [v, ...list],

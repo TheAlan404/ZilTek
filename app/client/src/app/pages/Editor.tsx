@@ -1,46 +1,23 @@
-import { useContext, useState } from "react";
-import { EditorMainTab } from "./editor/EditorMainTab";
-import { EditorFilesTab } from "./editor/EditorFilesTab";
-import { EditorScheduleTab } from "./editor/EditorScheduleTab";
 import { Tabs } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import { EditorMelodies } from "./editor/EditorMelodies";
-import { IconFileMusic, IconListDetails, IconMusic, IconSettings, IconSettings2 } from "@tabler/icons-react";
-import { ChangesContext } from "../ChangesContext";
-import { Controller } from "../../host/ControllerAPI";
-
-type Page = "main" | "files" | "schedule" | "melodies";
+import { IconFileMusic, IconListDetails, IconMusic, IconSettings } from "@tabler/icons-react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export const EditorPage = () => {
     let { t } = useTranslation();
-    let { hostMode } = useContext(Controller);
-    let { unsavedChanges } = useContext(ChangesContext);
-    let [page, setPage] = useState<Page>("main");
+    const { pathname } = useLocation();
+    const navigate = useNavigate();
+    const { target } = useParams();
 
-    const disabled = !!unsavedChanges.length;
-    const isRemote = hostMode == "remote";
+    const section = pathname.split("/")[3] || "";
 
     return (
-        <Tabs value={page} onChange={setPage} inverted>
+        <Tabs value={"/"+section} onChange={(v) => navigate(`/${target}/editor${v}`)}>
             <Tabs.List grow>
-                <Tabs.Tab value="main" disabled={disabled} leftSection={<IconSettings />}>{t("editor.tabs.main")}</Tabs.Tab>
-                <Tabs.Tab value="schedule" disabled={disabled} leftSection={<IconListDetails />}>{t("editor.tabs.schedule")}</Tabs.Tab>
-                <Tabs.Tab value="melodies" disabled={disabled} leftSection={<IconMusic />}>{t("editor.tabs.melodies")}</Tabs.Tab>
-                <Tabs.Tab value="files" disabled={disabled} leftSection={<IconFileMusic />}>{t("editor.tabs.files")}</Tabs.Tab>
+                <Tabs.Tab value="/" leftSection={<IconSettings />}>{t("editor.tabs.main")}</Tabs.Tab>
+                <Tabs.Tab value="/schedule" leftSection={<IconListDetails />}>{t("editor.tabs.schedule")}</Tabs.Tab>
+                <Tabs.Tab value="/files" leftSection={<IconFileMusic />}>{t("editor.tabs.files")}</Tabs.Tab>
             </Tabs.List>
-
-            <Tabs.Panel value="main" p="md">
-                <EditorMainTab />
-            </Tabs.Panel>
-            <Tabs.Panel value="files" p="md">
-                <EditorFilesTab />
-            </Tabs.Panel>
-            <Tabs.Panel value="schedule" p="md">
-                <EditorScheduleTab />
-            </Tabs.Panel>
-            <Tabs.Panel value="melodies" p="md">
-                <EditorMelodies />
-            </Tabs.Panel>
         </Tabs>
     );
 };

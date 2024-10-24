@@ -1,22 +1,21 @@
 import { Badge } from "@mantine/core";
 import { useContext } from "react";
-import { Controller } from "../../../host/ControllerAPI";
 import { useTranslation } from "react-i18next";
-
+import { NetworkingContext } from "../../../host/NetworkingContext";
+import { HostContext } from "../../../host/HostContext";
 
 export const OnlineBadge = () => {
-    const { isConnected, remoteControlEnabled, hostMode } = useContext(Controller);
+    const { clientType } = useContext(HostContext);
+    const { rcEnabled, isConnected } = useContext(NetworkingContext);
     const { t } = useTranslation();
+
+    if(clientType == "remote") return;
 
     return (
         <>
-            {(remoteControlEnabled || hostMode == "remote") && (
-                <Badge color={isConnected ? "green" : (hostMode == "local" ? "gray" : "red")} variant={"light"}>
-                    {t(hostMode == "local" ? (
-                        isConnected ? "header.online" : "header.offline"
-                    ) : (
-                        isConnected ? "header.connected" : "header.hostOffline"
-                    ))}
+            {(rcEnabled) && (
+                <Badge color={isConnected ? "green" : "yellow"} variant={"light"}>
+                    {t(isConnected ? "header.online" : "header.offline")}
                 </Badge>
             )}
         </>

@@ -1,4 +1,6 @@
+import { TimetableDay } from "./TimetableDay";
 import { createTimetableEntry, TimetableEntry } from "./TimetableEntry";
+import { TimetableSchedule } from "./TimetableSchedule";
 
 export type TimetableRow = [TimetableEntry, TimetableEntry, TimetableEntry];
 export type Timetable = TimetableRow[];
@@ -12,6 +14,16 @@ export const createTimetableRow = (): TimetableRow => [
 export const createTimetable = (): Timetable => [];
 
 const isNil = (entry: TimetableEntry) => !entry || !entry.value || entry.value == "00:00";
+
+export const getTimetableLayers = (schedule: TimetableSchedule, dayOfWeek: number) => {
+    let layers: Timetable[] = [];
+
+    let day: TimetableDay | undefined = schedule.tables.days[dayOfWeek];
+    if(!day?.isFullOverride) layers.push(schedule.tables.default);
+    if(day && day.enabled) layers.push(day.table);
+
+    return layers;
+};
 
 export const overlayTimetables = (layers: Timetable[]): Timetable => {
     let table: Timetable = [];

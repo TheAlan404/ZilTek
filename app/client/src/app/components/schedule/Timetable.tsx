@@ -1,37 +1,37 @@
 import { ActionIcon, Button, CloseButton, Group, Stack, Table, TableData, Text, Tooltip } from "@mantine/core"
-import { DefaultTuple, Timetable, Tuple } from "../../../lib/timetable"
 import { useTranslation } from "react-i18next"
 import { TimeBox } from "./TimeBox";
-import { useContext, useEffect, useState } from "react";
-import { ChangesContext } from "../../ChangesContext";
 import { Time } from "@ziltek/common/src/Time";
-import { notifications } from "@mantine/notifications";
-import { IconClipboardCopy, IconRowInsertBottom } from "@tabler/icons-react";
+import { IconClipboardCopy } from "@tabler/icons-react";
+import { createTimetableRow, Timetable, TimetableRow } from "@ziltek/common/src/schedule/timetable/Timetable";
+import { applyListAction, ListAction } from "@ziltek/common/src/ListAction";
 
 export interface TimetableProps {
-    value: Timetable,
-    onChange: (x: number, y: number, value: string) => void,
-    removeColumn: (x: number) => void,
-    addRow: (row: Tuple | null) => void,
-    onSave: () => void,
-    onRevert: () => void,
-    canRevert: boolean,
-    canSave: boolean,
-    variant: "readonly" | "editor",
+    value: Timetable;
+    onChange?: (value: Timetable) => void;
 }
 
 export const TimetableComponent = ({
     value,
-    variant = "readonly",
     onChange,
-    removeColumn,
-    addRow,
-    onSave,
-    onRevert,
-    canRevert,
-    canSave,
 }: TimetableProps) => {
     const { t } = useTranslation();
+
+    const set = (x: number, y: number, v: Time) => {
+        onChange?.(value.map((row, x2) => (
+            row.map((cell, y2) => (
+                (x == x2 && y == y2) ? { ...cell, value: v } : cell
+            )) as TimetableRow
+        )));
+    };
+
+    const removeColumn = (x: number) => {
+        onChange?.(applyListAction(value, ListAction<TimetableRow>().Remove(x)));
+    };
+
+    const addRow = (row: TimetableRow) => {
+        onChange?.([...value, row]);
+    };
 
     const table: TableData = {
         head: [
@@ -40,7 +40,7 @@ export const TimetableComponent = ({
                 t("bells.teacher"),
                 t("bells.classEnd"),
             ]),
-            ...(variant == "editor" ? [
+            ...(!!onChange ? [
                 "_",
             ] : []),
         ],
@@ -50,14 +50,12 @@ export const TimetableComponent = ({
                     <TimeBox
                         key={`${x}-${y}`}
                         value={item.value}
-                        variant={item.variant}
-                        readonly={variant == "readonly"}
-                        onChange={(v) => {
-                            onChange(x, y, v);
-                        }}
+                        onChange={!!onChange ? ((v) => {
+                            set(x, y, v);
+                        }) : undefined}
                     />
                 )),
-                ...(variant == "editor" ? [
+                ...(!!onChange ? [
                     <CloseButton
                         key={`remove-${x}`}
                         onClick={() => removeColumn(x)}
@@ -71,41 +69,22 @@ export const TimetableComponent = ({
         <Stack>
             <Table w="100%" data={table} />
             {!value.length && <Text style={{ textAlign: "center" }}>{t("edit.noRows")}</Text>}
-            {variant == "editor" && (
+            {!!onChange && (
                 <Group justify="space-between">
                     <Group>
                         <Button
                             variant="light"
-                            onClick={() => addRow(DefaultTuple())}>
+                            onClick={() => addRow(createTimetableRow())}>
                             {t("edit.newRow")}
                         </Button>
                         <Tooltip label={t("edit.duplicateRow")}>
                             <ActionIcon variant="light" onClick={() => {
                                 let lastRow = value[value.length-1];
-                                addRow(lastRow.slice());
+                                addRow(structuredClone(lastRow));
                             }}>
                                 <IconClipboardCopy />
                             </ActionIcon>
                         </Tooltip>
-                    </Group>
-
-                    {canSave && <Text fw="bold">{t("edit.modified")}</Text>}
-
-                    <Group>
-                        <Button
-                            color="red"
-                            variant="light"
-                            onClick={onRevert}
-                            disabled={!canRevert}>
-                            {t("edit.revert")}
-                        </Button>
-                        <Button
-                            color="green"
-                            variant="light"
-                            onClick={onSave}
-                            disabled={!canSave}>
-                            {t("edit.save")}
-                        </Button>
                     </Group>
                 </Group>
             )}

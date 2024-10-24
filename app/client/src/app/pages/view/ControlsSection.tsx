@@ -1,38 +1,42 @@
-import { Button, Divider, Group, SegmentedControl, Stack, Text } from "@mantine/core"
-import { useContext } from "react";
+import { Button, Divider, Group, Kbd, SegmentedControl, Stack, Text, Tooltip } from "@mantine/core"
+import React, { useContext } from "react";
 import { useTranslation } from "react-i18next"
 import { Controller } from "../../../host/ControllerAPI";
 import { IconPlayerPause, IconPlayerPlay, IconPlayerStop } from "@tabler/icons-react";
-import { useHotkeys } from "@mantine/hooks";
+import { HotkeyItem, useHotkeys } from "@mantine/hooks";
+import { Command } from "@ziltek/common/src/cmd/Command";
+import { match } from "@alan404/enum";
+import { Melody } from "@ziltek/common/src/Melody";
+import { Schedule } from "@ziltek/common/src/schedule/Schedule";
+import { BellType } from "@ziltek/common/src/schedule/timetable/BellType";
 
 export const ControlsSection = () => {
-    const { isOn, processCommand, data } = useContext(Controller);
+    const { audioState, processCommand, data } = useContext(Controller);
     const { t } = useTranslation();
 
-    useHotkeys(new Array(10).fill(1).map((_,i)=>i).slice(1).map((i) => (
-        [i.toString(), () => {
-            let files = [
-                null,
-                ...(data.schedule.type == "timetable" ? (
-                    data.schedule.melodies.default
-                ) : []),
-                ...data.quickMelodies,
-            ];
+    const scheduleMelodies: Melody[] = match<Schedule, Melody[]>(data.schedule)({
+        Timetable: (schedule) => [
+            schedule.melodies.default.students,
+            schedule.melodies.default.teachers,
+            schedule.melodies.default.classEnd,
+        ],
+        Zones: (): Melody[] => [],
+    });
 
-            if(!files[i]) return;
+    const hotkeyMelodies: Melody[] = [
+        ...scheduleMelodies,
+        ...data.quickMelodies,
+    ];
 
-            processCommand({
-                type: "forcePlayAudio",
-                data: {
-                    filename: files[i],
-                },
-            })
-        }]
+    useHotkeys(hotkeyMelodies.map((melody, i) => (
+        [(i+1).toString(), () => {
+            processCommand(Command.ForcePlayMelody(melody));
+        }] as HotkeyItem
     )));
     
     useHotkeys([
-        ["q", () => processCommand({ type: "stopAllAudio" })],
-        ["space", () => processCommand({ type: "stopAllAudio" })],
+        ["q", () => processCommand(Command.ForceStop())],
+        ["space", () => processCommand(Command.ForceStop())],
     ])
 
     return (
@@ -40,44 +44,58 @@ export const ControlsSection = () => {
             <Group>
                 <Text>{t("controls.bellStatus")}</Text>
                 <SegmentedControl
-                    value={isOn ? "on" : "off"}
+                    value={!audioState.muted ? "on" : "off"}
                     onChange={(v) => {
-                        processCommand({
-                            type: "changeBellStatus",
-                            data: {
-                                on: v == "on",
-                            }
-                        })
+                        processCommand(Command.ToggleSystemEnabled(v === "on"));
                     }}
                     data={[
                         { value: "on", label: t("on") },
                         { value: "off", label: t("off") }
                     ]}
-                    color={isOn ? "green" : "red"}
+                    color={!audioState.muted ? "green" : "red"}
                 />
             </Group>
             <Group>
-                <Text>{t("controls.stopAudio")}</Text>
+                <Tooltip label={(
+                    <Group><Kbd>Q</Kbd> / <Kbd>SPACE</Kbd></Group>
+                )}>
+                    <Text>{t("controls.stopAudio")}</Text>
+                </Tooltip>
                 <Button
                     variant="light"
                     size="compact-md"
                     color="red"
                     leftSection={<IconPlayerStop />}
-                    onClick={() => processCommand({ type: "stopAllAudio" })}>
+                    onClick={() => processCommand(Command.ForceStop())}>
                     {t("controls.stopAudioButton")}
                 </Button>
             </Group>
+
             <Divider w="100%" label={t("controls.playSection")} labelPosition="center" />
-            {data.schedule.type == "timetable" ? (
-                ["student", "teacher", "classEnd"].map((label, i) => (
-                    <QuickMelody key={label} label={t(`bells.${label}`)} filename={data.schedule.type == "timetable" && data.schedule.melodies.default[i]} />
-                ))
-            ) : "TODO"}
+
+            {match<Schedule, React.ReactNode>(data.schedule)({
+                Timetable: (schedule) => (
+                    (["students", "teachers", "classEnd"] as BellType[]).map((type, i) => (
+                        <QuickMelody
+                            key={type}
+                            label={t(`bells.${type}`)}
+                            melody={schedule.melodies.default[type]}
+                            kbd={(i+1).toString()}
+                        />
+                    ))
+                ),
+                Zones: () => <></>,
+            })}
+            
             {!!data.quickMelodies.length && (
                 <>
                     <Divider w="100%" label={t("controls.quickMelodies")} labelPosition="center" />
-                    {data.quickMelodies.map((filename, i) => (
-                        <QuickMelody key={i} filename={filename} />
+                    {data.quickMelodies.map((melody, i) => (
+                        <QuickMelody
+                            key={i}
+                            melody={melody}
+                            kbd={(i+1+scheduleMelodies.length).toString()}
+                        />
                     ))}
                 </>
             )}
@@ -85,29 +103,39 @@ export const ControlsSection = () => {
     )
 }
 
-const QuickMelody = ({ filename, label }) => {
+const QuickMelody = ({
+    melody,
+    kbd,
+    label,
+}: {
+    melody: Melody;
+    kbd?: string;
+    label?: string;
+}) => {
     const {
-        currentlyPlayingAudio,
         processCommand,
+        audioState,
     } = useContext(Controller);
     const { t } = useTranslation();
 
-    const isPlaying = filename === currentlyPlayingAudio;
+    const isPlaying = melody.filename === audioState.currentlyPlaying;
 
     return (
         <Group>
-            <Text>{label || filename}</Text>
+            <Tooltip label={<Kbd>{kbd}</Kbd>} disabled={!kbd}>
+                <Text>{label || melody.filename}</Text>
+            </Tooltip>
             <Button
                 leftSection={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
                 variant="light"
                 color={isPlaying ? "yellow" : "green"}
-                disabled={!filename.length}
+                disabled={!melody}
                 size="compact-md"
                 onClick={() => {
                     if (isPlaying) {
-                        processCommand({ type: "stopAllAudio" })
+                        processCommand(Command.ForceStop())
                     } else {
-                        processCommand({ type: "forcePlayAudio", data: { filename } });
+                        processCommand(Command.ForcePlayMelody(melody));
                     }
                 }}>
                 {isPlaying ? t("controls.stop") : t("controls.play")}

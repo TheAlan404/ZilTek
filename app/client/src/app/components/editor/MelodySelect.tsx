@@ -1,29 +1,29 @@
 import { useTranslation } from "react-i18next";
-import { StoredFile } from "../../../host/ControllerAPI";
-import { Select } from "@mantine/core";
+import { Button, Select } from "@mantine/core";
+import { Melody } from "@ziltek/common/src/Melody";
+import { modals } from "@mantine/modals";
+import { IconMusicCog } from "@tabler/icons-react";
 
 export const MelodySelect = ({
-    files,
     value,
     onChange,
-    label,
 }: {
-    files: StoredFile[],
-    value: string,
-    onChange: (v: string) => void,
-    label: React.ReactNode,
+    value: Melody;
+    onChange: (m: Melody) => void;
 }) => {
     const { t } = useTranslation();
 
     return (
-        <Select
-            w="100%"
-            searchable
-            label={label}
-            data={files.map(f => f.filename)}
-            placeholder={files.length ? t("edit.pickAFile") : t("errors.noFiles")}
-            value={value}
-            onChange={onChange}
-        />
+        <Button
+            variant="outline"
+            leftSection={<IconMusicCog />}
+            onClick={() => {
+                modals.openConfirmModal({
+
+                });
+            }}
+        >
+            {value.filename}
+        </Button>
     );
 }

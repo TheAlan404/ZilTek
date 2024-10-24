@@ -1,33 +1,22 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useListState, useLocalStorage } from "@mantine/hooks";
-import { useTranslation } from "react-i18next";
-import { notifications } from "@mantine/notifications";
-import { IconAlertTriangle } from "@tabler/icons-react";
-import { App } from "../app/App.tsx";
-import { useCallback } from "react";
-import { useIndexedDB } from 'react-indexed-db-hook';
-import { NotifyError } from "../utils.tsx";
-import { useCustomInterval } from "../hooks/useCustomInterval.tsx";
-import { useSocketIO } from "./Networking.tsx";
-import { v4 as uuidv4 } from "uuid";
-import { DEFAULT_RELAY } from "../meta.tsx";
+import { PropsWithChildren, useContext, useEffect, useRef, useState } from "react";
+import { useLocalStorage } from "@mantine/hooks";
 import { deserialize, serialize } from "./DataFixer.tsx";
 import { Controller } from "./ControllerAPI.tsx";
 import { NetworkingContext } from "./NetworkingContext.tsx";
 import { createData, Data } from "@ziltek/common/src/data/Data.tsx";
-import { AudioState } from "@ziltek/common/src/state/AudioState.tsx";
 import { useDailyClock } from "../hooks/useClock.tsx";
 import { match } from "@alan404/enum";
-import { overlayTimetables } from "@ziltek/common/src/schedule/timetable/Timetable.tsx";
-import { TimetableDay } from "@ziltek/common/src/schedule/timetable/TimetableDay.tsx";
-import { BellType } from "@ziltek/common/src/schedule/timetable/BellType.tsx";
 import { Time } from "@ziltek/common/src/Time.tsx";
-import { Melody } from "@ziltek/common/src/Melody.tsx";
 import { TimeState } from "@ziltek/common/src/state/TimeState.tsx";
 import { Command } from "@ziltek/common/src/cmd/Command.tsx";
 import { useAudioPlayer } from "../hooks/useAudioPlayer.tsx";
+import { FilesystemContext } from "./fs/FilesystemContext.tsx";
+import { applyListAction } from "@ziltek/common/src/ListAction.ts";
+import { computeTimings } from "@ziltek/common/src/schedule/Schedule.tsx";
+import { State } from "@ziltek/common/src/state/State.tsx";
 
-export const LocalHost = () => {
+export const LocalHost = ({ children }: PropsWithChildren) => {
+    const fs = useContext(FilesystemContext);
     const { emitter } = useContext(NetworkingContext);
     
     const [data, setData] = useLocalStorage<Data>({
@@ -47,60 +36,20 @@ export const LocalHost = () => {
     const audio = useAudioPlayer();
     
     // -- Clock --
-
-    const computeTimings = useCallback(({
-        data,
-        dayOfWeek,
-    }: {
-        data: Data;
-        dayOfWeek: number;
-    }) => {
-        const times: Partial<Record<Time, Melody>> = {};
-
-        match(data.schedule)({
-            Timetable: (schedule) => {
-                let layers = [];
-                let day: TimetableDay | undefined = schedule.tables.days[dayOfWeek];
-                if(!day?.isFullOverride) layers.push(schedule.tables.default);
-                if(day && day.enabled) layers.push(day.table);
-
-                for(let row of overlayTimetables(layers)) {
-                    for(let [y, entry] of row.entries()) {
-                        let key = (["students", "teachers", "classEnd"] as BellType[])[y];
-                        let melody = entry.melodyOverride || schedule.melodies.default[key];
-                        times[entry.value] = melody;
-                    }
-                }
-            },
-            _: () => {},
-        });
-
-        return times;
-    }, []);
     
-    //const previousTiming = useRef<Time | null>(null);
-    const computedTimings = useRef(computeTimings({
-        dayOfWeek: new Date().getDay(),
-        data,
-    }));
+    const computedTimings = useRef(computeTimings(data.schedule, new Date().getDay()));
 
     useEffect(() => {
-        computedTimings.current = computeTimings({
-            dayOfWeek: new Date().getDay(),
-            data,
-        });
+        computedTimings.current = computeTimings(data.schedule, new Date().getDay());
     }, [data]);
 
     useDailyClock({
         onNewDay: (dayOfWeek) => {
             setTimeStates({});
-            computedTimings.current = computeTimings({
-                dayOfWeek,
-                data,
-            });
+            computedTimings.current = computeTimings(data.schedule, dayOfWeek);
         },
 
-        onTick: (time) => {
+        onTick: async (time) => {
             if(!computedTimings.current[time])
                 return;
 
@@ -115,31 +64,87 @@ export const LocalHost = () => {
                 return;
             }
 
-            processCommand(Command.ForcePlayMelody(computedTimings.current[time]));
+            let melody = computedTimings.current[time];
+
+            let data = await fs.read(melody.filename);
+
+            if(!data) {
+                setTimeState(time, "failed");
+                return;
+            };
+
+            let source = URL.createObjectURL(new File([data], melody.filename));
+
             setTimeState(time, "playing");
+            audio.play({
+                source,
+                label: melody.filename,
+                endTime: melody.endTime,
+                startTime: melody.startTime,
+                onCancel: () => {
+                    setTimeState(time, "stopped");
+                },
+                onFail: () => {
+                    setTimeState(time, "failed");
+                },
+                onSuccess: () => {
+                    setTimeState(time, "played");
+                },
+            });
         },
     });
 
     const processCommand = (cmd: Command) => {
+        console.log("Executing command", cmd);
+
         match(cmd)({
-            ToggleSystemEnabled: (enable) => setMuted(enable),
+            ToggleSystemEnabled: (enable) => audio.setMuted(!enable),
+            ForceStop: () => audio.stop(),
             Schedule: (a) => {},
-            Melody: (a) => {},
-            ForcePlayMelody: (a) => {},
-            ForceStop: (a) => {},
-            Filesystem: (a) => {},
+            ForcePlayMelody: async (melody) => {
+                let data = await fs.read(melody.filename);
+                if(!data) return;
+                let source = URL.createObjectURL(new File([data], melody.filename));
+                audio.play({
+                    source,
+                    label: melody.filename,
+                    endTime: melody.endTime,
+                    startTime: melody.startTime,
+                });
+            },
+            Filesystem: (sub) => match(sub)({
+                AddFile: ({ filename, data }) => fs.write(filename, data),
+                Delete: (filename) => fs.remove(filename),
+                Rename: ({ from, to }) => fs.rename(from, to),
+                Refresh: () => fs.refresh(),
+            }),
+            Melody: (sub) => match(sub)({
+                EditQuickMelodies: (act) => setData(d => ({
+                    ...d,
+                    quickMelodies: applyListAction(d.quickMelodies, act),
+                })),
+            }),
             Maintenance: (sub) => match(sub)({
                 ClearAllData: () => setData(createData()),
                 SetAllData: (d) => setData(d),
             }),
         });
     };
+
+    const state: State = {
+        audioState: audio.audioState,
+        timeStates,
+        data,
+        warnings: {},
+    };
+
+    emitter.emit("UpdateState", state);
     
     return (
         <Controller.Provider
             value={{
-                audioState: audio.audioState,
-                timeStates,
+                ...state,
+                processCommand,
             }}
         >
             {children}

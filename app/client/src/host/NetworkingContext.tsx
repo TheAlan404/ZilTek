@@ -2,7 +2,7 @@ import { useLocalStorage, useSet } from "@mantine/hooks";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { v4 } from "uuid";
 import { DEFAULT_RELAY } from "../meta";
-import { ListAction, modifyList } from "@ziltek/common/src/ListAction";
+import { ListAction, applyListAction } from "@ziltek/common/src/ListAction";
 import { KnownRemote } from "@ziltek/common/src/networking/KnownRemote";
 import { ClientType } from "@ziltek/common/src/networking/ClientType";
 import { useSocketIO } from "../hooks/useSocketIO";
@@ -10,21 +10,26 @@ import { ClientAuth } from "@ziltek/common/src/networking/ClientAuth";
 import { C2SMessageMap, HostMessageMap, S2CMessageMap } from "@ziltek/common/src/networking/Message";
 import { noop } from "@mantine/core";
 import { EmitOf, EventEmitter, ListenerOf, useEventEmitter } from "../hooks/useEvents";
-import { HostContext } from "./Host";
+import { HostContext } from "./HostContext";
 import { Command } from "@ziltek/common/src/cmd/Command";
+import { Socket } from "socket.io-client";
 
 export type INetworkingContext = {
-    clientType: ClientType;
-    relayURL: string;
-    setRelayURL: (url: string) => void;
+    label: string;
+    setLabel: (label: string) => void;
     isConnected: boolean;
     emitter: EventEmitter<HostMessageMap>;
+    socket: React.MutableRefObject<Socket<S2CMessageMap, C2SMessageMap> | null>;
     
     // clientType == "remote"
-    remoteHostId?: string;
+    remoteId?: string;
+    remoteRelayURL?: string;
+    connectTo?: string;
     processCommand: (cmd: Command) => void;
     
     // clientType == "host"
+    hostRelayURL: string;
+    setHostRelayURL: (url: string) => void;
     selfHostId: string;
     rcEnabled: boolean;
     setRCEnabled: (b: boolean) => void;
@@ -48,13 +53,17 @@ export const NetworkingContext = React.createContext<INetworkingContext>({} as I
 export const NetworkingProvider = ({
     children
 }: React.PropsWithChildren) => {
-    const { clientType, connectTo } = useContext(HostContext);
+    const { clientType, connectTo, remoteRelayURL } = useContext(HostContext);
     
     // -- Stored --
 
-    let [relayURL, setRelayURL] = useLocalStorage({
+    let [hostRelayURL, setHostRelayURL] = useLocalStorage({
         key: "ziltek-proxy-url",
         defaultValue: DEFAULT_RELAY,
+    });
+    let [label, setLabel] = useLocalStorage({
+        key: "ziltek-host-label",
+        defaultValue: "",
     });
     const [rcEnabled, setRCEnabled] = useLocalStorage<boolean>({
         key: "ziltek-remote-control-enabled",
@@ -111,7 +120,7 @@ export const NetworkingProvider = ({
     };
 
     const { isConnected, sendMessage, socket } = useSocketIO<S2CMessageMap, C2SMessageMap>({
-        url: relayURL,
+        url: remoteRelayURL || hostRelayURL,
         connect: rcEnabled || clientType == "remote",
         auth,
         onMessage,
@@ -139,15 +148,18 @@ export const NetworkingProvider = ({
     return (
         <NetworkingContext.Provider
             value={{
-                clientType,
+                socket,
                 selfHostId: hostId,
-                remoteHostId: connectTo,
-                relayURL,
-                setRelayURL,
+                label,
+                setLabel,
+                remoteId,
+                connectTo,
+                hostRelayURL,
+                setHostRelayURL,
                 rcEnabled,
                 setRCEnabled,
                 knownRemotes,
-                modifyKnownRemotes: (act) => setKnownRemotes(prev => modifyList(prev, act)),
+                modifyKnownRemotes: (act) => setKnownRemotes(prev => applyListAction(prev, act)),
                 connectedRemotes: Array.from(connectedRemotes),
                 connectionQueue: Array.from(connectionQueue),
                 acceptConnection,

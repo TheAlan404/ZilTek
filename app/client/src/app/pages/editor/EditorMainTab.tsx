@@ -8,6 +8,7 @@ import { Controller } from "../../../host/ControllerAPI";
 import { RemoteControlSettings } from "./main/RemoteControlSettings";
 import { MaintenanceSection } from "./main/MaintenanceSection";
 import { UpdateChecker } from "./main/UpdateChecker";
+import { HostContext } from "../../../host/HostContext";
 
 const AUTHOR = "dennis";
 const highlightStyles = {
@@ -19,7 +20,7 @@ const highlightStyles = {
 };
 
 export const EditorMainTab = () => {
-    const { hostMode } = useContext(Controller);
+    const { clientType } = useContext(HostContext);
     const { t } = useTranslation();
     const isMobile = useMobile();
 
@@ -61,8 +62,8 @@ export const EditorMainTab = () => {
                         {/* hostMode == "local" && <UpdateChecker /> */}
                     </Stack>
                 </Fieldset>
-                {hostMode == "local" && <RemoteControlSettings />}
-                {hostMode == "local" && <MaintenanceSection />}
+                {clientType == "host" && <RemoteControlSettings />}
+                {clientType == "host" && <MaintenanceSection />}
             </Stack>
         </Flex>
     )

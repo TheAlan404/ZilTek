@@ -1,33 +1,27 @@
 import { Group, Paper, Progress, Stack, Text } from "@mantine/core"
-import { useInterval } from "@mantine/hooks"
-import { useCallback, useContext, useEffect, useState } from "react";
-import { Time, TimeToDate, timeToRelativeString } from "@ziltek/common/src/Time";
+import { useContext, useState } from "react";
+import { Time, TimeFromDate, TimeToDate, timeToRelativeString } from "@ziltek/common/src/Time";
 import { useTranslation } from "react-i18next";
 import { Controller } from "../../../host/ControllerAPI";
 import { TimeBox } from "../../components/schedule/TimeBox";
-import { Entry, Timetable } from "../../../lib/timetable";
-import { renderTimetableWithVariants } from "./ScheduleSection";
 import { IconAlertTriangle } from "@tabler/icons-react";
+import { useDate } from "../../../hooks/useClock";
+import { computeTimings, Schedule } from "@ziltek/common/src/schedule/Schedule";
 
 const pad = (v: number) => v.toString().padStart(2, "0");
 
-const getNextPrev = (table: Timetable) => {
-    let t = Time(new Date());
-
-    let flattened = table.flat().filter(x => x.value !== "00:00");
+const getNextPrev = (schedule: Schedule) => {
+    const timings = Object.keys(computeTimings(schedule, new Date().getDay())) as Time[];
     
-    let prev = flattened[0];
-    let next = flattened[0];
+    const mins = (t: Time) => {
+        let [h, m] = t.split(":").map(Number);
+        return h*60+m;
+    };
 
-    for(let entry of flattened) {
-        if(TimeToDate(next.value) <= TimeToDate(t)) {
-            prev = next;
-            next = entry;
-        }
-    }
+    const needle = mins(TimeFromDate(new Date()));
 
-    if(prev && TimeToDate(prev.value) > TimeToDate(t)) prev = null;
-    if(next && TimeToDate(next.value) < TimeToDate(t)) next = null;
+    let prev = timings.find((x) => mins(x) > needle);
+    let next = timings.find((x) => mins(x) < needle);
 
     return [next, prev];
 }
@@ -35,9 +29,9 @@ const getNextPrev = (table: Timetable) => {
 const toSecs = (d: Date) =>
     (d.getHours() * 60 * 60) + (d.getMinutes() * 60) + (d.getSeconds());
 
-const getProgressBetween = (prev: Entry, next: Entry) => {
-    let a = TimeToDate(prev.value);
-    let b = TimeToDate(next.value);
+const getProgressBetween = (prev: Time, next: Time) => {
+    let a = TimeToDate(prev);
+    let b = TimeToDate(next);
 
     let current = toSecs(new Date());
     let x = toSecs(a);
@@ -51,82 +45,44 @@ const getProgressBetween = (prev: Entry, next: Entry) => {
 
 export const ClockSection = () => {
     const { t, i18n: { language } } = useTranslation();
-    const { renderedSchedule, logs, currentlyPlayingBell, files, data } = useContext(Controller);
-    const [date, setDate] = useState("");
-    const [time, setTime] = useState("");
-    const [progressSec, setProgressSec] = useState(0);
-    const [progressMin, setProgressMin] = useState(0);
-    const [progressHr, setProgressHr] = useState(0);
+    const { data } = useContext(Controller);
+    const [date, setDate] = useState(new Date());
 
-    const update = useCallback(() => {
-        let d = new Date();
-        setDate([
-            d.getDate(),
-            " ",
-            t(`months.${d.getMonth()}`),
-            ", ",
-            t(`days.${d.getDay()}`),
-        ].join(""));
+    useDate((d) => setDate(d));
 
-        setTime(`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`);
+    let [next, prev] = getNextPrev(data.schedule);
 
-        setProgressSec((d.getSeconds() / 60) * 100);
-        setProgressMin((d.getMinutes() / 60) * 100);
-        setProgressHr((d.getHours() / 24) * 100);
-    });
-    const interval = useInterval(update, 1000);
-
-    useEffect(() => {
-        update();
-        interval.start();
-        return interval.stop;
-    }, []);
-
-    let [next, prev] = getNextPrev(renderTimetableWithVariants(renderedSchedule, logs, currentlyPlayingBell));
-
-    let firstRender = date === "";
     let noBells = !next && !prev;
-    let zeroFiles = !firstRender && Array.isArray(files) && !files.length;
-    let unsetMelodies = !firstRender && Array.isArray(files) && (data.schedule.type == "timetable" ? (
-        data.schedule.melodies.default.some(m => !files.some(f => f.filename == m))
-    ) : (
-        // TODO
-        false
-    ));
-
-    let anyErrors = zeroFiles || unsetMelodies;
 
     return (
         <Stack>
             <Stack gap={0}>
                 <Group justify="space-between">
                     <Text>
-                        {date}
+                        {[
+                            date.getDate(),
+                            " ",
+                            t(`months.${date.getMonth()}`),
+                            ", ",
+                            t(`days.${date.getDay()}`),
+                        ].join("")}
                     </Text>
                     <Text c="dimmed" inline>
-                        {new Date().getFullYear()}
+                        {date.getFullYear()}
                     </Text>
                 </Group>
 
                 <Text c="violet" fz="4em" w="100%" ta="center">
-                    {time}
+                    {TimeFromDate(date)}:{pad(date.getSeconds())}
                 </Text>
 
                 <Progress
                     color="violet"
-                    value={progressSec}
+                    value={(date.getSeconds() / 60) * 100}
                 />
-                {/* <Progress
-                    color="violet"
-                    value={progressMin}
-                />
-                <Progress
-                    color="violet"
-                    value={progressHr}
-                /> */}
             </Stack>
             <Stack>
-                {zeroFiles && (
+                {false && (
                     <Paper withBorder p="md">
                         <Group wrap="nowrap">
                             <IconAlertTriangle />
@@ -137,7 +93,7 @@ export const ClockSection = () => {
                         </Group>
                     </Paper>
                 )}
-                {unsetMelodies && (
+                {false && (
                     <Paper withBorder p="md">
                         <Group wrap="nowrap">
                             <IconAlertTriangle />
@@ -148,7 +104,7 @@ export const ClockSection = () => {
                         </Group>
                     </Paper>
                 )}
-                {!anyErrors && noBells && (
+                {!false && noBells && (
                     <Paper withBorder p="md" ta="center">
                         <Text c="dimmed" fs="italic">{t(`view.noBells`)}</Text>
                     </Paper>
@@ -163,16 +119,12 @@ export const ClockSection = () => {
                                 </Group>
                                 <Group justify="space-between" grow={false} wrap="nowrap">
                                     <TimeBox
-                                        {...prev}
-                                        readonly
-                                        w="5em"
+                                        value={prev}
                                     />
-                                    <Text c="dimmed">{timeToRelativeString(language, prev.value)}</Text>
-                                    <Text c="dimmed" ta="right">{timeToRelativeString(language, next.value)}</Text>
+                                    <Text c="dimmed">{timeToRelativeString(language, prev)}</Text>
+                                    <Text c="dimmed" ta="right">{timeToRelativeString(language, next)}</Text>
                                     <TimeBox
-                                        {...next}
-                                        readonly
-                                        w="5em"
+                                        value={next}
                                     />
                                 </Group>
                             </Stack>
@@ -188,10 +140,9 @@ export const ClockSection = () => {
                         <Group justify="space-between" grow wrap="nowrap">
                             <Text>{t(`view.nextBell`)}</Text>
                             <TimeBox
-                                {...next}
-                                readonly
+                                value={next}
                             />
-                            <Text c="dimmed">{timeToRelativeString(language, next.value)}</Text>
+                            <Text c="dimmed">{timeToRelativeString(language, next)}</Text>
                         </Group>
                     </Paper>
                 )}
@@ -200,10 +151,9 @@ export const ClockSection = () => {
                         <Group justify="space-between" grow wrap="nowrap">
                             <Text c="dimmed">{t(`view.prevBell`)}</Text>
                             <TimeBox
-                                {...prev}
-                                readonly
+                                value={prev}
                             />
-                            <Text c="dimmed">{timeToRelativeString(language, prev.value)}</Text>
+                            <Text c="dimmed">{timeToRelativeString(language, prev)}</Text>
                         </Group>
                     </Paper>
                 )}

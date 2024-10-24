@@ -1,10 +1,13 @@
 import { Command } from "../cmd/Command";
 import { State } from "../state/State";
+import { StoredFileMetadata } from "../StoredFile";
 import { HostStatus } from "./HostStatus";
 
 export type HostMessageMap = {
     ProcessCommand: (cmd: Command) => void;
     UpdateState: (state: State) => void;
+    RequestFile: (filename: string, cb: (data: ArrayBuffer) => void) => void;
+    SetFilesList: (files: StoredFileMetadata[]) => void;
 };
 
 export type S2CMessageMap = HostMessageMap & {

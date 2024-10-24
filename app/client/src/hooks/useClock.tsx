@@ -3,6 +3,21 @@ import { useEffect } from "react";
 
 const SECOND = 1000;
 
+export const useDate = (fn: (date: Date) => void) => {
+    useEffect(() => {
+        const update = () => {
+            fn(new Date());
+        };
+
+        const handle = setInterval(update, SECOND);
+        return () => clearInterval(handle);
+    }, []);
+};
+
+export const useCurrentTime = (fn: (time: Time) => void) => {
+    useDate((date) => fn(TimeFromDate(date)));
+};
+
 export const useDailyClock = ({
     onNewDay,
     onTick,

@@ -7,6 +7,6 @@ export type FilesystemCommand = Enum<{
         to: string;
     };
     Delete: string;
-    //addFile: { filename: string, filedata: Blob },
-    //cutFile: { filename: string, startTime: number, endTime: number },
+    AddFile: { filename: string, data: ArrayBuffer };
+    Refresh: void;
 }>;

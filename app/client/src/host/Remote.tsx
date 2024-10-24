@@ -1,116 +1,73 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
 import { Button, Center, Code, Group, Loader, Stack, Text, Title } from "@mantine/core";
 import { Controller } from "./ControllerAPI";
 import { App } from "../app/App";
 import { NetworkingContext } from "./NetworkingContext";
 import { createState, State } from "@ziltek/common/src/state/State";
 import { useEventListener } from "../hooks/useEvents";
+import { StoredFileMetadata } from "@ziltek/common/src/StoredFile";
+import { HostStatus } from "@ziltek/common/src/networking/HostStatus";
+import { FilesystemContext } from "./fs/FilesystemContext";
+import { Command } from "@ziltek/common/src/cmd/Command";
+import { FilesystemCommand } from "@ziltek/common/src/cmd/FilesystemCommand";
+import { LoadingScreen } from "../app/LoadingScreen";
 
-export const RemoteHost = () => {
+export const RemoteHost = ({ children }: PropsWithChildren) => {
     const {
         emitter,
         processCommand,
         isConnected,
+        socket,
     } = useContext(NetworkingContext);
-    
-    let [state, setState] = useState<State | null>(null);
+    const [state, setState] = useState<State | null>(null);
+    const [files, setFiles] = useState<StoredFileMetadata[] | null>(null);
+    const [hostStatus, setHostStatus] = useState<HostStatus>("connecting");
     
     useEffect(() => {
         // on disconnect (?)
-        if(!isConnected) setState(null);
+        if(!isConnected) {
+            setHostStatus(p => p == "connected" ? "remoteDisconnected" : p);
+            setState(null);
+            setFiles(null);
+        } else {
+            setHostStatus("connecting");
+        };
     }, [isConnected]);
 
     useEventListener(emitter, "UpdateState", (st: State) => setState(st));
+    useEventListener(emitter, "SetFilesList", (files: StoredFileMetadata[]) => setFiles(files));
 
-    if(!state) return (
-        ""
+    if(!state || files === null || hostStatus !== "connected") return (
+        <LoadingScreen
+            variant={hostStatus === "connected" ? (
+                files === null ? "storage" : hostStatus
+            ) : hostStatus}
+        />
     );
 
     return (
         <Controller.Provider
             value={{
-                ...(state!),
+                ...(state),
                 processCommand,
             }}
         >
-            
+            <FilesystemContext.Provider
+                value={{
+                    files,
+                    isReady: hostStatus == "connected",
+                    refresh: () => processCommand(Command.Filesystem(FilesystemCommand.Refresh())),
+                    write: (filename, data) => processCommand(Command.Filesystem(FilesystemCommand.AddFile({ filename, data }))),
+                    rename: (from, to) => processCommand(Command.Filesystem(FilesystemCommand.Rename({ from, to }))),
+                    remove: (filename) => processCommand(Command.Filesystem(FilesystemCommand.Delete(filename))),
+                    read: async (filename) => {
+                        if(!socket.current) return;
+                        return await socket.current.emitWithAck("RequestFile", filename);
+                    },
+                }}
+            >
+                {children}
+            </FilesystemContext.Provider>
         </Controller.Provider>
     )
-
-    /* return (
-        (bigState && !["offline", "kicked", "denied"].includes(hostState)) ? (
-            <Controller.Provider value={{
-                ...bigState,
-                processCommand,
-                hostMode: "remote",
-                isConnected,
-                exit: () => exitRemoteMode(),
-            }}>
-                <App />
-            </Controller.Provider>
-        ) : (
-            <Center h="100%" p="xl">
-                <Stack align="center" ta="center" gap="xl" mt="xl">
-                    {(({
-                        connecting: () => (
-                            <>
-                                <Loader />
-                                <Title order={4}>{t("rc.connecting")}</Title>
-                                <Text>{t("rc.connectingDesc")}</Text>
-                            </>
-                        ),
-                        waiting: () => (
-                            <>
-                                <Loader />
-                                <Title order={4}>{t("rc.waitingForAcception")}</Title>
-                                <Text>{t("rc.waitingForAcceptionDesc")}</Text>
-                            </>
-                        ),
-                        denied: () => (
-                            <>
-                                <IconUserX />
-                                <Title order={4}>{t("rc.denied")}</Title>
-                                <Text>{t("rc.deniedDesc")}</Text>
-                            </>
-                        ),
-                        kicked: () => (
-                            <>
-                                <IconUserX />
-                                <Title order={4}>{t("rc.kicked")}</Title>
-                                <Text>{t("rc.kickedDesc")}</Text>
-                            </>
-                        ),
-                        offline: () => (
-                            <>
-                                <IconPlugX />
-                                <Title order={4}>{t("rc.hostOffline")}</Title>
-                                <Text>{t("rc.hostOfflineDesc")}</Text>
-                            </>
-                        ),
-                    })[hostState || "connecting"] || (() => (
-                        <Text>{hostState}</Text>
-                    )))()}
-                    
-                    <Stack>
-                        <Group>
-                            <Text>
-                                {t("rc.remoteId")}
-                            </Text>
-                            <Code>{remoteId}</Code>
-                        </Group>
-                    </Stack>
-
-                    <Button
-                        color="red"
-                        variant="light"
-                        onClick={() => {
-                            exitRemoteMode();
-                        }}
-                    >
-                        {t("rc.disconnect")}
-                    </Button>
-                </Stack>
-            </Center>
-        )
-    ); */
 }

@@ -13,26 +13,9 @@ import './styles.css';
 import 'dayjs/locale/en';
 import 'dayjs/locale/tr';
 
-import AppBase from './AppBase';
 import i18n from "./i18n";
-import dayjs from 'dayjs';
-import { initDB } from 'react-indexed-db-hook';
 import { DatesProvider } from "@mantine/dates";
-
-initDB({
-    name: "ZilTekDB",
-    version: 2,
-    objectStoresMeta: [{
-        store: "files",
-        storeConfig: {
-            keyPath: "filename"
-        },
-        storeSchema: [
-            { name: "filename", keypath: "filename", options: { unique: true } },
-            { name: "data", options: { unique: false } },
-        ],
-    }],
-});
+import { BaseRouter } from "./BaseRouter";
 
 const theme = createTheme({
     colors: {
@@ -72,7 +55,7 @@ const Wrapper = () => {
         }}>
             <Notifications />
             <ModalsProvider>
-                <AppBase />
+                <BaseRouter />
             </ModalsProvider>
         </DatesProvider>
     );
@@ -81,8 +64,6 @@ const Wrapper = () => {
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
     <MantineProvider
-        withGlobalStyles
-        withNormalizeCSS
         defaultColorScheme="dark"
         theme={theme}>
         <I18nextProvider i18n={i18n} defaultNS={[]}>

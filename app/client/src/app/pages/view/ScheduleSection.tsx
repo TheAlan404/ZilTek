@@ -1,41 +1,22 @@
-import { useContext } from "react"
-import { Controller, Log } from "../../../host/ControllerAPI"
+import { useContext, useState } from "react"
+import { Controller } from "../../../host/ControllerAPI"
+import { match } from "@alan404/enum";
+import { Schedule } from "@ziltek/common/src/schedule/Schedule";
 import { TimetableComponent } from "../../components/schedule/Timetable";
-import { Entry, TimeBoxVariant, Timetable } from "../../../lib/timetable";
-import { Time, getVariant } from "@ziltek/common/src/Time";
-
-export const renderTimetableWithVariants = (table: Timetable, logs: Log[], currentlyPlayingBell) => {
-    return table.map((tuple, x) => (
-        tuple.map((entry, y) => (
-            {
-                value: entry.value,
-                variant: getVariant({
-                    table,
-                    logs,
-                    currentlyPlayingBell,
-                    x,
-                    y,
-                    entry,
-                }),
-            }
-        ))
-    ))
-}
+import { getTimetableLayers, overlayTimetables } from "@ziltek/common/src/schedule/timetable/Timetable";
+import { useDate } from "../../../hooks/useClock";
 
 export const ScheduleSection = () => {
-    const {
-        renderedSchedule,
-        logs,
-        currentlyPlayingBell,
-    } = useContext(Controller);
-    if(!renderedSchedule) return <></>;
+    const { data } = useContext(Controller);
+    const [dayOfWeek, setDayOfWeek] = useState(new Date().getDay());
+    useDate((d) => setDayOfWeek(d.getDay()));
 
-    let schedule = renderTimetableWithVariants(renderedSchedule, logs, currentlyPlayingBell);
-
-    return (
-        <TimetableComponent
-            variant="readonly"
-            value={schedule}
-        />
-    )
+    return match<Schedule, React.ReactNode>(data.schedule)({
+        Timetable: (schedule) => (
+            <TimetableComponent
+                value={overlayTimetables(getTimetableLayers(schedule, dayOfWeek))}
+            />
+        ),
+        Zones: () => <></>,
+    });
 }
