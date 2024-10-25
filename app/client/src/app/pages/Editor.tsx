@@ -1,7 +1,7 @@
 import { Tabs } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { IconFileMusic, IconListDetails, IconMusic, IconSettings } from "@tabler/icons-react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 
 export const EditorPage = () => {
     let { t } = useTranslation();
@@ -18,6 +18,8 @@ export const EditorPage = () => {
                 <Tabs.Tab value="/schedule" leftSection={<IconListDetails />}>{t("editor.tabs.schedule")}</Tabs.Tab>
                 <Tabs.Tab value="/files" leftSection={<IconFileMusic />}>{t("editor.tabs.files")}</Tabs.Tab>
             </Tabs.List>
+
+            <Outlet />
         </Tabs>
     );
 };

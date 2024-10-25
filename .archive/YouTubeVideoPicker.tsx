@@ -1,12 +1,12 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
-import { LIGHTTUBE_INSTANCES } from "../../../../meta";
+import { LIGHTTUBE_INSTANCES } from "../app/client/src/meta";
 import { ActionIcon, Avatar, Button, Center, Group, Image, Loader, LoadingOverlay, Paper, Progress, Select, SimpleGrid, Slider, Stack, Text, TextInput, Title, TypographyStylesProvider } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { useDebouncedValue } from "@mantine/hooks";
 import { title } from "process";
 import { IconPlayerPause, IconPlayerPlay, IconSearch } from "@tabler/icons-react";
-import { Controller } from "../../../../host/ControllerAPI";
-import { downloadWithProgress } from "../../../../lib/downloadWithProgress";
+import { Controller } from "../app/client/src/host/ControllerAPI";
+import { downloadWithProgress } from "../app/client/src/lib/downloadWithProgress";
 import { modals } from "@mantine/modals";
 
 interface LTInstance {

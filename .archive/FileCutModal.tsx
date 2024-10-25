@@ -1,10 +1,10 @@
 import { ActionIcon, Button, Center, Code, Group, Loader, RangeSlider, Slider, Stack, Text } from "@mantine/core"
 import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next"
-import { Controller, StoredFile } from "../../../../host/ControllerAPI";
+import { Controller, StoredFile } from "../app/client/src/host/ControllerAPI";
 import { IconPlayerPause, IconPlayerPlay } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
-import { TimeBox } from "../../../components/schedule/TimeBox";
+import { TimeBox } from "../app/client/src/app/components/schedule/TimeBox";
 
 export const FileCutModal = ({
     file,

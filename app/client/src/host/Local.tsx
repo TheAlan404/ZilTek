@@ -100,7 +100,12 @@ export const LocalHost = ({ children }: PropsWithChildren) => {
         match(cmd)({
             ToggleSystemEnabled: (enable) => audio.setMuted(!enable),
             ForceStop: () => audio.stop(),
-            Schedule: (a) => {},
+            Schedule: (sub) => match(sub)({
+                SetSchedule: (schedule) => setData(d => ({
+                    ...d,
+                    schedule,
+                })),
+            }),
             ForcePlayMelody: async (melody) => {
                 let data = await fs.read(melody.filename);
                 if(!data) return;

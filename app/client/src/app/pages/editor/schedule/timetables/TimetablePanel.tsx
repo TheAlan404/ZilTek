@@ -1,151 +1,160 @@
-import { ActionIcon, Button, Checkbox, Group, Select, Stack, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Button, Checkbox, closeOnEscape, Fieldset, Group, Select, Stack, Text, Tooltip } from "@mantine/core";
 import { useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ChangesContext } from "../../../../ChangesContext";
-import { TimetableComponent } from "../../../../components/schedule/Timetable";
-import { Controller, DefaultData, DefaultTimetable, DefaultTimetableDay } from "../../../../../host/ControllerAPI";
+import { Controller } from "../../../../../host/ControllerAPI";
 import { CommitableTimetable } from "../../../../components/schedule/CommitableTimetable";
 import { IconCopy, IconPlaylistX, IconWand } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
 import { TimetableGenerator } from "./TimetableGenerator";
 import useMobile from "../../../../../hooks/useMobile";
+import { TimetableSchedule } from "@ziltek/common/src/schedule/timetable/TimetableSchedule";
+import { createTimetableDay, TimetableDay } from "@ziltek/common/src/schedule/timetable/TimetableDay";
+import { createTimetable, Timetable } from "@ziltek/common/src/schedule/timetable/Timetable";
 
-export const TimetablePanel = () => {
-    const { data, processCommand } = useContext(Controller);
+type TableID = "default" | "0" | "1" | "2" | "3" | "4" | "5" | "6";
+
+export const TimetablePanel = ({
+    schedule,
+    setSchedule,
+}: {
+    schedule: TimetableSchedule;
+    setSchedule: (schedule: TimetableSchedule) => void;
+}) => {
     const { t } = useTranslation();
-    const [tableIndex, setTableIndex] = useState("0");
-    const { unsavedChanges } = useContext(ChangesContext);
     const isMobile = useMobile();
-    
-    const DAYS = useMemo(() => {
-        return [
-            {
-                group: t("editor.sections.schedule.type.timetable.main"),
-                items: [
-                    {
-                        value: "0",
-                        label: t("editor.sections.schedule.type.timetable.mainTimetable")
-                    }
-                ]
-            },
-            {
-                group: t("editor.sections.schedule.type.timetable.overrides"),
-                items: (new Array(7).fill(0)
-                    .map((_, i) => ({
-                        value: (i+1).toString(),
-                        label: t(`days.${i}`),
-                    })))
-            }
-        ];
-    }, [t]);
 
-    const setTable = (table) => {
-        console.log(`TimetablePanel -> onChange`, table);
-        if (tableIndex == "0") {
-            processCommand({
-                type: "setMainTimetable",
-                data: table,
-            });
-        } else {
-            processCommand({
-                type: "setTimetableDay",
-                data: {
-                    tableIndex: tableIndex-1,
-                    tableData: table,
-                },
-            })
+    const [tableId, setTableId] = useState<TableID>("default");
+
+    const day = tableId == "default" ? undefined : (schedule.tables.days[Number(tableId)] || createTimetableDay());
+
+    const tableIds = [
+        {
+            group: t("editor.sections.schedule.type.timetable.main"),
+            items: [
+                {
+                    value: "default",
+                    label: t("editor.sections.schedule.type.timetable.mainTimetable")
+                }
+            ]
+        },
+        {
+            group: t("editor.sections.schedule.type.timetable.overrides"),
+            items: (new Array(7).fill(0)
+                .map((_, i) => ({
+                    value: i.toString(),
+                    label: t(`days.${i}`),
+                })))
         }
+    ];
+
+    const clear = () => {
+        updateTable(createTimetable());
     };
 
-    const copyFromMain = () => {
-        processCommand({
-            type: "setTimetableDay",
-            data: {
-                tableIndex: tableIndex-1,
-                tableData: [...data.schedule.tables.default],
-            },
-        })
-    }
+    const updateTable = (table: Timetable) => {
+        console.log("updateTable", table)
+
+        let cloned = structuredClone(schedule);
+        if (tableId == "default")
+            cloned.tables.default = table;
+        else {
+            if (!cloned.tables.days[Number(tableId)])
+                cloned.tables.days[Number(tableId)] = createTimetableDay();
+            cloned.tables.days[Number(tableId)].table = table;
+        }
+        
+        setSchedule(cloned);
+    };
+
+    const updateDay = (upsert: Partial<Omit<TimetableDay, "table">>) => {
+        if (tableId == "default") return;
+        let cloned = structuredClone(schedule);
+        cloned.tables.days[Number(tableId)] = {
+            ...cloned.tables.days[Number(tableId)],
+            ...upsert,
+        };
+        setSchedule(cloned);
+    };
 
     return (
-        <Stack>
-            <Group wrap="nowrap" align="end" justify="space-between">
-                <Select
-                    data={DAYS}
-                    label={t("editor.sections.schedule.type.timetable.daySelect")}
-                    defaultValue="0"
-                    allowDeselect={false}
-                    value={tableIndex}
-                    onChange={(v) => setTableIndex(v)}
-                    disabled={!!unsavedChanges.length}
-                />
-                <Group wrap="nowrap">
-                    {tableIndex !== "0" && <Button
-                        leftSection={<IconCopy />}
-                        color="blue"
-                        variant="light"
-                        onClick={() => copyFromMain()}
-                    >
-                        {t("editor.sections.schedule.type.timetable.copyFromMain")}
-                    </Button>}
-                    <Button
-                        leftSection={<IconPlaylistX />}
-                        color="red"
-                        variant="light"
-                        onClick={() => modals.openConfirmModal({
-                            title: t("modals.clearTimetable.title"),
-                            children: <Text>{t("modals.clearTimetable.content")}</Text>,
-                            labels: {
-                                confirm: t("modals.clearTimetable.confirm"),
-                                cancel: t("modals.cancel"),
-                            },
-                            confirmProps: { color: "red" },
-                            onConfirm() {
-                                setTable(DefaultTimetable.slice());
-                            },
-                        })}
-                    >
-                        {t("editor.sections.schedule.type.timetable.clear")}
-                    </Button>
-                    <Button
-                        leftSection={<IconWand />}
-                        color="green"
-                        variant="light"
-                        onClick={() => modals.open({
-                            title: t("timetableGenerator.title"),
-                            children: <TimetableGenerator
-                                onAccept={(table) => setTable(table)}
-                            />,
-                            fullScreen: isMobile,
-                            size: isMobile ? undefined : "calc(100vw - 3rem)",
-                        })}>
-                        {t("editor.sections.schedule.type.timetable.generate")}
-                    </Button>
+        <Fieldset legend="">
+            <Stack>
+                <Group grow align="end" justify="space-between">
+                    <Select
+                        data={tableIds}
+                        defaultValue="0"
+                        allowDeselect={false}
+                        value={tableId}
+                        onChange={(v) => setTableId(v as TableID)}
+                    />
+
+                    <Group grow>
+                        <Button
+                            leftSection={<IconPlaylistX />}
+                            color="red"
+                            variant="light"
+                            onClick={() => modals.openConfirmModal({
+                                title: t("modals.clearTimetable.title"),
+                                children: <Text>{t("modals.clearTimetable.content")}</Text>,
+                                labels: {
+                                    confirm: t("modals.clearTimetable.confirm"),
+                                    cancel: t("modals.cancel"),
+                                },
+                                confirmProps: { color: "red" },
+                                onConfirm: clear,
+                            })}
+                        >
+                            {t("editor.sections.schedule.type.timetable.clear")}
+                        </Button>
+
+                        <Button
+                            leftSection={<IconWand />}
+                            color="green"
+                            variant="light"
+                            onClick={() => modals.open({
+                                title: t("timetableGenerator.title"),
+                                // children: <TimetableGenerator
+                                //     onAccept={(table) => setTable(table)}
+                                // />,
+                                fullScreen: isMobile,
+                                size: isMobile ? undefined : "calc(100vw - 3rem)",
+                            })}>
+                            {t("editor.sections.schedule.type.timetable.generate")}
+                        </Button>
+                    </Group>
                 </Group>
-            </Group>
-            {tableIndex != 0 && <>
-                <Checkbox
-                    label={t("editor.sections.schedule.type.timetable.fullOverride")}
-                    description={t("editor.sections.schedule.type.timetable.fullOverrideDesc")}
-                    checked={(data.schedule.type == "timetable" && (data.schedule.tables.days[Number(tableIndex)-1] || DefaultTimetableDay).isFullOverride)}
-                    onChange={(e) => processCommand({
-                        type: "toggleTimetableFullOverride",
-                        data: {
-                            tableIndex: tableIndex-1,
-                            fullOverride: e.currentTarget.checked,
-                        },
-                    })}
+
+                {tableId != "default" && (
+                    <Checkbox
+                        label={t("editor.sections.schedule.type.timetable.fullOverride")}
+                        description={t("editor.sections.schedule.type.timetable.fullOverrideDesc")}
+                        checked={day!.isFullOverride}
+                        onChange={(e) => updateDay({
+                            isFullOverride: e.currentTarget.checked
+                        })}
+                    />
+                )}
+
+                {tableId != "default" && (
+                    <Checkbox
+                        label={t("editor.sections.schedule.type.timetable.enabled")}
+                        description={t("editor.sections.schedule.type.timetable.enabledDesc")}
+                        checked={day!.enabled}
+                        onChange={(e) => updateDay({
+                            enabled: e.currentTarget.checked
+                        })}
+                    />
+                )}
+
+                <CommitableTimetable
+                    key={tableId}
+                    value={tableId == "default" ? schedule.tables.default : day!.table}
+                    onChange={(t) => {
+                        updateTable(t);
+                    }}
                 />
-            </>}
-            <CommitableTimetable
-                value={(data.schedule.type == "timetable" && (
-                    tableIndex == 0
-                    ? data.schedule.tables.default
-                    : (data.schedule.tables.days[Number(tableIndex)-1] || DefaultTimetableDay).data)) || DefaultTimetable}
-                onChange={setTable}
-                deps={[tableIndex]}
-            />
-        </Stack>
+            </Stack>
+        </Fieldset>
     );
 };
 

@@ -1,12 +1,20 @@
 import { createMelody, Melody } from "../../Melody";
 import { BellType } from "./BellType";
 import { createTimetable, Timetable } from "./Timetable";
-import { TimetableDay } from "./TimetableDay";
+import { createTimetableDay, TimetableDay } from "./TimetableDay";
 
 export const createTimetableSchedule = (): TimetableSchedule => ({
     tables: {
         default: createTimetable(),
-        days: [],
+        days: [
+            createTimetableDay(),
+            createTimetableDay(),
+            createTimetableDay(),
+            createTimetableDay(),
+            createTimetableDay(),
+            createTimetableDay(),
+            createTimetableDay(),
+        ],
     },
     melodies: {
         default: {

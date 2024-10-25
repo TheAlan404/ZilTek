@@ -5,26 +5,25 @@ import { TimeBox } from "../../../../components/schedule/TimeBox";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { TimetableComponent } from "../../../../components/schedule/Timetable";
-import { Timetable, Tuple } from "../../../../../lib/timetable";
 import { AddMinutesToTime, SubtractMinuesFromTime, Time } from "@ziltek/common/src/Time";
 import { modals } from "@mantine/modals";
 
 export type TimetableGenSegment = ({
-    type: "startTime",
-    startTime: string,
+    type: "startTime";
+    startTime: Time;
 } | {
-    type: "offset",
-    offset: number
+    type: "offset";
+    offset: number;
 }) & ({
-    classCount: number,
-    classDuration: number,
-    breakDuration: number,
-    studentBellOffset: number,
+    classCount: number;
+    classDuration: number;
+    breakDuration: number;
+    studentBellOffset: number;
 });
 
 const GeneratorPresets: TimetableGenSegment[][] = [
     [
-        { type: "startTime", startTime: Time(9, 0), classDuration: 30, breakDuration: 10, classCount: 6 },
+        { type: "startTime", startTime: Time(9, 0), classDuration: 30, breakDuration: 10, classCount: 6, studentBellOffset: 0 },
     ],
     [
         { type: "startTime", startTime: Time(8, 50), classDuration: 40, breakDuration: 10, classCount: 5, studentBellOffset: 2 },

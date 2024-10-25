@@ -3,10 +3,12 @@ import { IconQrcode } from "@tabler/icons-react";
 import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { OnlineBadge } from "../../../components/view/OnlineBadge";
-import { QRCODE_PREFIX } from "../../../../meta";
+import { WEBSITE } from "../../../../meta";
 import { QRCodeSVG } from "qrcode.react";
 import { RemoteItem } from "./RemoteItem";
 import { NetworkingContext } from "../../../../host/NetworkingContext";
+import { ListAction } from "@ziltek/common/src/ListAction";
+import { KnownRemote } from "@ziltek/common/src/networking/KnownRemote";
 
 
 export const RemoteControlSettings = () => {
@@ -28,9 +30,7 @@ export const RemoteControlSettings = () => {
         setLabel,
     } = useContext(NetworkingContext);
 
-    let qrcodeValue = QRCODE_PREFIX + "?" + new URLSearchParams({
-        connect: selfHostId,
-        relay: hostRelayURL,
+    let qrcodeValue = `${WEBSITE}#/${selfHostId}@${hostRelayURL}` + "?" + new URLSearchParams({
         label,
     }).toString();
 
@@ -84,15 +84,18 @@ export const RemoteControlSettings = () => {
                             {!!knownRemotes?.length && (
                                 <>
                                     <Divider label={t("rc.authenticatedRemotes")} />
-                                    {knownRemotes.map((remote, i) => (
+                                    {knownRemotes.map((remote, index) => (
                                         <RemoteItem
-                                            key={i}
+                                            key={remote.remoteId}
                                             remote={remote}
                                             trusted
                                             onKick={() => kickConnectedRemote(remote.remoteId)}
                                             connected={connectedRemotes.includes(remote.remoteId)}
-                                            onSetLabel={() => {}}
-                                            onUntrust={() => {}}
+                                            onSetLabel={(label) => modifyKnownRemotes(ListAction<KnownRemote>().Modify({
+                                                index,
+                                                value: { ...remote, label },
+                                            }))}
+                                            onUntrust={() => modifyKnownRemotes(ListAction<KnownRemote>().Remove(index))}
                                         />
                                     ))}
                                 </>
@@ -102,10 +105,13 @@ export const RemoteControlSettings = () => {
                                     <Divider label={t("rc.connectedRemotes")} />
                                     {untrustedConnected.map((remoteId, i) => (
                                         <RemoteItem
-                                            key={i}
+                                            key={remoteId}
                                             remote={{ remoteId }}
                                             onKick={() => kickConnectedRemote(remoteId)}
-                                            onTrust={() => {}}
+                                            onTrust={() => modifyKnownRemotes(ListAction<KnownRemote>().Add({
+                                                remoteId,
+                                                label: "",
+                                            }))}
                                         />
                                     )
                                     )}
@@ -119,8 +125,8 @@ export const RemoteControlSettings = () => {
                                             key={i}
                                             queued
                                             remote={{ remoteId }}
-                                            onAccept={() => {}}
-                                            onDeny={() => {}}
+                                            onAccept={() => acceptConnection(remoteId)}
+                                            onDeny={() => denyConnection(remoteId)}
                                         />
                                     ))}
                                 </>

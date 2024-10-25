@@ -1,8 +1,8 @@
 import { HostContext } from "../host/HostContext";
-import { NetworkingProvider } from "../host/NetworkingContext";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { DEFAULT_RELAY } from "../meta";
 import { HostProvider } from "../host/HostProvider";
+import { NetworkingProvider } from "../host/NetworkingProvider";
 
 export const AppBase = () => {
     const { target } = useParams();

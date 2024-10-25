@@ -11,7 +11,7 @@ export const PageChangeButton = () => {
 
     const path = pathname.split("/")[2];
 
-    const buttonIcon = pathname == "/" ? <IconEdit /> : <IconLayout />;
+    const buttonIcon = path == "" ? <IconEdit /> : <IconLayout />;
     const buttonProps = {
         onClick: () => {
             navigate(path == "" ? `/${target}/editor` : `/${target}/`);
@@ -30,7 +30,7 @@ export const PageChangeButton = () => {
             </ActionIcon>
             
             <Button {...buttonProps} leftSection={buttonIcon} visibleFrom="sm">
-                {pathname == "/" ? t("menu.edit") : t("menu.view")}
+                {path == "" ? t("menu.edit") : t("menu.view")}
             </Button>
         </>
     );

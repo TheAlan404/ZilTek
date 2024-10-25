@@ -1,75 +1,53 @@
 import { useTranslation } from "react-i18next";
-import { DefaultTuple, Timetable } from "../../../lib/timetable";
-import { useContext, useEffect, useState } from "react";
-import { ChangesContext } from "../../ChangesContext";
+import { useState } from "react";
 import { TimetableComponent } from "./Timetable";
-import { notifications } from "@mantine/notifications";
+import { Timetable } from "@ziltek/common/src/schedule/timetable/Timetable";
+import { Button, Group, Stack } from "@mantine/core";
 
 export const CommitableTimetable = ({
     value,
     onChange,
-    deps = [],
 }: {
-    value: Timetable,
-    onChange: (t: Timetable) => void,
-    deps: any[],
+    value: Timetable;
+    onChange: (t: Timetable) => void;
 }) => {
     const { t } = useTranslation();
-    const { unsavedChanges, markAsDirty, markAsReverted, markAsSaved } = useContext(ChangesContext);
     const [table, setTable] = useState<Timetable>(value);
-    const dirty = unsavedChanges.includes("timetable");
-
-    useEffect(() => {
-        setTable(value);
-    }, [value, ...deps]);
+    const [dirty, setDirty] = useState(false);
 
     return (
-        <TimetableComponent
-            value={table}
-            variant="editor"
-            onChange={(x, y, v) => {
-                if(!v) return;
-                setTable(t => t.map((row, rx) => (
-                        rx == x
-                            ? (row.map(
-                                (col, cy) => (cy == y
-                                    ? ({
-                                        value: v,
-                                        variant: "idle",
-                                    })
-                                    : (col)
-                                )
-                            ))
-                            : row
-                    )));
-                markAsDirty("timetable");
-            }}
-            addRow={(row) => {
-                setTable(t => [...t, row || DefaultTuple()]);
-                markAsDirty("timetable");
-            }}
-            onRevert={() => {
-                setTable(value);
-                markAsReverted("timetable");
-                notifications.show({
-                    message: t("edit.timetableReverted"),
-                    color: "yellow",
-                })
-            }}
-            onSave={() => {
-                onChange(table);
-                markAsSaved("timetable");
-                notifications.show({
-                    message: t("edit.timetableSaved"),
-                    color: "green",
-                })
-            }}
-            removeColumn={(x) => {
-                setTable(t => t.filter((_, i) => i !== x));
-                markAsDirty("timetable");
-            }}
-            canRevert={dirty}
-            canSave={dirty}
-        />
+        <Stack>
+            <TimetableComponent
+                value={table}
+                onChange={(t) => {
+                    setDirty(true);
+                    setTable(t);
+                }}
+            />
+
+            <Group>
+                <Button
+                    disabled={!dirty}
+                    color="gray"
+                    onClick={() => {
+                        setDirty(false);
+                        setTable(value);
+                    }}
+                >
+                    {""}
+                </Button>
+
+                <Button
+                    disabled={!dirty}
+                    color="green"
+                    onClick={() => {
+                        setDirty(false);
+                        onChange(table);
+                    }}
+                >
+                    {""}
+                </Button>
+            </Group>
+        </Stack>
     );
 }

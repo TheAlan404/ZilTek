@@ -17,9 +17,11 @@ export const useSocketIO = <I extends Record<string, any>, O extends Record<stri
 }) => {
     const socket = useRef<Socket<I, O> | null>(null);
     const [isConnected, setConnected] = useState(false);
+    const [error, setError] = useState<any>(null);
 
     useEffect(() => {
         setConnected(false);
+        setError(null);
 
         if(socket.current) {
             socket.current.disconnect();
@@ -34,13 +36,17 @@ export const useSocketIO = <I extends Record<string, any>, O extends Record<stri
             autoConnect: false,
         });
 
-        const dispose = () => { socket.current?.disconnect() };
+        const dispose = () => {
+            socket.current?.disconnect();
+            socket.current = null;
+        };
 
         if(!connect) return dispose;
 
         socket.current.connect();
 
         socket.current.on("connect", () => setConnected(true));
+        socket.current.on("connect_error", (err) => setError(err));
         socket.current.on("disconnect", (reason) => {
             if(reason == "io client disconnect") return;
             setConnected(false);
@@ -61,5 +67,6 @@ export const useSocketIO = <I extends Record<string, any>, O extends Record<stri
         isConnected,
         socket,
         sendMessage,
+        error,
     };
 };

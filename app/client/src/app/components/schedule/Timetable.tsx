@@ -1,10 +1,11 @@
-import { ActionIcon, Button, CloseButton, Group, Stack, Table, TableData, Text, Tooltip } from "@mantine/core"
+import { ActionIcon, Box, Button, CloseButton, Group, Stack, Table, TableData, Text, Tooltip } from "@mantine/core"
 import { useTranslation } from "react-i18next"
 import { TimeBox } from "./TimeBox";
 import { Time } from "@ziltek/common/src/Time";
 import { IconClipboardCopy } from "@tabler/icons-react";
 import { createTimetableRow, Timetable, TimetableRow } from "@ziltek/common/src/schedule/timetable/Timetable";
 import { applyListAction, ListAction } from "@ziltek/common/src/ListAction";
+import { BellType } from "@ziltek/common/src/schedule/timetable/BellType";
 
 export interface TimetableProps {
     value: Timetable;
@@ -18,56 +19,62 @@ export const TimetableComponent = ({
     const { t } = useTranslation();
 
     const set = (x: number, y: number, v: Time) => {
-        onChange?.(value.map((row, x2) => (
-            row.map((cell, y2) => (
-                (x == x2 && y == y2) ? { ...cell, value: v } : cell
-            )) as TimetableRow
-        )));
+        const cloned = structuredClone(value);
+        cloned[y][x] = {
+            ...cloned[y][x],
+            value: v,
+        };
+        onChange?.(cloned);
     };
 
-    const removeColumn = (x: number) => {
-        onChange?.(applyListAction(value, ListAction<TimetableRow>().Remove(x)));
+    const removeRow = (y: number) => {
+        onChange?.(applyListAction(value, ListAction<TimetableRow>().Remove(y)));
     };
 
     const addRow = (row: TimetableRow) => {
         onChange?.([...value, row]);
     };
 
-    const table: TableData = {
-        head: [
-            ...([
-                t("bells.student"),
-                t("bells.teacher"),
-                t("bells.classEnd"),
-            ]),
-            ...(!!onChange ? [
-                "_",
-            ] : []),
-        ],
-        body: value.map((tup, x) => (
-            [
-                ...tup.map((item, y) => (
-                    <TimeBox
-                        key={`${x}-${y}`}
-                        value={item.value}
-                        onChange={!!onChange ? ((v) => {
-                            set(x, y, v);
-                        }) : undefined}
-                    />
-                )),
-                ...(!!onChange ? [
-                    <CloseButton
-                        key={`remove-${x}`}
-                        onClick={() => removeColumn(x)}
-                    />
-                ] : [])
-            ]
-        )),
-    };
-
     return (
         <Stack>
-            <Table w="100%" data={table} />
+            <Stack>
+                <Group grow>
+                    {(["students", "teachers", "classEnd"] as BellType[]).map(type => (
+                        <Text>
+                            {t(`bells.${type}`)}
+                        </Text>
+                    ))}
+                    <Box />
+                </Group>
+
+                {value.map((row, y) => (
+                    <Group
+                        key={y}
+                        grow
+                    >
+                        {row.map((cell, x) => (
+                            <Box
+                                key={x}
+                            >
+                                <TimeBox
+                                    value={cell.value}
+                                    onChange={!!onChange ? ((v) => {
+                                        set(x, y, v);
+                                    }) : undefined}
+                                />
+                            </Box>
+                        ))}
+
+                        {!!onChange && (
+                            <CloseButton
+                                onClick={() => removeRow(y)}
+                            />
+                        )}
+                    </Group>
+                ))}
+            </Stack>
+
+
             {!value.length && <Text style={{ textAlign: "center" }}>{t("edit.noRows")}</Text>}
             {!!onChange && (
                 <Group justify="space-between">

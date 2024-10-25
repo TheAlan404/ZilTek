@@ -6,14 +6,14 @@ import { Controller } from "../../../../host/ControllerAPI";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { exportToZip, importFromZip } from "../../../DropzoneProvider";
+import { Command } from "@ziltek/common/src/cmd/Command";
+import { MaintenanceCommand } from "@ziltek/common/src/cmd/MaintenanceCommand";
 
 export const MaintenanceSection = () => {
     const { t } = useTranslation();
     const {
         processCommand,
         data,
-        files,
-        hostMode,
     } = useContext(Controller);
 
     const inputRef = useRef<HTMLInputElement>();
@@ -37,8 +37,7 @@ export const MaintenanceSection = () => {
                                     cancel: t("modals.cancel")
                                 },
                                 onConfirm() {
-                                    processCommand({ type: "clearAllData" });
-                                    processCommand({ type: "deleteAllFiles" });
+                                    processCommand(Command.Maintenance(MaintenanceCommand.ClearAllData()));
                                     notifications.show({
                                         message: t("notif.deletedEverything"),
                                         color: "red",
@@ -49,7 +48,7 @@ export const MaintenanceSection = () => {
                         {t("deleteAllData")}
                     </Button>
 
-                    <Button
+                    {/* <Button
                         color="blue"
                         variant="light"
                         leftSection={<IconDownload />}
@@ -90,7 +89,7 @@ export const MaintenanceSection = () => {
                             })
                         }}>
                         {t("exportToZip")}
-                    </Button>
+                    </Button> */}
                 </Group>
             </Stack>
         </Fieldset>
