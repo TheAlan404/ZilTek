@@ -1,7 +1,5 @@
 import { PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
-import { Button, Center, Code, Group, Loader, Stack, Text, Title } from "@mantine/core";
 import { Controller } from "./ControllerAPI";
-import { App } from "../app/App";
 import { NetworkingContext } from "./NetworkingContext";
 import { createState, State } from "@ziltek/common/src/state/State";
 import { useEventListener } from "../hooks/useEvents";
@@ -17,21 +15,18 @@ export const RemoteHost = ({ children }: PropsWithChildren) => {
         emitter,
         processCommand,
         isConnected,
+        hostStatus,
         socket,
     } = useContext(NetworkingContext);
     const [state, setState] = useState<State | null>(null);
     const [files, setFiles] = useState<StoredFileMetadata[] | null>(null);
-    const [hostStatus, setHostStatus] = useState<HostStatus>("connecting");
     
     useEffect(() => {
         // on disconnect (?)
         if(!isConnected) {
-            setHostStatus(p => p == "connected" ? "remoteDisconnected" : p);
             setState(null);
             setFiles(null);
-        } else {
-            setHostStatus("connecting");
-        };
+        }
     }, [isConnected]);
 
     useEventListener(emitter, "UpdateState", (st: State) => setState(st));

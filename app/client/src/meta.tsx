@@ -1,4 +1,4 @@
-import pkg from "../package.json";
+import pkg from "../../../package.json";
 
 export const MODE = (import.meta.env.VITE_MODE || "") as "web" | "tauri" | "";
 

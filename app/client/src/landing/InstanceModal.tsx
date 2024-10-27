@@ -21,6 +21,10 @@ export const InstanceModal = ({
         label: _instance?.label || "",
         relay: _instance?.relay || DEFAULT_RELAY,
     });
+    const setInstanceProp = <K extends keyof Instance>(k: K, v: Instance[K]) => setInstance(i => ({
+        ...i,
+        [k]: v,
+    }));
 
     const add = () => {
         modals.closeAll();
@@ -28,42 +32,42 @@ export const InstanceModal = ({
         onUpdate(instance);
     };
 
-    const setter = (k: keyof Instance) => (e: ChangeEvent<HTMLInputElement>) => setInstance(i => ({ ...i, [k]: e.currentTarget.value }));
-
     return (
         <Stack p="md" justify="center">
             <TextInput
                 placeholder={t("modals.addRemote.placeholderName")}
                 label={t("modals.addRemote.labelName")}
                 value={instance.label}
-                onChange={setter("label")}
+                onChange={(e) => setInstanceProp("label", e.target.value)}
             />
 
             <TextInput
-                autoFocus
                 placeholder={t("modals.addRemote.placeholderId")}
                 label={t("modals.addRemote.labelId")}
                 value={instance.id}
-                onChange={setter("id")}
+                onChange={(e) => setInstanceProp("id", e.currentTarget.value)}
             />
 
             <TextInput
                 placeholder={t("modals.addRemote.placeholderRelay")}
                 label={t("modals.addRemote.labelRelay")}
                 value={instance.relay}
-                onChange={setter("relay")}
+                onChange={(e) => setInstanceProp("relay", e.currentTarget.value)}
             />
 
             <Group justify="space-between" grow>
                 <Button
                     color="gray"
-                    onClick={() => modals.closeAll()}>
+                    variant="light"
+                    onClick={() => modals.closeAll()}
+                >
                     {t("modals.cancel")}
                 </Button>
 
                 {onDelete && (
                     <Button
                         color="red"
+                        variant="light"
                         onClick={() => {
                             modals.openConfirmModal({
                                 title: t("modals.deleteRemote.title"),
@@ -87,7 +91,11 @@ export const InstanceModal = ({
                     </Button>
                 )}
                 
-                <Button onClick={add}>
+                <Button
+                    variant="light"
+                    color="green"
+                    onClick={add}
+                >
                     {onDelete ? t("modals.addRemote.save") : t("modals.addRemote.add")}
                 </Button>
             </Group>

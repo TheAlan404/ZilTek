@@ -17,3 +17,5 @@ export const createState = (): State => ({
     timeStates: {},
     warnings: {},
 });
+
+export const validateState = (s: any): s is State => (false);

@@ -3,7 +3,9 @@
     "include": [
         "src/**/*"
     ],
+    "references": [{ "path": "../common" }],
     "compilerOptions": {
+        "noEmit": true,
         "rootDir": "./src",
         "target": "ESNext",
         "module": "NodeNext",

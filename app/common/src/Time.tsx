@@ -11,28 +11,22 @@ export const Time = (h: number, m: number): Time => (
     `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}` as Time
 );
 
-export const TimeToDate = (s: Time) => (
-    new Date(0, 0, 0, ...s.split(":").map(Number), 0, 0)
-);
+export const TimeUtil = {
+    validate: (s: any): s is Time => typeof s === "string" && s.length == 5 && TimeRegex.test(s),
 
-export const AddMinutesToTime = (time: Time, mins: number) => {
-    let date = TimeToDate(time);
-    date.setTime(date.getTime() + mins * 60 * 1000);
-    return TimeFromDate(date);
-}
-
-export const SubtractMinuesFromTime = (time: Time, mins: number) => {
-    let date = TimeToDate(time);
-    date.setTime(date.getTime() - mins * 60 * 1000);
-    return TimeFromDate(date);
-}
-
-export const timeToRelativeString = (lang: string, time: Time) => {
-    let d = TimeToDate(time);
-    let formatter = new Intl.RelativeTimeFormat(lang);
-    let format = automaticRelativeDifference(d);
-    return formatter.format(format.duration, format.unit);
-}
+    toDate: (s: Time) => new Date(0, 0, 0, ...s.split(":").map(Number), 0, 0),
+    fromDate: (d: Date) => Time(d.getHours(), d.getMinutes()),
+    
+    add: (t: Time, minutes: number) => TimeUtil.fromDate(
+        new Date(TimeUtil.toDate(t).getTime() + minutes * 60 * 1000)
+    ),
+    
+    relativeString: (time: Time, locale: string = "en") => {
+        let d = TimeUtil.toDate(time);
+        let format = automaticRelativeDifference(d);
+        return new Intl.RelativeTimeFormat(locale).format(format.duration, format.unit);
+    },
+};
 
 const automaticRelativeDifference = (d: Date): { duration: number, unit: Intl.RelativeTimeFormatUnit } => {
 	const nowSec = new Date().getHours()*60*60 + new Date().getMinutes()*60 + new Date().getSeconds();

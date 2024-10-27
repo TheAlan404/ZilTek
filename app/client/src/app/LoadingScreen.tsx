@@ -37,11 +37,11 @@ export const LoadingScreen = ({
 
                 {clientType == "remote" && (
                     <Stack>
-                        <Group>
+                        <Group justify="space-between">
                             <Text>{t("loadingScreen.self")}</Text>
                             <Code>{remoteId}</Code>
                         </Group>
-                        <Group>
+                        <Group justify="space-between">
                             <Text>{t("loadingScreen.connectTo")}</Text>
                             <Code>{connectTo}</Code>
                         </Group>

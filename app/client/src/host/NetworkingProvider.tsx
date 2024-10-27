@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { useLocalStorage, useSet } from "@mantine/hooks";
 import { useSocketIO } from "../hooks/useSocketIO";
 import { ClientAuth } from "@ziltek/common/src/networking/ClientAuth";
@@ -12,6 +12,7 @@ import { KnownRemote } from "@ziltek/common/src/networking/KnownRemote";
 import { Command } from "@ziltek/common/src/cmd/Command";
 import { NetworkingContext } from "./NetworkingContext";
 import { applyListAction } from "@ziltek/common/src/ListAction";
+import { HostStatus } from "@ziltek/common/src/networking/HostStatus";
 
 const useSingleReadLocalStorage = (key: string, def: string) => {
     if(!localStorage.getItem(key))
@@ -51,6 +52,7 @@ export const NetworkingProvider = ({
     const emitter = useEventEmitter<HostMessageMap>();
     const connectedRemotes = useSet<string>([]);
     const connectionQueue = useSet<string>([]);
+    const [hostStatus, setHostStatus] = useState<HostStatus>("connecting");
 
     // -- Socket IO --
 
@@ -83,6 +85,7 @@ export const NetworkingProvider = ({
             },
             ProcessCommand: (cmd) => emitter.emit("ProcessCommand", cmd),
             UpdateState: (st) => emitter.emit("UpdateState", st),
+            HostStatusChanged: (status) => setHostStatus(status),
         };
 
         ((handlers[t] || noop) as any)(d);
@@ -141,6 +144,7 @@ export const NetworkingProvider = ({
                 emitter,
                 processCommand,
                 error,
+                hostStatus,
             }}
         >
             {children}

@@ -17,7 +17,7 @@ export const AppBase = () => {
                     } : {
                         clientType: "remote",
                         connectTo: target?.split("@")[0] || "",
-                        remoteRelayURL: target?.split("@").slice(1).join("@") || DEFAULT_RELAY,
+                        remoteRelayURL: (target?.split("@").slice(1).join("@") || DEFAULT_RELAY).replace(/!/g, "/"),
                     }),
                 }}
             >

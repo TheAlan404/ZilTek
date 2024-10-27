@@ -5,6 +5,7 @@ import { C2SMessageMap, HostMessageMap, S2CMessageMap } from "@ziltek/common/src
 import { EventEmitter } from "../hooks/useEvents";
 import { Command } from "@ziltek/common/src/cmd/Command";
 import { Socket } from "socket.io-client";
+import { HostStatus } from "@ziltek/common/src/networking/HostStatus";
 
 export type INetworkingContext = {
     label: string;
@@ -19,6 +20,7 @@ export type INetworkingContext = {
     remoteRelayURL?: string;
     connectTo?: string;
     processCommand: (cmd: Command) => void;
+    hostStatus: HostStatus;
     
     // clientType == "host"
     hostRelayURL: string;

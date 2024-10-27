@@ -9,7 +9,7 @@ export const PageChangeButton = () => {
     const { target } = useParams();
     const navigate = useNavigate();
 
-    const path = pathname.split("/")[2];
+    const path = pathname.split("/")[2] || "";
 
     const buttonIcon = path == "" ? <IconEdit /> : <IconLayout />;
     const buttonProps = {

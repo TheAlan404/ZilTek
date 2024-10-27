@@ -18,6 +18,7 @@ import { DatesProvider } from "@mantine/dates";
 import { BaseRouter } from "./BaseRouter";
 
 const theme = createTheme({
+    cursorType: "pointer",
     colors: {
         dark: [
             '#C1C2C5',

@@ -8,6 +8,7 @@ import { InstanceModal } from "./InstanceModal";
 import { applyListAction, ListAction } from "@ziltek/common/src/ListAction";
 import { useEffect } from "react";
 import { DEFAULT_RELAY } from "../meta";
+import { InstanceCard } from "./InstanceCard";
 
 export const InstancesList = ({
     onConnect,
@@ -43,7 +44,7 @@ export const InstancesList = ({
     }, []);
 
     return (
-        <Stack>
+        <Stack w="100%" align="center">
             <Divider
                 w="80%"
                 labelPosition="center"
@@ -93,47 +94,5 @@ export const InstancesList = ({
                 </Button>
             </Center>
         </Stack>
-    )
-};
-
-export const InstanceCard = ({
-    instance,
-    onEdit,
-    onConnect,
-}: {
-    instance: Instance;
-    onEdit: () => void;
-    onConnect: () => void;
-}) => {
-    const [t] = useTranslation();
-
-    return (
-        <Paper withBorder m="md" p="md">
-            <Group justify="space-between">
-                <Stack gap={0}>
-                    <Title order={4}>{instance.label}</Title>
-                    <Text c="dimmed">{instance.id}</Text>
-                    <Text c="dimmed">{instance.relay}</Text>
-                </Stack>
-                <Group>
-                    <Tooltip label={t("mode.remote.edit")}>
-                        <ActionIcon
-                            variant="light"
-                            color="gray"
-                            onClick={onEdit}>
-                            <IconPencil />
-                        </ActionIcon>
-                    </Tooltip>
-                    <Tooltip label={t("mode.remote.connect")}>
-                        <ActionIcon
-                            variant="light"
-                            color="green"
-                            onClick={onConnect}>
-                            <IconArrowRight />
-                        </ActionIcon>
-                    </Tooltip>
-                </Group>
-            </Group>
-        </Paper>
     )
 };

@@ -2,10 +2,14 @@
     "name": "@ziltek/common",
     "version": "0.0.0-development",
     "author": "",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "scripts": {},
+    "main": "src/index.ts",
+    "scripts": {
+        "build": "tsc"
+    },
     "dependencies": {
         "@alan404/enum": "^0.2.1"
+    },
+    "devDependencies": {
+        "typescript": "^5.6.3"
     }
 }

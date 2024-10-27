@@ -1,6 +1,6 @@
 import { Group, Paper, Progress, Stack, Text } from "@mantine/core"
 import { useContext, useState } from "react";
-import { Time, TimeFromDate, TimeToDate, timeToRelativeString } from "@ziltek/common/src/Time";
+import { Time, TimeFromDate, TimeUtil } from "@ziltek/common/src/Time";
 import { useTranslation } from "react-i18next";
 import { Controller } from "../../../host/ControllerAPI";
 import { TimeBox } from "../../components/schedule/TimeBox";
@@ -30,8 +30,8 @@ const toSecs = (d: Date) =>
     (d.getHours() * 60 * 60) + (d.getMinutes() * 60) + (d.getSeconds());
 
 const getProgressBetween = (prev: Time, next: Time) => {
-    let a = TimeToDate(prev);
-    let b = TimeToDate(next);
+    let a = TimeUtil.toDate(prev);
+    let b = TimeUtil.toDate(next);
 
     let current = toSecs(new Date());
     let x = toSecs(a);
@@ -121,8 +121,12 @@ export const ClockSection = () => {
                                     <TimeBox
                                         value={prev}
                                     />
-                                    <Text c="dimmed">{timeToRelativeString(language, prev)}</Text>
-                                    <Text c="dimmed" ta="right">{timeToRelativeString(language, next)}</Text>
+                                    <Text c="dimmed">
+                                        {TimeUtil.relativeString(prev, language)}
+                                    </Text>
+                                    <Text c="dimmed" ta="right">
+                                        {TimeUtil.relativeString(next, language)}
+                                    </Text>
                                     <TimeBox
                                         value={next}
                                     />
@@ -142,7 +146,9 @@ export const ClockSection = () => {
                             <TimeBox
                                 value={next}
                             />
-                            <Text c="dimmed">{timeToRelativeString(language, next)}</Text>
+                            <Text c="dimmed">
+                                {TimeUtil.relativeString(next, language)}
+                            </Text>
                         </Group>
                     </Paper>
                 )}
@@ -153,7 +159,9 @@ export const ClockSection = () => {
                             <TimeBox
                                 value={prev}
                             />
-                            <Text c="dimmed">{timeToRelativeString(language, prev)}</Text>
+                            <Text c="dimmed">
+                                {TimeUtil.relativeString(prev, language)}
+                            </Text>
                         </Group>
                     </Paper>
                 )}

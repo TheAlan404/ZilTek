@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Center, Checkbox, Group, Stack, Text, Title } from "@mantine/core";
+import { ActionIcon, Box, Button, Center, Checkbox, Flex, Group, Stack, Text, Title } from "@mantine/core";
 import { DOWNLOAD_LINK, HOST_MODE_ALLOWED, MODE, REMOTE_MODE_ALLOWED, VERSION } from "../meta";
 import { LanguageSwitch } from "../app/components/LanguageSwitch";
 import { useTranslation } from "react-i18next";
@@ -18,52 +18,54 @@ export const Landing = () => {
     });
 
     return (
-        <Center w="100%" h="100%">
-            <Stack align="center" gap="xl" p="md" mt="md">
-                <Group justify="space-between" align="center" px="md" w="100%">
-                    <Title>ZilTek {VERSION}</Title>
-                    <LanguageSwitch />
-                </Group>
-
-                {HOST_MODE_ALLOWED && (
-                    <Group justify={"space-between"} align="center" p="md">
-                        <Checkbox
-                            checked={autoLocal}
-                            onChange={(e) => setAutoLocal(e.currentTarget.checked)}
-                            label={t("mode.local.checkbox")}
-                            description={t("mode.local.desc")}
-                        />
-
-                        <Button
-                            variant="light"
-                            color="green"
-                            rightSection={<IconArrowRight />}
-                            onClick={() => navigate("/local")}>
-                            {t("mode.local.button")}
-                        </Button>
-                    </Group>)}
-
-                {MODE === "WEB" && (
-                    <Group justify="end" align="center" px="md" w="100%">
-                        <Text>{t("download")}</Text>
-                        <ActionIcon
-                            component="a"
-                            href={DOWNLOAD_LINK}
-                            target="_blank"
-                            color="green"
-                            variant="light"
-                        >
-                            <IconDownload />
-                        </ActionIcon>
+        <Stack w="100%" align="center">
+            <Stack w={{ base: "100%", sm: "80%", md: "70%", lg: "50%" }}>
+                <Stack align="center" gap="xl" p="md" mt="md" w="100%">
+                    <Group justify="space-between" align="center" w="100%">
+                        <Title>ZilTek {VERSION}</Title>
+                        <LanguageSwitch />
                     </Group>
-                )}
 
-                {REMOTE_MODE_ALLOWED && (
-                    <InstancesList
-                        onConnect={() => { }}
-                    />
-                )}
+                    {HOST_MODE_ALLOWED && (
+                        <Group justify="space-between" w="100%" align="center">
+                            <Checkbox
+                                checked={autoLocal}
+                                onChange={(e) => setAutoLocal(e.currentTarget.checked)}
+                                label={t("mode.local.checkbox")}
+                                description={t("mode.local.desc")}
+                            />
+
+                            <Button
+                                variant="light"
+                                color="green"
+                                rightSection={<IconArrowRight />}
+                                onClick={() => navigate("/local")}>
+                                {t("mode.local.button")}
+                            </Button>
+                        </Group>)}
+
+                    {MODE === "web" && (
+                        <Group justify="end" align="center" px="md" w="100%">
+                            <Text>{t("download")}</Text>
+                            <ActionIcon
+                                component="a"
+                                href={DOWNLOAD_LINK}
+                                target="_blank"
+                                color="green"
+                                variant="light"
+                            >
+                                <IconDownload />
+                            </ActionIcon>
+                        </Group>
+                    )}
+
+                    {REMOTE_MODE_ALLOWED && (
+                        <InstancesList
+                            onConnect={(instance) => navigate(`/${instance.id}@${instance.relay.replace(/\//g, "!")}`)}
+                        />
+                    )}
+                </Stack>
             </Stack>
-        </Center>
+        </Stack>
     )
 };
