@@ -100,8 +100,8 @@ const setupRemote = async (socket: TSocket) => {
 
     socket.on("RequestFile", (filename, cb) => {
         if(!socket.rooms.has(listenersRoom(connectTo))) return;
-        io.in(hostRoom(connectTo)).emit("RequestFile", filename, ([data]) => {
-            cb(data);
+        io.in(hostRoom(connectTo)).timeout(60 * 1000).emit("RequestFile", filename, (err, data) => {
+            if(data[0]) cb(data[0]);
         });
     });
 

@@ -5,11 +5,13 @@ export const ActionButtonWithTooltip = ({
     color = "gray",
     icon,
     onClick,
+    loading,
 }: {
     label: React.ReactNode,
     icon: React.ReactNode,
     color?: MantineColor,
     onClick?: () => void,
+    loading?: boolean;
 }) => {
     return (
         <Tooltip label={label}>
@@ -17,6 +19,7 @@ export const ActionButtonWithTooltip = ({
                 onClick={onClick}
                 color={color}
                 variant="light"
+                loading={loading}
             >
                 {icon}
             </ActionIcon>

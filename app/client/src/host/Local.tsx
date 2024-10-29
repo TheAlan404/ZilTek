@@ -19,8 +19,8 @@ import { useDebug } from "../hooks/useDebug.tsx";
 
 export const LocalHost = ({ children }: PropsWithChildren) => {
     const fs = useContext(FilesystemContext);
-    const { sendMessage, emitter } = useContext(NetworkingContext);
-
+    const { emitter, socket, connectedRemotes, isConnected } = useContext(NetworkingContext);
+    
     const { debug } = useDebug();
     
     const [data, setData] = useLocalStorage<Data>({
@@ -162,11 +162,19 @@ export const LocalHost = ({ children }: PropsWithChildren) => {
         warnings: {},
     };
 
-    sendMessage("UpdateState", state);
-    sendMessage("SetFilesList", fs.files);
+    socket.current?.volatile?.emit?.("UpdateState", state);
+    //socket.current?.volatile?.emit?.("SetFilesList", fs.files);
     useEventListener(emitter, "ProcessCommand", (cmd: Command) => {
         processCommand(cmd);
     });
+    useEventListener(emitter, "RequestFile", (filename: string, cb: (buffer: ArrayBuffer) => void) => {
+        fs.read(filename)
+            .then(cb)
+            .catch(() => {});
+    });
+    useEffect(() => {
+        socket.current?.volatile?.emit?.("SetFilesList", fs.files);
+    }, [connectedRemotes, fs.files, isConnected]);
     
     return (
         <Controller.Provider

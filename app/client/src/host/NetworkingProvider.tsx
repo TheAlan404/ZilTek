@@ -73,7 +73,7 @@ export const NetworkingProvider = ({
         version,
     };
 
-    const onMessage = (...[t, d]: EmitOf<S2CMessageMap>) => {
+    const onMessage = (...[t, ...d]: EmitOf<S2CMessageMap>) => {
         const handlers: Partial<S2CMessageMap> = {
             IncomingRemoteConnection: (remoteId) => {
                 connectedRemotes.delete(remoteId);
@@ -95,9 +95,10 @@ export const NetworkingProvider = ({
             UpdateState: (st) => emitter.emit("UpdateState", st),
             SetFilesList: (f) => emitter.emit("SetFilesList", f),
             HostStatusChanged: (status) => setHostStatus(status),
+            RequestFile: (filename, cb) => emitter.emit("RequestFile", filename, cb),
         };
 
-        ((handlers[t] || noop) as any)(d);
+        ((handlers[t] || noop) as any)(...d);
     };
 
     const { isConnected, sendMessage, socket, error } = useSocketIO<S2CMessageMap, C2SMessageMap>({
@@ -106,6 +107,14 @@ export const NetworkingProvider = ({
         auth,
         onMessage,
     });
+
+    useEffect(() => {
+        if(!isConnected) {
+            connectedRemotes.clear();
+            connectionQueue.clear();
+            setHostStatus("remoteDisconnected");
+        }
+    }, [isConnected]);
 
     // -- Provided Methods --
 
@@ -124,13 +133,6 @@ export const NetworkingProvider = ({
     const processCommand = (cmd: Command) => {
         sendMessage("ProcessCommand", cmd);
     };
-
-    useEffect(() => {
-        if(!isConnected) {
-            connectedRemotes.clear();
-            connectionQueue.clear();
-        }
-    }, [isConnected]);
 
     return (
         <NetworkingContext.Provider

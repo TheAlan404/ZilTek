@@ -2,7 +2,7 @@ import { Group, Paper, Stack, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconCut, IconFileMusic, IconHighlight, IconPlayerPause, IconPlayerPlay, IconTrash } from "@tabler/icons-react";
-import { useContext } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Controller } from "../../../../host/ControllerAPI";
 import { ActionButtonWithTooltip } from "../../../components/editor/ActionButtonWithTooltip";
@@ -11,11 +11,13 @@ import { StoredFileMetadata } from "@ziltek/common/src/StoredFile";
 import { Command } from "@ziltek/common/src/cmd/Command";
 import { FilesystemCommand } from "@ziltek/common/src/cmd/FilesystemCommand";
 import { createTextInputModal } from "../../../components/editor/TextInputModal";
+import { FilesystemContext } from "../../../../host/fs/FilesystemContext";
+import { HostContext } from "../../../../host/HostContext";
 
 const sufixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 const getBytes = (bytes) => {
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return !bytes && '0 B' || (bytes / Math.pow(1024, i)).toFixed(2) + " " + sufixes[i];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return !bytes && '0 B' || (bytes / Math.pow(1024, i)).toFixed(2) + " " + sufixes[i];
 };
 
 export const FileEntry = ({
@@ -23,10 +25,9 @@ export const FileEntry = ({
 }: {
     file: StoredFileMetadata;
 }) => {
-    const { processCommand, audioState } = useContext(Controller);
+    const { clientType } = useContext(HostContext);
+    const { processCommand } = useContext(Controller);
     const { t } = useTranslation();
-
-    const isPlaying = audioState.currentlyPlaying === file.filename;
 
     let bytes = getBytes(file.fileSize);
 
@@ -45,15 +46,10 @@ export const FileEntry = ({
                     </Stack>
                 </Group>
                 <Group wrap="nowrap">
-                    <ActionButtonWithTooltip
-                        label={isPlaying ? t("editor.sections.files.audioPlaying") : t("editor.sections.files.playAudio")}
-                        icon={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
-                        color={isPlaying ? "yellow" : "green"}
-                        onClick={() => {
-                            processCommand(isPlaying ? Command.ForceStop() : Command.ForcePlayMelody({ filename: file.filename }));
-                        }}
-                    />
+                    {clientType == "remote" && <LocalPlayButton filename={file.filename} />}
                     
+                    <HostPlayButton filename={file.filename} />
+
                     <ActionButtonWithTooltip
                         label={t("edit.renameFile")}
                         icon={<IconHighlight />}
@@ -91,4 +87,65 @@ export const FileEntry = ({
             </Group>
         </Paper>
     );
+};
+
+const LocalPlayButton = ({ filename }: { filename: string }) => {
+    const fs = useContext(FilesystemContext);
+    const [loading, setLoading] = useState(false);
+    const [isPlaying, setPlaying] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(new Audio());
+    const { t } = useTranslation();
+
+    useEffect(() => {
+        (async () => {
+            if(!isPlaying) return audioRef.current.pause();
+
+            if(!audioRef.current.src) {
+                setLoading(true);
+                let buffer = await fs.read(filename);
+                let source = URL.createObjectURL(new File([buffer], filename));
+                audioRef.current.src = source;
+                setLoading(false);
+            }
+
+            audioRef.current.currentTime = 0;
+            audioRef.current.play();
+        })();
+
+        return () => {
+            audioRef.current.pause();
+            try { URL.revokeObjectURL(audioRef.current.src); } catch(e) {};
+        };
+    }, [isPlaying]);
+
+    return (
+        <ActionButtonWithTooltip
+            label={isPlaying ? t("files.playing") : t("files.playLocally")}
+            loading={loading}
+            icon={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
+            color={isPlaying ? "yellow" : "green"}
+            onClick={() => setPlaying(p => !p)}
+        />
+    )
+};
+
+const HostPlayButton = ({ filename }: { filename: string }) => {
+    const { clientType } = useContext(HostContext);
+    const { processCommand, audioState } = useContext(Controller);
+    const { t } = useTranslation();
+
+    const isPlaying = audioState.currentlyPlaying === filename;
+
+    return (
+        <ActionButtonWithTooltip
+            label={isPlaying ? t("files.playing") : (
+                clientType == "remote" ? t("files.playOnHost") : t("files.play")
+            )}
+            icon={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
+            color={isPlaying ? "yellow" : "green"}
+            onClick={() => {
+                processCommand(isPlaying ? Command.ForceStop() : Command.ForcePlayMelody({ filename: filename }));
+            }}
+        />
+    )
 };

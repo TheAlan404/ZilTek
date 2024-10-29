@@ -29,7 +29,10 @@ export const TimetableMelodies = ({
                                     ...schedule,
                                     melodies: {
                                         ...schedule.melodies,
-                                        [type]: melody,
+                                        default: {
+                                            ...schedule.melodies.default,
+                                            [type]: melody,
+                                        }
                                     },
                                 });
                             }}

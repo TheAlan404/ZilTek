@@ -23,8 +23,7 @@ export const AppTitle = () => {
                     <SettingsMenu />
                 </Popover.Dropdown>
             </Popover>
-            <Title order={3}>ZilTek {!mobile && VERSION}</Title>
-            <Text>{!mobile && t("by_dennis")}</Text>
+            <Title order={4}>ZilTek</Title>
         </Group>
     )
 }

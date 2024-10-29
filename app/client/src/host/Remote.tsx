@@ -20,7 +20,10 @@ export const RemoteHost = ({ children }: PropsWithChildren) => {
     } = useContext(NetworkingContext);
     const [state, setState] = useState<State | null>(null);
     const [files, setFiles] = useState<StoredFileMetadata[] | null>(null);
-    
+
+    useEventListener(emitter, "UpdateState", (st: State) => setState(st));
+    useEventListener(emitter, "SetFilesList", (f: StoredFileMetadata[]) => setFiles(f));
+
     useEffect(() => {
         // on disconnect (?)
         if(!isConnected) {
@@ -28,9 +31,6 @@ export const RemoteHost = ({ children }: PropsWithChildren) => {
             setFiles(null);
         }
     }, [isConnected]);
-
-    useEventListener(emitter, "UpdateState", (st: State) => setState(st));
-    useEventListener(emitter, "SetFilesList", (f: StoredFileMetadata[]) => setFiles(f));
 
     if(!state || files === null || hostStatus !== "connected") return (
         <LoadingScreen
