@@ -7,6 +7,7 @@ import { authenticationMiddleware } from "./handlers/auth.ts";
 import { TServer } from "./types.ts";
 import { versionCheckMiddleware } from "./handlers/versionCheck.ts";
 import { connectionHandler } from "./handlers/connection.ts";
+import { inspectMiddleware } from "./handlers/inspect.ts";
 
 const app = express();
 export const httpServer = createServer(app);
@@ -23,6 +24,7 @@ if(existsSync(DIST_FOLDER)) {
     app.use(express.static(DIST_FOLDER));
 };
 
+io.use(inspectMiddleware);
 io.use(authenticationMiddleware);
 io.use(versionCheckMiddleware);
 io.on("connection", connectionHandler);

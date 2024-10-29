@@ -1,7 +1,7 @@
 import { ClientAuth } from "@ziltek/common/src/networking/ClientAuth.tsx";
 import { TSocket } from "../types.ts";
 import { io } from "../server.ts";
-import { logger } from "../logger.ts";
+import { log, logger } from "../logger.ts";
 
 export const connectionHandler = (socket: TSocket) => {
     const auth = socket.handshake.auth as ClientAuth;
@@ -37,6 +37,8 @@ const setupHost = async (socket: TSocket) => {
     socket.on("UpdateState", (state) => {
         // TODO: validate state
         io.in(listenersRoom(hostId)).volatile.emit("UpdateState", state);
+
+        logger.stateUpdate(hostId);
     });
 
     socket.on("SetFilesList", (files) => {
@@ -47,6 +49,7 @@ const setupHost = async (socket: TSocket) => {
     // -- Remote Management --
 
     socket.on("DisconnectConnection", (remoteId) => {
+        logger.kicked(hostId, remoteId);
         let room = io.in(remoteIdRoom(remoteId));
         room.emit("HostStatusChanged", "kicked");
         room.socketsLeave(listenersRoom(hostId));
@@ -56,12 +59,16 @@ const setupHost = async (socket: TSocket) => {
     // -- Queue --
 
     socket.on("AcceptConnection", (remoteId) => {
+        logger.accepted(hostId, remoteId);
         io.in(remoteIdRoom(remoteId)).socketsLeave(queueRoom(hostId));
         io.in(remoteIdRoom(remoteId)).socketsJoin(listenersRoom(hostId));
         io.in(remoteIdRoom(remoteId)).emit("HostStatusChanged", "connected");
+        socket.emit("RemoteConnected", remoteId);
     });
 
     socket.on("DenyConnection", (remoteId) => {
+        logger.denied(hostId, remoteId);
+        io.in(remoteIdRoom(remoteId)).emit("HostStatusChanged", "kicked");
         io.in(remoteIdRoom(remoteId)).socketsLeave(queueRoom(hostId));
         socket.emit("RemoteDisonnected", remoteId);
     });
@@ -117,5 +124,5 @@ const setupRemote = async (socket: TSocket) => {
         logger.remoteDisconnected(remoteId);
     });
 
-    logger.remoteConnected(remoteId);
+    logger.remoteConnected(remoteId, connectTo);
 };

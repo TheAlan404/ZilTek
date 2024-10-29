@@ -1,4 +1,4 @@
-import { Tabs } from "@mantine/core";
+import { Space, Tabs } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { IconFileMusic, IconListDetails, IconMusic, IconSettings } from "@tabler/icons-react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -20,6 +20,8 @@ export const EditorPage = () => {
             </Tabs.List>
 
             <Outlet />
+
+            <Space h="50vh" />
         </Tabs>
     );
 };

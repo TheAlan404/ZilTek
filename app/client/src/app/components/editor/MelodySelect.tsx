@@ -1,8 +1,11 @@
 import { useTranslation } from "react-i18next";
-import { Button, Select } from "@mantine/core";
+import { Button, Group, Input, Select, Text } from "@mantine/core";
 import { Melody } from "@ziltek/common/src/Melody";
 import { modals } from "@mantine/modals";
-import { IconMusicCog } from "@tabler/icons-react";
+import { IconMusic, IconSelector } from "@tabler/icons-react";
+import { MelodySelectModal } from "./MelodySelectModal";
+import { randomId } from "@mantine/hooks";
+import { secondsPretty } from "./melodySelectUtils";
 
 export const MelodySelect = ({
     value,
@@ -13,17 +16,38 @@ export const MelodySelect = ({
 }) => {
     const { t } = useTranslation();
 
-    return (
-        <Button
-            variant="outline"
-            leftSection={<IconMusicCog />}
-            onClick={() => {
-                modals.openConfirmModal({
+    const onClick = () => {
+        const modalId = randomId();
+        modals.open({
+            modalId,
+            title: t("melodySelect.title"),
+            children: (
+                <MelodySelectModal
+                    value={value}
+                    onChange={(m) => {
+                        modals.close(modalId);
+                        onChange(m);
+                    }}
+                />
+            )
+        });
+    };
 
-                });
-            }}
+    return (
+        <Input
+            w="100%"
+            component="button"
+            pointer
+            leftSection={<IconMusic />}
+            rightSection={<IconSelector />}
+            onClick={onClick}
         >
-            {value.filename}
-        </Button>
+            <Group>
+                <Text ff="monospace">{value.filename}</Text>
+                <Text>
+                    {!!value.startTime && !!value.endTime && secondsPretty(value.endTime - value.startTime)}
+                </Text>
+            </Group>
+        </Input>
     );
 }

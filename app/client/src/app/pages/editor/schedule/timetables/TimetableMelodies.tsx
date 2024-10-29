@@ -17,8 +17,8 @@ export const TimetableMelodies = ({
         <Fieldset legend={""}>
             <Stack>
                 {(["students", "teachers", "classEnd"] as BellType[]).map((type) => (
-                    <Group grow key={type}>
-                        <Text>
+                    <Group flex="1" wrap="nowrap" w="100%" key={type}>
+                        <Text style={{ textWrap: "nowrap" }}>
                             {t(`bells.${type}`)}
                         </Text>
 

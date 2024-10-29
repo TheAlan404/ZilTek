@@ -1,5 +1,5 @@
-import { PropsWithChildren, useContext, useEffect, useRef, useState } from "react";
-import { useLocalStorage } from "@mantine/hooks";
+import { PropsWithChildren, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useLocalStorage, useSessionStorage } from "@mantine/hooks";
 import { deserialize, serialize } from "./DataFixer.tsx";
 import { Controller } from "./ControllerAPI.tsx";
 import { NetworkingContext } from "./NetworkingContext.tsx";
@@ -14,10 +14,14 @@ import { FilesystemContext } from "./fs/FilesystemContext.tsx";
 import { applyListAction } from "@ziltek/common/src/ListAction.ts";
 import { computeTimings } from "@ziltek/common/src/schedule/Schedule.tsx";
 import { State } from "@ziltek/common/src/state/State.tsx";
+import { useEventListener } from "../hooks/useEvents.tsx";
+import { useDebug } from "../hooks/useDebug.tsx";
 
 export const LocalHost = ({ children }: PropsWithChildren) => {
     const fs = useContext(FilesystemContext);
-    const { emitter } = useContext(NetworkingContext);
+    const { sendMessage, emitter } = useContext(NetworkingContext);
+
+    const { debug } = useDebug();
     
     const [data, setData] = useLocalStorage<Data>({
         key: "ziltek-data",
@@ -43,62 +47,77 @@ export const LocalHost = ({ children }: PropsWithChildren) => {
         computedTimings.current = computeTimings(data.schedule, new Date().getDay());
     }, [data]);
 
-    useDailyClock({
-        onNewDay: (dayOfWeek) => {
-            setTimeStates({});
-            computedTimings.current = computeTimings(data.schedule, dayOfWeek);
-        },
+    const onTick = useCallback(async (time: Time) => {
+        debug("timeStates", `timeStates[time] = ${timeStates[time]}`)
 
-        onTick: async (time) => {
-            if(!computedTimings.current[time])
-                return;
+        if(!computedTimings.current[time])
+            return debug("clock", `${time}: <no timing>`);
 
-            if(timeStates[time] == "failed"
-                || timeStates[time] == "played"
-                || timeStates[time] == "playing"
-                || timeStates[time] == "stopped"
-            ) return;
+        if(timeStates[time] == "failed"
+            || timeStates[time] == "played"
+            || timeStates[time] == "playing"
+            || timeStates[time] == "stopped"
+        ) return debug("clock", `${time}: <early return>`);
 
-            if(audio.audioState.muted) {
-                setTimeState(time, "muted");
-                return;
-            }
+        if(audio.audioState.muted) {
+            setTimeState(time, "muted");
+            debug("clock", `${time}: muted`);
+            return;
+        }
 
-            let melody = computedTimings.current[time];
+        let melody = computedTimings.current[time];
 
-            let data = await fs.read(melody.filename);
+        let data = await fs.read(melody.filename);
 
-            if(!data) {
+        if(!data) {
+            setTimeState(time, "failed");
+            debug("clock", `${time}: failed`);
+            return;
+        };
+
+        let source = URL.createObjectURL(new File([data], melody.filename));
+
+        setTimeState(time, "playing");
+        debug("clock", `${time}: playing`);
+        audio.play({
+            source,
+            label: melody.filename,
+            endTime: melody.endTime,
+            startTime: melody.startTime,
+            onCancel: () => {
+                setTimeState(time, "stopped");
+                debug("clock", `${time}: stopped`);
+            },
+            onFail: () => {
                 setTimeState(time, "failed");
-                return;
-            };
+                debug("clock", `${time}: failed`);
+            },
+            onSuccess: () => {
+                setTimeState(time, "played");
+                debug("clock", `${time}: played`);
+            },
+        });
+    }, [timeStates]);
 
-            let source = URL.createObjectURL(new File([data], melody.filename));
+    const onNewDay = useCallback((dayOfWeek: number) => {
+        debug("clock", `onNewDay(${dayOfWeek}) called`);
+        setTimeStates({});
+        computedTimings.current = computeTimings(data.schedule, dayOfWeek);
+    }, []);
 
-            setTimeState(time, "playing");
-            audio.play({
-                source,
-                label: melody.filename,
-                endTime: melody.endTime,
-                startTime: melody.startTime,
-                onCancel: () => {
-                    setTimeState(time, "stopped");
-                },
-                onFail: () => {
-                    setTimeState(time, "failed");
-                },
-                onSuccess: () => {
-                    setTimeState(time, "played");
-                },
-            });
-        },
+    useDailyClock({
+        onNewDay,
+        onTick,
     });
 
     const processCommand = (cmd: Command) => {
-        console.log("Executing command", cmd);
+        debug("command", "Command Dispatched:", cmd);
 
         match(cmd)({
-            ToggleSystemEnabled: (enable) => audio.setMuted(!enable),
+            ToggleSystemEnabled: (enable) => {
+                audio.setMuted(!enable);
+                if(!enable) audio.stop();
+            },
             ForceStop: () => audio.stop(),
             Schedule: (sub) => match(sub)({
                 SetSchedule: (schedule) => setData(d => ({
@@ -143,7 +162,11 @@ export const LocalHost = ({ children }: PropsWithChildren) => {
         warnings: {},
     };
 
-    emitter.emit("UpdateState", state);
+    sendMessage("UpdateState", state);
+    sendMessage("SetFilesList", fs.files);
+    useEventListener(emitter, "ProcessCommand", (cmd: Command) => {
+        processCommand(cmd);
+    });
     
     return (
         <Controller.Provider

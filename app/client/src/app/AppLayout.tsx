@@ -4,25 +4,34 @@ import { AppHeader } from "./components/view/AppHeader";
 import { OnlineBadge } from "./components/view/OnlineBadge";
 import { PageChangeButton } from "./components/view/PageChangeButton";
 import { Outlet } from "react-router-dom"
+import { useTranslation } from "react-i18next";
+import { ModalsProvider } from "@mantine/modals";
 
 export const AppLayout = () => {
+    const [t] = useTranslation();
+
     return (
-        <AppShell
-            header={{ height: 60 }}
-        >
-            <AppShell.Header>
-                <Flex px="md" h="100%" justify="space-between" align="center">
-                    <AppTitle />
-                    <AppHeader />
-                    <Group>
-                        <OnlineBadge />
-                        <PageChangeButton />
-                    </Group>
-                </Flex>
-            </AppShell.Header>
-            <AppShell.Main>
-                <Outlet />
-            </AppShell.Main>
-        </AppShell>
+        <ModalsProvider labels={{
+            confirm: t("modals.confirm"),
+            cancel: t("modals.cancel"),
+        }}>
+            <AppShell
+                header={{ height: 60 }}
+            >
+                <AppShell.Header>
+                    <Flex px="md" h="100%" justify="space-between" align="center">
+                        <AppTitle />
+                        <AppHeader />
+                        <Group>
+                            <OnlineBadge />
+                            <PageChangeButton />
+                        </Group>
+                    </Flex>
+                </AppShell.Header>
+                <AppShell.Main>
+                    <Outlet />
+                </AppShell.Main>
+            </AppShell>
+        </ModalsProvider>
     )
 };

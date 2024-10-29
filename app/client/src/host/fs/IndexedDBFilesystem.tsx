@@ -1,31 +1,9 @@
 import { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { FilesystemContext } from "./FilesystemContext";
-import { initDB, useIndexedDB } from 'react-indexed-db-hook';
-import { useSet } from "@mantine/hooks";
 import { StoredFileMetadata } from "@ziltek/common/src/StoredFile";
 
-type StoredFile = StoredFileMetadata & {
-    data: ArrayBuffer;
-};
-
-initDB({
-    name: "ZilTekDB",
-    version: 2,
-    objectStoresMeta: [{
-        store: "files",
-        storeConfig: {
-            keyPath: "filename",
-            autoIncrement: false,
-        },
-        storeSchema: [
-            { name: "filename", keypath: "filename", options: { unique: true } },
-            { name: "data", keypath: "data", options: { unique: false } },
-        ],
-    }],
-});
-
 const DB_NAME = "ZilTekDB";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORE_NAME = "files";
 
 const transaction = <T,>(
@@ -62,8 +40,9 @@ export const IndexedDBFilesystem = ({ children }: PropsWithChildren) => {
 
         openRequest.onupgradeneeded = () => {
             let db = openRequest.result;
+            if(db.objectStoreNames.contains(STORE_NAME)) db.deleteObjectStore(STORE_NAME);
             db.createObjectStore(STORE_NAME, {
-                keyPath: "filename",
+                autoIncrement: false,
             });
         };
 
@@ -71,6 +50,7 @@ export const IndexedDBFilesystem = ({ children }: PropsWithChildren) => {
             setError(null);
             db.current = openRequest.result;
             setReady(true);
+            refresh();
         };
 
         return () => {
@@ -81,34 +61,44 @@ export const IndexedDBFilesystem = ({ children }: PropsWithChildren) => {
 
     const read = async (filename: string) => {
         if(!db.current) return;
-        let { data } = await transaction<StoredFile>(db.current, "readonly", (s) => s.get(filename));
-        return data as ArrayBuffer;
+        let data = await transaction<ArrayBuffer>(db.current, "readonly", (s) => s.get(filename));
+        return data;
     };
 
-    const write = async (filename: string, content: ArrayBuffer) => {
+    const write = async (filename: string, data: ArrayBuffer) => {
         if(!db.current) return;
-        let stored: StoredFile = {
-            filename,
-            data: content,
-        };
-        await transaction(db.current, "readwrite", (s) => s.add(stored));
+        console.log("Writing to IDB:", filename, data);
+        await transaction(db.current, "readwrite", (s) => s.add(data, filename));
+        refresh();
     };
 
     const refresh = async () => {
         if(!db.current) return;
-        let all = await transaction<StoredFile[]>(db.current, "readonly", (s) => s.getAll());
-        setFiles(all.map(x => ({ filename: x.filename })));
+        const all = await transaction<IDBValidKey[]>(db.current, "readonly", (s) => s.getAllKeys());
+        const filenames = all.filter(x => typeof x == "string");
+        let metadata: StoredFileMetadata[] = [];
+        for(let filename of filenames) {
+            let data = await read(filename);
+            metadata.push({
+                filename,
+                fileSize: data.byteLength,
+            });
+        }
+        setFiles(metadata);
     };
 
     const rename = async (from: string, to: string) => {
         let data = await read(from);
         if(!data) return;
         await write(to, data);
+        await remove(from);
+        refresh();
     };
 
     const remove = async (filename: string) => {
         if(!db.current) return;
         await transaction(db.current, "readwrite", (s) => s.delete(filename));
+        refresh();
     };
     
     return (

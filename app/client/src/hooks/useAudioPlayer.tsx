@@ -20,6 +20,11 @@ export const useAudioPlayer = () => {
     useEffect(() => {
         if(!playback) return;
 
+        if(audioRef.current.muted) {
+            playback.onCancel?.();
+            return;
+        }
+
         audioRef.current.src = playback.source;
         audioRef.current.currentTime = playback.startTime || 0;
         
@@ -47,6 +52,7 @@ export const useAudioPlayer = () => {
         return () => {
             audioRef.current.removeEventListener("timeupdate", onUpdate);
             audioRef.current.removeEventListener("ended", onUpdate);
+            audioRef.current.pause();
         };
     }, [playback]);
 
@@ -60,6 +66,7 @@ export const useAudioPlayer = () => {
     };
 
     const stop = () => {
+        if(playback) playback.onCancel?.();
         setPlayback(null);
         audioRef.current.pause();
     };
@@ -73,6 +80,7 @@ export const useAudioPlayer = () => {
         setMuted,
         play,
         stop,
+        audioRef,
     };
 };
 

@@ -12,11 +12,10 @@ import { TimeBox } from "../../../components/schedule/TimeBox";
 
 export const EditorMainTab = () => {
     const { clientType } = useContext(HostContext);
-    const isMobile = useMobile();
 
     return (
         <Flex justify="center" pb="xl" mb="xl" mt="md">
-            <Stack w={isMobile ? "100%" : "50%"}>
+            <Stack w={{ base: "100%", md: "50%" }}>
                 <ZilTekSection />
                 {clientType == "host" && <RemoteControlSettings />}
                 {clientType == "host" && <MaintenanceSection />}

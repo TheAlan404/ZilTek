@@ -1,4 +1,4 @@
-import { ActionIcon, Box, Button, CloseButton, Group, Stack, Table, TableData, Text, Tooltip } from "@mantine/core"
+import { ActionIcon, Box, Button, CloseButton, Group, SimpleGrid, Stack, Table, TableData, Text, Tooltip } from "@mantine/core"
 import { useTranslation } from "react-i18next"
 import { TimeBox } from "./TimeBox";
 import { Time } from "@ziltek/common/src/Time";
@@ -6,16 +6,17 @@ import { IconClipboardCopy } from "@tabler/icons-react";
 import { createTimetableRow, Timetable, TimetableRow } from "@ziltek/common/src/schedule/timetable/Timetable";
 import { applyListAction, ListAction } from "@ziltek/common/src/ListAction";
 import { BellType } from "@ziltek/common/src/schedule/timetable/BellType";
-
-export interface TimetableProps {
-    value: Timetable;
-    onChange?: (value: Timetable) => void;
-}
+import { useSet } from "@mantine/hooks";
 
 export const TimetableComponent = ({
     value,
     onChange,
-}: TimetableProps) => {
+    invalids = new Set(),
+}: {
+    value: Timetable;
+    onChange?: (value: Timetable) => void;
+    invalids?: Set<string>;
+}) => {
     const { t } = useTranslation();
 
     const set = (x: number, y: number, v: Time) => {
@@ -28,6 +29,9 @@ export const TimetableComponent = ({
     };
 
     const removeRow = (y: number) => {
+        invalids.delete(`${y}-0`);
+        invalids.delete(`${y}-1`);
+        invalids.delete(`${y}-2`);
         onChange?.(applyListAction(value, ListAction<TimetableRow>().Remove(y)));
     };
 
@@ -37,20 +41,26 @@ export const TimetableComponent = ({
 
     return (
         <Stack>
-            <Stack>
-                <Group grow>
+            <Stack align="center">
+                <Group flex="1">
                     {(["students", "teachers", "classEnd"] as BellType[]).map(type => (
-                        <Text>
+                        <Text
+                            key={type}
+                            fz="xs"
+                            w="6em"
+                            ta="center"
+                            style={{ textWrap: "nowrap", overflow: "clip" }}
+                        >
                             {t(`bells.${type}`)}
                         </Text>
                     ))}
-                    <Box />
+                    <Box style={{ marginInlineStart: "auto" }} w={onChange ? "1.75rem" : "0px"} />
                 </Group>
 
                 {value.map((row, y) => (
                     <Group
                         key={y}
-                        grow
+                        flex="1"
                     >
                         {row.map((cell, x) => (
                             <Box
@@ -61,12 +71,21 @@ export const TimetableComponent = ({
                                     onChange={!!onChange ? ((v) => {
                                         set(x, y, v);
                                     }) : undefined}
+                                    onValidityChange={(valid) => {
+                                        const key = `${y}-${x}`;
+                                        if(valid) {
+                                            invalids.delete(key);
+                                        } else {
+                                            invalids.add(key);
+                                        }
+                                    }}
                                 />
                             </Box>
                         ))}
 
                         {!!onChange && (
                             <CloseButton
+                                style={{ marginInlineStart: "auto" }}
                                 onClick={() => removeRow(y)}
                             />
                         )}
@@ -74,27 +93,7 @@ export const TimetableComponent = ({
                 ))}
             </Stack>
 
-
             {!value.length && <Text style={{ textAlign: "center" }}>{t("edit.noRows")}</Text>}
-            {!!onChange && (
-                <Group justify="space-between">
-                    <Group>
-                        <Button
-                            variant="light"
-                            onClick={() => addRow(createTimetableRow())}>
-                            {t("edit.newRow")}
-                        </Button>
-                        <Tooltip label={t("edit.duplicateRow")}>
-                            <ActionIcon variant="light" onClick={() => {
-                                let lastRow = value[value.length-1];
-                                addRow(structuredClone(lastRow));
-                            }}>
-                                <IconClipboardCopy />
-                            </ActionIcon>
-                        </Tooltip>
-                    </Group>
-                </Group>
-            )}
         </Stack>
     )
 }

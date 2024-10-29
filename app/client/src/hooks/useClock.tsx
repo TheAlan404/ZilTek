@@ -38,5 +38,5 @@ export const useDailyClock = ({
 
         const handle = setInterval(update, SECOND);
         return () => clearInterval(handle);
-    }, []);
+    }, [onNewDay, onTick]);
 };

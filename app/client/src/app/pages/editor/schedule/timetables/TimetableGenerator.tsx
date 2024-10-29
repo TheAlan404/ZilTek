@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { TimeBox } from "../../../../components/schedule/TimeBox";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
-import { TimetableComponent } from "../../../../components/schedule/Timetable";
+import { TimetableComponent } from "../../../../components/schedule/TimetableComponent";
 import { AddMinutesToTime, SubtractMinuesFromTime, Time } from "@ziltek/common/src/Time";
 import { modals } from "@mantine/modals";
 

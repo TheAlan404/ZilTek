@@ -1,6 +1,7 @@
 export type AudioState = {
     isPlaying: boolean;
     currentlyPlaying?: string;
+    progress?: number;
     muted: boolean;
 };
 

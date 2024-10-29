@@ -12,6 +12,7 @@ import { Command } from "@ziltek/common/src/cmd/Command";
 import { FilesystemCommand } from "@ziltek/common/src/cmd/FilesystemCommand";
 import { notifications } from "@mantine/notifications";
 import { IconCheck } from "@tabler/icons-react";
+import { FSRefreshButton } from "../../../components/editor/FSRefreshButton";
 
 export const FilesSection = () => {
     const { t } = useTranslation();
@@ -57,6 +58,7 @@ export const FilesSection = () => {
                 <Group justify="space-between">
                     <Text fw={600}>{t("editor.sections.files.amount", { count: files.length })}</Text>
                     <Group>
+                        <FSRefreshButton />
                         <ActionButtonWithTooltip
                             label={t("editor.sections.files.upload")}
                             icon={<IconUpload />}

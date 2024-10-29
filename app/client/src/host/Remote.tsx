@@ -30,7 +30,7 @@ export const RemoteHost = ({ children }: PropsWithChildren) => {
     }, [isConnected]);
 
     useEventListener(emitter, "UpdateState", (st: State) => setState(st));
-    useEventListener(emitter, "SetFilesList", (files: StoredFileMetadata[]) => setFiles(files));
+    useEventListener(emitter, "SetFilesList", (f: StoredFileMetadata[]) => setFiles(f));
 
     if(!state || files === null || hostStatus !== "connected") return (
         <LoadingScreen

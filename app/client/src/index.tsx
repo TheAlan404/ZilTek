@@ -55,9 +55,7 @@ const Wrapper = () => {
             timezone: 'UTC'
         }}>
             <Notifications />
-            <ModalsProvider>
-                <BaseRouter />
-            </ModalsProvider>
+            <BaseRouter />
         </DatesProvider>
     );
 }

@@ -20,7 +20,7 @@ export const QuickMelodiesSection = () => {
             </Group>
             <Stack p="md" py="xl">
                 {data.quickMelodies.map((melody, index) => (
-                    <Group justify="space-between" key={index} wrap="nowrap">
+                    <Group flex="1" w="100%" key={index} wrap="nowrap">
                         <MelodySelect
                             value={melody}
                             onChange={(value) => {
@@ -31,6 +31,7 @@ export const QuickMelodiesSection = () => {
                             }}
                         />
                         <CloseButton
+                            style={{ marginInlineStart: "auto" }}
                             onClick={() => {
                                 processCommand(Command.Melody(MelodyCommand.EditQuickMelodies(ListAction<Melody>().Remove(index))));
                             }}

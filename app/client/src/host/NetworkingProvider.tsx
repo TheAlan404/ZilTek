@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useLocalStorage, useSet } from "@mantine/hooks";
 import { useSocketIO } from "../hooks/useSocketIO";
 import { ClientAuth } from "@ziltek/common/src/networking/ClientAuth";
@@ -54,6 +54,10 @@ export const NetworkingProvider = ({
     const connectionQueue = useSet<string>([]);
     const [hostStatus, setHostStatus] = useState<HostStatus>("connecting");
 
+    const modifyKnownRemotes = (act) => setKnownRemotes(prev => (
+        applyListAction(prev, act)
+    ));
+
     // -- Socket IO --
 
     const version = "";
@@ -73,7 +77,11 @@ export const NetworkingProvider = ({
         const handlers: Partial<S2CMessageMap> = {
             IncomingRemoteConnection: (remoteId) => {
                 connectedRemotes.delete(remoteId);
-                connectionQueue.add(remoteId);
+                if(knownRemotes.some(x => x.remoteId == remoteId)) {
+                    acceptConnection(remoteId);
+                } else {
+                    connectionQueue.add(remoteId);
+                };
             },
             RemoteConnected: (remoteId) => {
                 connectionQueue.delete(remoteId);
@@ -85,6 +93,7 @@ export const NetworkingProvider = ({
             },
             ProcessCommand: (cmd) => emitter.emit("ProcessCommand", cmd),
             UpdateState: (st) => emitter.emit("UpdateState", st),
+            SetFilesList: (f) => emitter.emit("SetFilesList", f),
             HostStatusChanged: (status) => setHostStatus(status),
         };
 
@@ -116,6 +125,12 @@ export const NetworkingProvider = ({
         sendMessage("ProcessCommand", cmd);
     };
 
+    useEffect(() => {
+        if(!isConnected) {
+            connectedRemotes.clear();
+            connectionQueue.clear();
+        }
+    }, [isConnected]);
 
     return (
         <NetworkingContext.Provider
@@ -131,10 +146,7 @@ export const NetworkingProvider = ({
                 rcEnabled,
                 setRCEnabled,
                 knownRemotes,
-                modifyKnownRemotes: (act) => setKnownRemotes(prev => (
-                    applyListAction(prev, act)
-                    .filter((x, i, a) => !a.slice(i).map(k=>k.remoteId).includes(x.remoteId))
-                )),
+                modifyKnownRemotes,
                 connectedRemotes: Array.from(connectedRemotes),
                 connectionQueue: Array.from(connectionQueue),
                 acceptConnection,
@@ -145,6 +157,7 @@ export const NetworkingProvider = ({
                 processCommand,
                 error,
                 hostStatus,
+                sendMessage,
             }}
         >
             {children}

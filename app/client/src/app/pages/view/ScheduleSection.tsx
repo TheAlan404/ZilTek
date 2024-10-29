@@ -2,7 +2,7 @@ import { useContext, useState } from "react"
 import { Controller } from "../../../host/ControllerAPI"
 import { match } from "@alan404/enum";
 import { Schedule } from "@ziltek/common/src/schedule/Schedule";
-import { TimetableComponent } from "../../components/schedule/Timetable";
+import { TimetableComponent } from "../../components/schedule/TimetableComponent";
 import { getTimetableLayers, overlayTimetables } from "@ziltek/common/src/schedule/timetable/Timetable";
 import { useDate } from "../../../hooks/useClock";
 

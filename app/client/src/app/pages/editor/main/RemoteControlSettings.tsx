@@ -30,7 +30,7 @@ export const RemoteControlSettings = () => {
         setLabel,
     } = useContext(NetworkingContext);
 
-    let qrcodeValue = `${WEBSITE}#/${selfHostId}@${hostRelayURL}` + "?" + new URLSearchParams({
+    let qrcodeValue = `${WEBSITE}#/${selfHostId}@${hostRelayURL.replace(/\//g, "!")}` + "?" + new URLSearchParams({
         label,
     }).toString();
 

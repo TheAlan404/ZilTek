@@ -9,14 +9,14 @@ export const OnlineBadge = () => {
     const { rcEnabled, isConnected, error } = useContext(NetworkingContext);
     const { t } = useTranslation();
 
-    if(clientType == "remote") return;
-
     return (
         <>
-            {(rcEnabled) && (
+            {(rcEnabled || clientType == "remote") && (
                 <Tooltip label={error?.toString?.() || ""} disabled={!error}>
                     <Badge color={isConnected ? "green" : "yellow"} variant={"light"}>
-                        {t(isConnected ? "header.online" : "header.offline")}
+                        {t(isConnected ? (
+                            clientType == "host" ? "header.online" : "header.connected"
+                        ) : "header.offline")}
                     </Badge>
                 </Tooltip>
             )}

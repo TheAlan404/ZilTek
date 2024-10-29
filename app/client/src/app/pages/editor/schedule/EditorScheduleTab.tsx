@@ -14,11 +14,10 @@ import { TimetableMelodies } from "./timetables/TimetableMelodies";
 export const EditorScheduleTab = () => {
     const { processCommand, data } = useContext(Controller);
     const { t } = useTranslation();
-    const isMobile = useMobile();
 
     return (
         <Flex justify="center" pb="xl" mb="xl" mt="md">
-            <Flex w={isMobile ? "100%" : "50%"}>
+            <Flex w={{ base: "100%", md: "50%" }}>
                 <Stack w="100%">
                     <Paper withBorder p="md" w="100%">
                         <Stack>

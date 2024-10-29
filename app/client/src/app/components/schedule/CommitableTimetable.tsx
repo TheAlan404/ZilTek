@@ -1,8 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { TimetableComponent } from "./Timetable";
-import { Timetable } from "@ziltek/common/src/schedule/timetable/Timetable";
-import { Button, Group, Stack } from "@mantine/core";
+import { TimetableComponent } from "./TimetableComponent";
+import { createTimetableRow, Timetable, TimetableRow } from "@ziltek/common/src/schedule/timetable/Timetable";
+import { ActionIcon, Button, Group, Stack, Tooltip } from "@mantine/core";
+import { useSet } from "@mantine/hooks";
+import { IconClipboardCopy } from "@tabler/icons-react";
 
 export const CommitableTimetable = ({
     value,
@@ -14,39 +16,64 @@ export const CommitableTimetable = ({
     const { t } = useTranslation();
     const [table, setTable] = useState<Timetable>(value);
     const [dirty, setDirty] = useState(false);
+    const invalids = useSet<string>();
+
+    const addRow = (row: TimetableRow) => {
+        setDirty(true);
+        setTable(t => [...t, row]);
+    };
 
     return (
         <Stack>
             <TimetableComponent
                 value={table}
+                invalids={invalids}
                 onChange={(t) => {
                     setDirty(true);
                     setTable(t);
                 }}
             />
 
-            <Group>
-                <Button
-                    disabled={!dirty}
-                    color="gray"
-                    onClick={() => {
-                        setDirty(false);
-                        setTable(value);
-                    }}
-                >
-                    {""}
-                </Button>
+            <Group justify="space-between">
+                <Group>
+                    <Button
+                        variant="light"
+                        onClick={() => addRow(createTimetableRow())}>
+                        {t("edit.newRow")}
+                    </Button>
+                    <Tooltip label={t("edit.duplicateRow")}>
+                        <ActionIcon variant="light" onClick={() => {
+                            let lastRow = value[value.length - 1];
+                            addRow(structuredClone(lastRow));
+                        }}>
+                            <IconClipboardCopy />
+                        </ActionIcon>
+                    </Tooltip>
+                </Group>
 
-                <Button
-                    disabled={!dirty}
-                    color="green"
-                    onClick={() => {
-                        setDirty(false);
-                        onChange(table);
-                    }}
-                >
-                    {""}
-                </Button>
+                <Group>
+                    <Button
+                        disabled={!dirty || !!invalids.size}
+                        color="gray"
+                        onClick={() => {
+                            setDirty(false);
+                            setTable(value);
+                        }}
+                    >
+                        {""}
+                    </Button>
+
+                    <Button
+                        disabled={!dirty || !!invalids.size}
+                        color="green"
+                        onClick={() => {
+                            setDirty(false);
+                            onChange(table);
+                        }}
+                    >
+                        {""}
+                    </Button>
+                </Group>
             </Group>
         </Stack>
     );

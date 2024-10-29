@@ -1,6 +1,6 @@
 import { Group, Paper, Progress, Stack, Text } from "@mantine/core"
 import { useContext, useState } from "react";
-import { Time, TimeFromDate, TimeUtil } from "@ziltek/common/src/Time";
+import { Time, TimeUtil } from "@ziltek/common/src/Time";
 import { useTranslation } from "react-i18next";
 import { Controller } from "../../../host/ControllerAPI";
 import { TimeBox } from "../../components/schedule/TimeBox";
@@ -11,34 +11,32 @@ import { computeTimings, Schedule } from "@ziltek/common/src/schedule/Schedule";
 const pad = (v: number) => v.toString().padStart(2, "0");
 
 const getNextPrev = (schedule: Schedule) => {
-    const timings = Object.keys(computeTimings(schedule, new Date().getDay())) as Time[];
-    
-    const mins = (t: Time) => {
-        let [h, m] = t.split(":").map(Number);
-        return h*60+m;
-    };
+    const timings = (Object.keys(computeTimings(schedule, new Date().getDay())) as Time[])
+        .sort((a, b) => mins(a) - mins(b));
 
-    const needle = mins(TimeFromDate(new Date()));
+    const needle = mins(TimeUtil.fromDate(new Date()));
 
-    let prev = timings.find((x) => mins(x) > needle);
-    let next = timings.find((x) => mins(x) < needle);
+    let prev = timings.findLast((x) => mins(x) <= needle);
+    let next = timings.find((x) => mins(x) > needle);
 
     return [next, prev];
 }
+
+const mins = (t: Time) => {
+    let [h, m] = t.split(":").map(Number);
+    return (h*60)+m;
+};
 
 const toSecs = (d: Date) =>
     (d.getHours() * 60 * 60) + (d.getMinutes() * 60) + (d.getSeconds());
 
 const getProgressBetween = (prev: Time, next: Time) => {
-    let a = TimeUtil.toDate(prev);
-    let b = TimeUtil.toDate(next);
+    let prevSecs = toSecs(TimeUtil.toDate(prev));
+    let nextSecs = toSecs(TimeUtil.toDate(next));
+    let currentSecs = toSecs(new Date());
 
-    let current = toSecs(new Date());
-    let x = toSecs(a);
-    let y = toSecs(b);
-
-    let len = y - x;
-    let progressed = current - x;
+    let len = nextSecs - prevSecs;
+    let progressed = nextSecs - currentSecs;
 
     return (progressed / len) * 100;
 }
@@ -73,7 +71,7 @@ export const ClockSection = () => {
                 </Group>
 
                 <Text c="violet" fz="4em" w="100%" ta="center">
-                    {TimeFromDate(date)}:{pad(date.getSeconds())}
+                    {TimeUtil.fromDate(date)}:{pad(date.getSeconds())}
                 </Text>
 
                 <Progress
@@ -133,7 +131,7 @@ export const ClockSection = () => {
                                 </Group>
                             </Stack>
                             <Progress
-                                value={getProgressBetween(prev, next)}
+                                value={getProgressBetween(next, prev)}
                                 color="violet"
                             />
                         </Stack>
