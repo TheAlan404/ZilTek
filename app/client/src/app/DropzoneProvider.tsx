@@ -1,81 +1,41 @@
-import { Dropzone, FileWithPath } from "@mantine/dropzone";
+import { Dropzone } from "@mantine/dropzone";
 import { useContext } from "react";
-import { Command, Controller, ControllerData, StoredFile } from "../host/ControllerAPI";
 import { IconUpload } from "@tabler/icons-react";
-import JSZip from "jszip";
 import { saveAs } from 'file-saver';
-import { deserialize } from "../host/DataFixer";
-
-export const exportToZip = async (data: ControllerData, files: StoredFile[]) => {
-    let zip = new JSZip();
-
-    zip.file("db.json", JSON.stringify(data));
-
-    let folder = zip.folder("audio");
-
-    for(let file of files) {
-        folder.file(file.filename, new Blob([file.data]));
-    };
-
-    let blob = await zip.generateAsync({ type: "blob" });
-
-    saveAs(blob, `ZilTekConfig.zip`);
-};
-
-export const importFromZip = async (processCommand: (cmd: Command)=>void, file: FileWithPath) => {
-    let zip = await JSZip.loadAsync(new Blob([file]));
-        
-    let dataJson = deserialize(await zip.file("db.json")?.async("string"));
-
-    processCommand({
-        type: "setAllData",
-        data: {
-            data: dataJson,
-        }
-    });
-
-    processCommand({
-        type: "deleteAllFiles"
-    });
-
-    zip.folder("audio").forEach(async (path, zipFile) => {
-        if(path.includes("/")) return;
-        
-        let blob = await zipFile.async("blob");
-
-        processCommand({
-            type: "addFile",
-            data: {
-                filedata: blob,
-                filename: path,
-            },
-        })
-    });
-}
+import { Controller } from "../host/ControllerAPI";
+import { Command } from "@ziltek/common/src/cmd/Command";
+import { FilesystemCommand } from "@ziltek/common/src/cmd/FilesystemCommand";
+import { importFromZip } from "../lib/ziltekConfigZip";
+import { MaintenanceCommand } from "@ziltek/common/src/cmd/MaintenanceCommand";
 
 export const DropzoneProvider = () => {
     const { processCommand } = useContext(Controller);
     
     return (
         <Dropzone.FullScreen
-            onDrop={(files) => {
+            onDrop={async (files) => {
                 if(files.length == 1 && [
                     "application/x-zip-compressed",
                     "application/zip"
                 ].includes(files[0].type)) {
-                    return importFromZip(processCommand, files[0]);
-                }
-
-                for(let file of files) {
-                    if(!file.type.startsWith("audio")) continue;
-
-                    processCommand({
-                        type: "addFile",
-                        data: {
+                    const zip = files[0];
+                    const { data, files: audios } = await importFromZip(await zip.arrayBuffer());
+                    processCommand(Command.Maintenance(MaintenanceCommand.SetAllData(data)));
+                    for(let { data, filename } of audios) {
+                        processCommand(Command.Filesystem(FilesystemCommand.AddFile({
+                            filename,
+                            data,
+                        })))
+                    }
+                } else {
+                    for(let file of files) {
+                        if(!file.type.startsWith("audio")) continue;
+    
+                        processCommand(Command.Filesystem(FilesystemCommand.AddFile({
                             filename: file.name,
-                            filedata: file,
-                        },
-                    })
+                            data: await file.arrayBuffer(),
+                        })))
+                    }
                 }
             }}
         >

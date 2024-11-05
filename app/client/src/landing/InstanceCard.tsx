@@ -24,7 +24,7 @@ export const InstanceCard = ({
                         <Text c="dimmed" fz="xs">{instance.relay}</Text>
                     </Stack>
                     <Group>
-                        <Tooltip label={t("mode.remote.edit")}>
+                        <Tooltip label={t("instance.edit")}>
                             <ActionIcon
                                 variant="light"
                                 color="gray"
@@ -40,7 +40,7 @@ export const InstanceCard = ({
                     onClick={onConnect}
                     rightSection={<IconArrowRight />}
                 >
-                    {t("mode.remote.connect")}
+                    {t("instance.connect")}
                 </Button>
             </Stack>
         </Paper>

@@ -1,4 +1,4 @@
-import { Button, Group, Tooltip } from "@mantine/core";
+import { Button, Group, Loader, Tooltip } from "@mantine/core";
 import { useContext } from "react";
 import { Controller } from "../../../host/ControllerAPI";
 import { useTranslation } from "react-i18next";
@@ -11,13 +11,15 @@ export const AppHeader = () => {
     return (
         <Group>
             {audioState.currentlyPlaying && (
-                <Tooltip label={t("header.audioPlayingTooltip", { filename: audioState.currentlyPlaying })}>
+                <Tooltip label={t("header.audioPlayingTooltip")}>
                     <Button
                         variant='light'
                         size="compact-md"
                         color="green"
-                        onClick={() => processCommand(Command.ForceStop())}>
-                        {t("header.audioPlaying", { filename: audioState.currentlyPlaying })}
+                        onClick={() => processCommand(Command.ForceStop())}
+                        leftSection={<Loader color="green" size="xs" type="dots" />}
+                    >
+                        {audioState.currentlyPlaying}
                     </Button>
                 </Tooltip>
             )}

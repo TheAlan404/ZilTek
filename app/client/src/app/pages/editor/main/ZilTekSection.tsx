@@ -17,12 +17,12 @@ export const ZilTekSection = () => {
 
     return (
         <Fieldset
-            legend={t("editor.sections.ziltek.title")}>
+            legend={t("about.title")}>
             <Stack ta="center">
                 <Highlight
                     highlight={[VERSION, BUILD]}
                     highlightStyles={highlightStyles}
-                >{t("editor.sections.ziltek.desc", {
+                >{t("about.content", {
                     version: VERSION,
                     build: BUILD,
                 })}</Highlight>
@@ -35,9 +35,9 @@ export const ZilTekSection = () => {
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                         }}>
-                        {t("editor.sections.ziltek.made_by", { author: AUTHOR })}
+                        {t("about.madeby", { author: AUTHOR })}
                     </Highlight>
-                    <Tooltip label={t("editor.sections.ziltek.website")}>
+                    <Tooltip label={t("about.website")}>
                         <ActionIcon
                             component="a"
                             variant="subtle"
@@ -48,7 +48,6 @@ export const ZilTekSection = () => {
                         </ActionIcon>
                     </Tooltip>
                 </Group>
-                {/* hostMode == "local" && <UpdateChecker /> */}
             </Stack>
         </Fieldset>
     );

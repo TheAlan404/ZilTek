@@ -11,7 +11,10 @@ export const AppBase = () => {
     return (
         <HostContext.Provider
                 value={{
-                    exit: () => navigate("/"),
+                    exit: () => {
+                        localStorage.setItem("ziltek:auto-local", 'false');
+                        navigate("/");
+                    },
                     ...(target == "local" ? {
                         clientType: "host",
                     } : {

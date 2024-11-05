@@ -22,15 +22,14 @@ export const FilesList = () => {
     return (
         <Stack>
             <TextInput
-                autoFocus
-                placeholder={t("editor.sections.files.searchPlaceholder")}
+                placeholder={t("files.search")}
                 value={search}
                 onChange={(e) => setSearch(e.currentTarget.value)}
             />
             <Transition mounted={!!search} transition="slide-down">
                 {(styles) => (
                     <Text style={{ textAlign: "center", ...styles }}>
-                        {list.length ? t("edit.fileSearchResults", { count: list.length }) : t("edit.fileSearchNoResults")}
+                        {t("files.searchResults", { count: list.length })}
                     </Text>
                 )}
             </Transition>

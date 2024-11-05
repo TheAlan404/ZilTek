@@ -3,7 +3,6 @@ import { TimetableSchedule } from "./timetable/TimetableSchedule";
 import { ZonesSchedule } from "./zones/Zones";
 import { Time } from "../Time";
 import { Melody } from "../Melody";
-import { TimetableDay } from "./timetable/TimetableDay";
 import { getTimetableLayers, overlayTimetables } from "./timetable/Timetable";
 import { BellType } from "./timetable/BellType";
 

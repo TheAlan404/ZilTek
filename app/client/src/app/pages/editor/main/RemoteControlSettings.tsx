@@ -38,22 +38,24 @@ export const RemoteControlSettings = () => {
 
     return (
         <Fieldset
-            legend={t("editor.sections.rc.title")}>
+            legend={t("rc.title")}>
             <Stack>
                 <Group justify="space-between" wrap="nowrap">
                     <Checkbox
                         checked={rcEnabled}
                         onChange={(v) => setRCEnabled(v.target.checked)}
-                        label={t("rc.enabled")}
-                        description={t("rc.enabledDesc")} />
+                        label={t("rc.toggle")}
+                        description={t("rc.toggleDesc")} />
                     {rcEnabled && <OnlineBadge />}
                 </Group>
                 {rcEnabled && (
                     <Stack>
                         <TextInput
-                            label={t("mode.proxyurl")}
+                            label={t("rc.relay")}
+                            description={t("rc.relayDesc")}
                             value={hostRelayURL}
-                            onChange={(e) => setHostRelayURL(e.currentTarget.value)} />
+                            onChange={(e) => setHostRelayURL(e.currentTarget.value)}
+                        />
                         <Group justify="space-between">
                             <Text>
                                 {t("rc.hostId")}
@@ -83,7 +85,7 @@ export const RemoteControlSettings = () => {
                         <Stack>
                             {!!knownRemotes?.length && (
                                 <>
-                                    <Divider label={t("rc.authenticatedRemotes")} />
+                                    <Divider label={t("rc.trustedList")} />
                                     {knownRemotes.map((remote, index) => (
                                         <RemoteItem
                                             key={remote.remoteId}
@@ -102,7 +104,7 @@ export const RemoteControlSettings = () => {
                             )}
                             {!!untrustedConnected?.length && (
                                 <>
-                                    <Divider label={t("rc.connectedRemotes")} />
+                                    <Divider label={t("rc.connectedList")} />
                                     {untrustedConnected.map((remoteId, i) => (
                                         <RemoteItem
                                             key={remoteId}

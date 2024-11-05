@@ -8,7 +8,7 @@ export const useDebug = () => {
 
     return {
         debug: (category: string, ...m: any[]) => {
-            //if(!categories[category]) return;
+            if(!categories[category]) return;
             console.debug(`[${category}]`, ...m);
         },
 

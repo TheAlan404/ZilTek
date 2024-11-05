@@ -6,7 +6,7 @@ export const LanguageSwitch = () => {
 
 	return (
 		<SegmentedControl
-            value={i18n.resolvedLanguage || "en"}
+            value={i18n.resolvedLanguage}
             onChange={(v) => i18n.changeLanguage(v)}
             data={[
                 { value: "en", label: "English" },

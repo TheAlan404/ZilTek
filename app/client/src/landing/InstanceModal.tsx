@@ -35,22 +35,22 @@ export const InstanceModal = ({
     return (
         <Stack p="md" justify="center">
             <TextInput
-                placeholder={t("modals.addRemote.placeholderName")}
-                label={t("modals.addRemote.labelName")}
+                placeholder={t("instance.namePlaceholder")}
+                label={t("instance.name")}
                 value={instance.label}
                 onChange={(e) => setInstanceProp("label", e.target.value)}
             />
 
             <TextInput
-                placeholder={t("modals.addRemote.placeholderId")}
-                label={t("modals.addRemote.labelId")}
+                placeholder={t("instance.idPlaceholder")}
+                label={t("instance.id")}
                 value={instance.id}
                 onChange={(e) => setInstanceProp("id", e.currentTarget.value)}
             />
 
             <TextInput
-                placeholder={t("modals.addRemote.placeholderRelay")}
-                label={t("modals.addRemote.labelRelay")}
+                placeholder={t("instance.relayPlaceholder")}
+                label={t("instance.relay")}
                 value={instance.relay}
                 onChange={(e) => setInstanceProp("relay", e.currentTarget.value)}
             />
@@ -70,24 +70,20 @@ export const InstanceModal = ({
                         variant="light"
                         onClick={() => {
                             modals.openConfirmModal({
-                                title: t("modals.deleteRemote.title"),
-                                children: t("modals.deleteRemote.content"),
+                                title: t("instance.delete"),
+                                children: t("instance.deleteConfirmation"),
                                 confirmProps: { color: "red" },
-                                labels: {
-                                    confirm: t("modals.deleteRemote.confirm"),
-                                    cancel: t("modals.cancel")
-                                },
                                 onConfirm() {
                                     onDelete();
                                     modals.closeAll();
                                     notifications.show({
-                                        message: t("notifs.deletedRemote"),
+                                        message: t("instance.deletedRemote"),
                                         color: "red",
                                     });
                                 },
                             });
                         }}>
-                        {t("modals.addRemote.delete")}
+                        {t("instance.delete")}
                     </Button>
                 )}
                 
@@ -96,7 +92,7 @@ export const InstanceModal = ({
                     color="green"
                     onClick={add}
                 >
-                    {onDelete ? t("modals.addRemote.save") : t("modals.addRemote.add")}
+                    {onDelete ? t("instance.save") : t("instance.add")}
                 </Button>
             </Group>
         </Stack>

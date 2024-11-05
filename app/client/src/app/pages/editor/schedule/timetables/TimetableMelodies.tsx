@@ -14,7 +14,7 @@ export const TimetableMelodies = ({
     const [t] = useTranslation();
 
     return (
-        <Fieldset legend={""}>
+        <Fieldset legend={t("timetable.melodies")}>
             <Stack>
                 {(["students", "teachers", "classEnd"] as BellType[]).map((type) => (
                     <Group flex="1" wrap="nowrap" w="100%" key={type}>

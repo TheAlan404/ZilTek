@@ -92,8 +92,6 @@ export const TimetableComponent = ({
                     </Group>
                 ))}
             </Stack>
-
-            {!value.length && <Text style={{ textAlign: "center" }}>{t("edit.noRows")}</Text>}
         </Stack>
     )
 }

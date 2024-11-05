@@ -21,7 +21,12 @@ export const deserialize = (value?: string): Data => {
     let data = JSON.parse(value);
 
     if (data.ver == 2) {
-        return data;
+        let d: Data = {
+            ver: 2,
+            quickMelodies: Array.isArray(data.quickMelodies) ? data.quickMelodies : [],
+            schedule: data.schedule,
+        };
+        return d;
     };
 
     const strToMelody = (s: string | { filename: string }) => ({
@@ -35,6 +40,7 @@ export const deserialize = (value?: string): Data => {
         )) as TimetableRow) as Timetable;
 
         let d: Data = {
+            ver: 2,
             quickMelodies: strArrToMelodyArr(data.quickMelodies),
             schedule: Schedule.Timetable({
                 melodies: {
@@ -51,7 +57,7 @@ export const deserialize = (value?: string): Data => {
                         data: Timetable;
                     }) => (
                         {
-                            isFullOverride,
+                            isLayered: !isFullOverride,
                             table: data,
                             enabled: true,
                         }
@@ -69,6 +75,7 @@ export const deserialize = (value?: string): Data => {
         }))) as Timetable;
 
         let d: Data = {
+            ver: 2,
             quickMelodies: (data.melodies.custom || []).map((filename: string) => ({ filename } as Melody)),
             schedule: Schedule.Timetable({
                 melodies: {
@@ -83,7 +90,7 @@ export const deserialize = (value?: string): Data => {
                     default: fixTable(data.timetables.main || []),
                     days: ((data.timetables.overrides || []) as any[]).map(o => ({
                         enabled: true,
-                        isFullOverride: o.fullOverride ?? false,
+                        isLayered: o.fullOverride ?? false,
                         table: fixTable(o.table),
                     } as TimetableDay)),
                 },

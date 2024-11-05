@@ -1,12 +1,10 @@
 import { Group, Paper, Stack, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { notifications } from "@mantine/notifications";
-import { IconCut, IconFileMusic, IconHighlight, IconPlayerPause, IconPlayerPlay, IconTrash } from "@tabler/icons-react";
+import { IconFileMusic, IconHighlight, IconPlayerPause, IconPlayerPlay, IconTrash } from "@tabler/icons-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Controller } from "../../../../host/ControllerAPI";
 import { ActionButtonWithTooltip } from "../../../components/editor/ActionButtonWithTooltip";
-import { FileRenameModal } from "./FileRenameModal";
 import { StoredFileMetadata } from "@ziltek/common/src/StoredFile";
 import { Command } from "@ziltek/common/src/cmd/Command";
 import { FilesystemCommand } from "@ziltek/common/src/cmd/FilesystemCommand";
@@ -51,10 +49,11 @@ export const FileEntry = ({
                     <HostPlayButton filename={file.filename} />
 
                     <ActionButtonWithTooltip
-                        label={t("edit.renameFile")}
+                        label={t("files.rename")}
                         icon={<IconHighlight />}
                         onClick={() => createTextInputModal({
                             value: file.filename,
+                            title: t("files.rename"),
                             onChange: (to) => processCommand(Command.Filesystem(FilesystemCommand.Rename({
                                 from: file.filename,
                                 to,
@@ -63,19 +62,15 @@ export const FileEntry = ({
                     />
 
                     <ActionButtonWithTooltip
-                        label={t("edit.deleteFile")}
+                        label={t("files.delete")}
                         color="red"
                         icon={<IconTrash />}
                         onClick={() => {
                             modals.openConfirmModal({
-                                title: t("modals.deleteFile.title"),
+                                title: t("files.delete"),
                                 children: (
-                                    <Text>{t("modals.deleteFile.content", { filename: file.filename })}</Text>
+                                    <Text>{t("files.deleteConfirmation", { filename: file.filename })}</Text>
                                 ),
-                                labels: {
-                                    confirm: t("modals.deleteFile.confirm"),
-                                    cancel: t("modals.cancel"),
-                                },
                                 confirmProps: { color: "red" },
                                 onConfirm: () => {
                                     processCommand(Command.Filesystem(FilesystemCommand.Delete(file.filename)));
@@ -120,7 +115,7 @@ const LocalPlayButton = ({ filename }: { filename: string }) => {
 
     return (
         <ActionButtonWithTooltip
-            label={isPlaying ? t("files.playing") : t("files.playLocally")}
+            label={isPlaying ? t("controls.stop") : t("controls.playLocally")}
             loading={loading}
             icon={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
             color={isPlaying ? "yellow" : "green"}
@@ -138,8 +133,8 @@ const HostPlayButton = ({ filename }: { filename: string }) => {
 
     return (
         <ActionButtonWithTooltip
-            label={isPlaying ? t("files.playing") : (
-                clientType == "remote" ? t("files.playOnHost") : t("files.play")
+            label={isPlaying ? t("controls.stop") : (
+                clientType == "remote" ? t("controls.playOnHost") : t("controls.play")
             )}
             icon={isPlaying ? <IconPlayerPause /> : <IconPlayerPlay />}
             color={isPlaying ? "yellow" : "green"}

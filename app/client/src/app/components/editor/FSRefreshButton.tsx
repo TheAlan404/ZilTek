@@ -9,7 +9,7 @@ export const FSRefreshButton = () => {
     const { t } = useTranslation();
 
     return (
-        <Tooltip label={t("edit.reloadFiles")} withArrow>
+        <Tooltip label={t("files.refresh")} withArrow>
             <ActionIcon
                 onClick={refresh}
                 variant="subtle"

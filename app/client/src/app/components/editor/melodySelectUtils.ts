@@ -2,7 +2,7 @@ import { Time } from "@ziltek/common/src/Time";
 
 export const getDuration = (data: ArrayBuffer, filename?: string): Promise<number> => new Promise((res) => {
     const audio = new Audio();
-    const source = URL.createObjectURL(new File([data], filename));
+    const source = URL.createObjectURL(new File([data], filename, { type: "audio/*" }));
     audio.onloadedmetadata = () => {
         if (audio.duration === Infinity) {
             audio.currentTime = Number.MAX_SAFE_INTEGER;

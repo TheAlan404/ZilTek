@@ -1,14 +1,10 @@
-import useMobile from "../../../../hooks/useMobile"
-import { ActionIcon, Code, Fieldset, Flex, Group, Highlight, Stack, Tooltip } from "@mantine/core";
-import { useContext, useState } from "react";
-import { Controller } from "../../../../host/ControllerAPI";
+import { Flex, Stack } from "@mantine/core";
+import { useContext } from "react";
 import { RemoteControlSettings } from "./RemoteControlSettings";
 import { MaintenanceSection } from "./MaintenanceSection";
-import { UpdateChecker } from "./UpdateChecker";
 import { HostContext } from "../../../../host/HostContext";
 import { ZilTekSection } from "./ZilTekSection";
-import { Time } from "@ziltek/common/src/Time";
-import { TimeBox } from "../../../components/schedule/TimeBox";
+import { DebugSection } from "./DebugSection";
 
 export const EditorMainTab = () => {
     const { clientType } = useContext(HostContext);
@@ -19,6 +15,7 @@ export const EditorMainTab = () => {
                 <ZilTekSection />
                 {clientType == "host" && <RemoteControlSettings />}
                 {clientType == "host" && <MaintenanceSection />}
+                <DebugSection />
             </Stack>
         </Flex>
     )

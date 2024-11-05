@@ -14,9 +14,9 @@ export const QuickMelodiesSection = () => {
     const [t] = useTranslation();
 
     return (
-        <Fieldset legend={t("editor.sections.quickMelodies.title")} w="100%">
+        <Fieldset legend={t("quickMelodies.title")} w="100%">
             <Group justify="space-between" wrap="nowrap">
-                <Text>{t("editor.sections.quickMelodies.desc")}</Text>
+                <Text>{t("quickMelodies.desc")}</Text>
             </Group>
             <Stack p="md" py="xl">
                 {data.quickMelodies.map((melody, index) => (
@@ -46,7 +46,7 @@ export const QuickMelodiesSection = () => {
                         processCommand(Command.Melody(MelodyCommand.EditQuickMelodies(ListAction<Melody>().Add(createMelody()))));
                     }}
                 >
-                    {t("editor.sections.quickMelodies.add")}
+                    {t("quickMelodies.add")}
                 </Button>
             </Stack>
         </Fieldset>

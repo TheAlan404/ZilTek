@@ -1,13 +1,13 @@
 import { createTimetable, Timetable } from "./Timetable";
 
 export type TimetableDay = {
-    isFullOverride: boolean;
+    isLayered: boolean;
     enabled: boolean;
     table: Timetable;
 };
 
 export const createTimetableDay = (): TimetableDay => ({
     enabled: false,
-    isFullOverride: false,
+    isLayered: false,
     table: createTimetable(),
 });

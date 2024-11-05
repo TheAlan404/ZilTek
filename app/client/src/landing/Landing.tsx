@@ -7,6 +7,7 @@ import { InstancesList } from "./InstancesList";
 import { useLocalStorage } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import { ModalsProvider } from "@mantine/modals";
+import { useEffect } from "react";
 
 export const Landing = () => {
     const [t] = useTranslation();
@@ -14,9 +15,14 @@ export const Landing = () => {
     const navigate = useNavigate();
 
     let [autoLocal, setAutoLocal] = useLocalStorage({
-        key: "ziltek-auto-local",
+        key: "ziltek:auto-local",
         defaultValue: false,
+        getInitialValueInEffect: false,
     });
+
+    useEffect(() => {
+        if(autoLocal) navigate("/local");
+    }, []);
 
     return (
         <ModalsProvider
@@ -38,8 +44,8 @@ export const Landing = () => {
                                 <Checkbox
                                     checked={autoLocal}
                                     onChange={(e) => setAutoLocal(e.currentTarget.checked)}
-                                    label={t("mode.local.checkbox")}
-                                    description={t("mode.local.desc")}
+                                    label={t("autoLocal")}
+                                    description={t("autoLocalDesc")}
                                 />
 
                                 <Button
@@ -47,7 +53,7 @@ export const Landing = () => {
                                     color="green"
                                     rightSection={<IconArrowRight />}
                                     onClick={() => navigate("/local")}>
-                                    {t("mode.local.button")}
+                                    {t("enterLocal")}
                                 </Button>
                             </Group>)}
 

@@ -22,13 +22,13 @@ export const EditorScheduleTab = () => {
                     <Paper withBorder p="md" w="100%">
                         <Stack>
                             <Group justify="space-between">
-                                <Text>{t("editor.sections.schedule.type.switch")}</Text>
+                                <Text>{t("schedule.type")}</Text>
                                 <SegmentedControl
                                     disabled
                                     value={data.schedule.type}
                                     data={[
-                                        { value: "timetable", label: t("editor.sections.schedule.type.timetable.name") },
-                                        { value: "zones", label: t("editor.sections.schedule.type.zones.name") },
+                                        { value: "timetable", label: t("schedule.timetables") },
+                                        { value: "zones", label: t("schedule.zones") },
                                     ]}
                                 />
                             </Group>
@@ -43,12 +43,12 @@ export const EditorScheduleTab = () => {
 
                             return (
                                 <Stack>
-                                    <TimetablePanel
+                                    <TimetableMelodies
                                         schedule={schedule}
                                         setSchedule={setSchedule}
                                     />
 
-                                    <TimetableMelodies
+                                    <TimetablePanel
                                         schedule={schedule}
                                         setSchedule={setSchedule}
                                     />

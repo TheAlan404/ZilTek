@@ -6,6 +6,7 @@ import { PageChangeButton } from "./components/view/PageChangeButton";
 import { Outlet } from "react-router-dom"
 import { useTranslation } from "react-i18next";
 import { ModalsProvider } from "@mantine/modals";
+import { DropzoneProvider } from "./DropzoneProvider";
 
 export const AppLayout = () => {
     const [t] = useTranslation();
@@ -15,6 +16,7 @@ export const AppLayout = () => {
             confirm: t("modals.confirm"),
             cancel: t("modals.cancel"),
         }}>
+            <DropzoneProvider />
             <AppShell
                 header={{ height: 60 }}
             >

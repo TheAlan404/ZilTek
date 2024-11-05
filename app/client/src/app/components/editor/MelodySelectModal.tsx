@@ -169,7 +169,7 @@ export const MelodySelectModal = ({
                         leftSection={play ? <IconPlayerPause /> : <IconPlayerPlay />}
                         onClick={() => setPlay(p => !p)}
                     >
-                        {t(play ? "pause" : "play")}
+                        {t(play ? "controls.stop" : "controls.play")}
                     </Button>
                     <Box>
                         <TimeBox

@@ -1,11 +1,9 @@
 import { ActionIcon, Button, Checkbox, closeOnEscape, Fieldset, Group, Select, Stack, Text, Tooltip } from "@mantine/core";
 import { useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Controller } from "../../../../../host/ControllerAPI";
 import { CommitableTimetable } from "../../../../components/schedule/CommitableTimetable";
-import { IconCopy, IconPlaylistX, IconWand } from "@tabler/icons-react";
+import { IconPlaylistX, IconWand } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
-import { TimetableGenerator } from "./TimetableGenerator";
 import useMobile from "../../../../../hooks/useMobile";
 import { TimetableSchedule } from "@ziltek/common/src/schedule/timetable/TimetableSchedule";
 import { createTimetableDay, TimetableDay } from "@ziltek/common/src/schedule/timetable/TimetableDay";
@@ -29,16 +27,16 @@ export const TimetablePanel = ({
 
     const tableIds = [
         {
-            group: t("editor.sections.schedule.type.timetable.main"),
+            group: t("timetable.mainGroup"),
             items: [
                 {
                     value: "default",
-                    label: t("editor.sections.schedule.type.timetable.mainTimetable")
+                    label: t("timetable.main")
                 }
             ]
         },
         {
-            group: t("editor.sections.schedule.type.timetable.overrides"),
+            group: t("timetable.overridesGroup"),
             items: (new Array(7).fill(0)
                 .map((_, i) => ({
                     value: i.toString(),
@@ -52,8 +50,6 @@ export const TimetablePanel = ({
     };
 
     const updateTable = (table: Timetable) => {
-        console.log("updateTable", table)
-
         let cloned = structuredClone(schedule);
         if (tableId == "default")
             cloned.tables.default = table;
@@ -77,7 +73,7 @@ export const TimetablePanel = ({
     };
 
     return (
-        <Fieldset legend="">
+        <Fieldset legend={t("timetable.tables")}>
             <Stack>
                 <Group grow align="end" justify="space-between">
                     <Select
@@ -94,17 +90,13 @@ export const TimetablePanel = ({
                             color="red"
                             variant="light"
                             onClick={() => modals.openConfirmModal({
-                                title: t("modals.clearTimetable.title"),
-                                children: <Text>{t("modals.clearTimetable.content")}</Text>,
-                                labels: {
-                                    confirm: t("modals.clearTimetable.confirm"),
-                                    cancel: t("modals.cancel"),
-                                },
+                                title: t("timetable.clear"),
+                                children: <Text>{t("timetable.clearConfirmation")}</Text>,
                                 confirmProps: { color: "red" },
                                 onConfirm: clear,
                             })}
                         >
-                            {t("editor.sections.schedule.type.timetable.clear")}
+                            {t("timetable.clear")}
                         </Button>
 
                         <Button
@@ -119,26 +111,26 @@ export const TimetablePanel = ({
                                 fullScreen: isMobile,
                                 size: isMobile ? undefined : "calc(100vw - 3rem)",
                             })}>
-                            {t("editor.sections.schedule.type.timetable.generate")}
+                            {t("timetable.generate")}
                         </Button>
                     </Group>
                 </Group>
 
-                {tableId != "default" && (
+                {/* {tableId != "default" && (
                     <Checkbox
-                        label={t("editor.sections.schedule.type.timetable.fullOverride")}
-                        description={t("editor.sections.schedule.type.timetable.fullOverrideDesc")}
+                        label={t("timetable.fullOverride")}
+                        description={t("timetable.fullOverrideDesc")}
                         checked={day!.isFullOverride}
                         onChange={(e) => updateDay({
                             isFullOverride: e.currentTarget.checked
                         })}
                     />
-                )}
+                )} */}
 
                 {tableId != "default" && (
                     <Checkbox
-                        label={t("editor.sections.schedule.type.timetable.enabled")}
-                        description={t("editor.sections.schedule.type.timetable.enabledDesc")}
+                        label={t("timetable.enabled")}
+                        description={t("timetable.enabledDesc")}
                         checked={day!.enabled}
                         onChange={(e) => updateDay({
                             enabled: e.currentTarget.checked

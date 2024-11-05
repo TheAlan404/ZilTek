@@ -7,13 +7,16 @@ import { useTranslation } from "react-i18next";
 export const createTextInputModal = ({
     value,
     onChange,
+    title,
 }: {
     value: string;
     onChange: (s: string) => void;
+    title: string;
 }) => {
     const modalId = randomId();
     modals.open({
         modalId,
+        title,
         children: (
             <TextInputModal
                 value={value}

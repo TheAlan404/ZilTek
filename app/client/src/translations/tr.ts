@@ -1,336 +1,179 @@
-import { DEFAULT_RELAY } from "../meta";
+import { LanguageResource } from "./type";
 
-export default {
-    by_dennis: "deniz tarafından",
-    error: "Hata",
-    errors: {
-        noFiles: "Hiçbir dosya bulunamadı",
-        noFilesLong: "Hiçbir dosya bulunamadı - butonları kullanarak ya da dosyayı ZilTek'e sürükleyerek dosya yükleyin.",
-        pleaseUploadFiles: "Hiçbir dosya bulunamadı",
-        pleaseUploadFilesDesc: "Editörden dosya yükleyin",
-        pleaseSetMelodies: "Melodiler düzgün ayarlı değil",
-        pleaseSetMelodiesDesc: "Editörden ayarlayabilirsiniz",
-    },
+const tr: LanguageResource = {
     language: "Dil",
-    deleteAllData: "Bütün verileri sil",
-    download: "ZilTek'i uygulama olarak indir",
-    importFromZip: "Zip'ten İçe Aktar",
-    exportToZip: "Zip olarak Dışa Aktar",
-
-    days: [
-        "Pazar",
-        "Pazartesi",
-        "Salı",
-        "Çarşamba",
-        "Perşembe",
-        "Cuma",
-        "Cumartesi",
-    ],
-
-    months: [
-        "Ocak",
-        "Şubat",
-        "Mart",
-        "Nisan",
-        "Mayıs",
-        "Haziran",
-        "Temmuz",
-        "Ağustos",
-        "Eylül",
-        "Ekim",
-        "Kasım",
-        "Aralık",
-    ],
-
-    mode: {
-        local: {
-            button: "Yerel Moda Gir",
-            checkbox: "Bu bilgisayar için yerel modu aktifleştir",
-            desc: "ZilTek açıldığı anda eğer bu ayar aktif ise otomatik olarak yerel moda girer",
-            running: "Yerel Modda Çalışıyor",
-            exit: "Yerel moddan çık",
-        },
-        remote: {
-            name: "Uzaktan Bağlantı",
-            desc: "Yerel modda çalışan başka bir ZilTek'e bağlan",
-            list: "Kumandalar Listesi",
-            add: "Kumanda Ekle",
-            running: "Başka bir ZilTek'e uzaktan bağlanıldı",
-            exit: "Uzaktan kontrol modundan çık",
-            edit: "Düzenle",
-            connect: "Bağlan",
-        },
-        proxyurl: "Relay URL'si",
+    error: "Hata",
+    bells: {
+        students: "Öğrenci Zili",
+        teachers: "Öğretmen Zili",
+        classEnd: "Ders Sonu Zili",
     },
 
     on: "Açık",
     off: "Kapalı",
-    controls: {
-        bellStatus: "Zil Durumu",
-        stopAudio: "Sesi Durdur",
-        stopAudioButton: "Durdur",
-        playSection: "Melodi Çal",
-        quickMelodies: "Hızlı Melodiler",
-        play: "Çal",
-        stop: "Durdur",
-    },
-
-    menu: {
-        edit: "Editör",
-        view: "Ana Menü"
-    },
-
-    header: {
-        audioPlaying: "Çalıyor: {{filename}}",
-        audioPlayingTooltip: "Şu anda {{filename}} oynatılıyor, durdurmak için tıkla.",
-        online: "Çevrimiçi",
-        offline: "Çevrimdışı",
-        connected: "Bağlanıldı",
-        hostOffline: "Bağlanılan ZilTek çevrimdışı",
-        suppressed: "Zil Susturuldu",
-        suppressedTooltip: "Tıklayarak zili geri aç",
-    },
-
-    view: {
-        nextBell: "Sonraki Zil",
-        prevBell: "Önceki Zil",
-        noBells: "Bu gün herhangi bir zil yok",
-    },
-
-    edit: {
-        unsavedChanges: "Kaydedilmemiş değişiklikler var",
-        pickAFile: "Bir dosya seç",
-        reloadFiles: "Dosyaları yenile",
-        bytes: "({{bytes}} byte)",
-        renameFile: "Yeniden Adlandır",
-        deleteFile: "Sil",
-        fileSearchResults: "{{count}} sonuç",
-        fileSearchNoResults: "Hiçbir dosya bulunamadı",
-        newRow: "Yeni Satır",
-        duplicateRow: "Bir önceki satırı kopyala",
-        revert: "Geri Al",
-        save: "Kaydet",
-        modified: "Değiştirildi",
-        noRows: "Boş",
-        cutFile: "Dosyayı Kes",
-    },
-
-    notif: {
-        fileRenamed: "Dosyanın ismi {{from}}'dan {{to}}'a değiştirildi",
-        fileDeleted: "{{filename}} silindi",
-        fileUploadedTitle: "Dosya Yüklendi",
-        fileUploaded: "{{filename}} başarıyla yüklendi",
-        changesIgnored: "Değişikliklerin görmezden gelindi",
-        deletedEverything: "Herşey silindi",
-        deletedRemote: "Kumanda silindi",
-    },
+    exit: "Çıkış",
+    save: "Kaydet",
+    cancel: "İptal",
 
     modals: {
         cancel: "İptal",
-        deleteFile: {
-            title: "Dosyayı sil?",
-            content: "{{filename}}'yı silmek istediğine emin misin? Bu işlem geri alınamaz!",
-            confirm: "Sil",
-        },
-        renameFile: {
-            title: "Dosyayı yeniden adlandır",
-            filename: "Yeni Dosya İsmi",
-            confirm: "Yeniden Adlandır",
-        },
-        unsavedChanges: {
-            title: "Kaydedilmemiş değişikliklerin var!",
-            content: "Değişikliklerini görmezden gelmek istediğine emin misin?",
-            confirm: "Değişiklikleri yoksay",
-        },
-        clearTimetable: {
-            title: "Zaman tablosunu sil?",
-            content: "Silmek istediğinden emin misin? Bu işlem geri alınamaz",
-            confirm: "Clear",
-        },
-        addRemote: {
-            title: "Kumanda Ekle",
-            labelName: "Etiket",
-            placeholderName: "Herhangi birşeyler yaz",
-            labelId: "UUID",
-            placeholderId: "Diğer ZilTek'in UUID'si",
-            labelRelay: "Relay URL'si",
-            placeholderRelay: DEFAULT_RELAY,
-            add: "Ekle",
-            save: "Kaydet",
-            delete: "Kaldır",
-        },
-        deleteRemote: {
-            title: "Kumandayı Sil",
-            content: "Emin misiniz?",
-            confirm: "Kaldır",
-        },
-        clearAllData: {
-            title: "Bütün Verileri Sil",
-            content: "Bu işlem dosyalar dışında herşeyi silecek. Emin misiniz?",
-            confirm: "Herşeyi Sil",
-        },
-        trustRemote: {
-            title: "Kumandaya Güven",
-            content: "Bu kumandaya güvendiğinizden emin misiniz? Güvenilen kumandalar onay gerekmeden bağlanabilir.",
-            confirm: "Evet",
-        },
-        editRemoteLabel: {
-            title: "Etiketi Değiştir",
-            label: "Etiket",
-            confirm: "Tamam",
-        },
-        cutFile: {
-            loading: "Yükleniyor...",
-            title: "Dosyayı Kes",
-            duration: "Süre",
-            confirm: "Kes",
-        },
+        confirm: "Onayla",
     },
 
-    bells: {
-        student: "Öğrenci Zili",
-        teacher: "Öğretmen Zili",
-        classEnd: "Ders Bitiş Zili",
+    controls: {
+        bellStatus: "Zil",
+        stopAudio: "Sesi durdur",
+        stopAudioButton: "Durdur",
+        playSection: "Çal...",
+        quickMelodies: "Hazırda Melodiler",
+        stop: "Durdur",
+        play: "Oynat",
+        playLocally: "Bu cihazda çal",
+        playOnHost: "Bağlanılan cihazda çal",
+    },
+
+    view: {
+        noBells: "Bugün için zil yok",
+        prevBell: "Önceki Zil",
+        nextBell: "Sonraki Zil",
+    },
+
+    timebox: {
+        invalid: "Geçersiz değer",
+        playing: "Çalıyor...",
+        played: "Çaldı",
+        failed: "Çalma başarısız",
+        muted: "Zil kapalıydı",
+        stopped: "Yarıda kesildi",
+    },
+
+    tabs: {
+        main: "Ana Ayarlar",
+        schedule: "Çizelge",
+        files: "Dosyalar",
+    },
+
+    about: {
+        title: "ZilTek Hakkında",
+        content: "Sürüm {{version}} yapı {{build}}'ü kullanıyorsunuz! ZilTek'i kullandığınız için teşekkürler.",
+        madeby: "{{author}} tarafından yapıldı",
+        website: "Web sitem",
+    },
+    
+    rc: {
+        title: "Uzaktan Kontrol",
+        toggle: "Uzaktan Kontrolü Aktifleştir",
+        toggleDesc: "Başka cihazlardan ZilTek'i kontrol edin",
+        relay: "Röle URL'si",
+        relayDesc: "Kullanılacak sunucu",
+        hostId: "Host ID'si",
+        trustedList: "Güvenilen Cihazlar",
+        connectedList: "Bağlı Cihazlar",
+        connectionRequests: "Bağlantı İstekleri",
+        connected: "Bağlı",
+        trustRemote: "Cihaza güven",
+        editLabel: "Etiketi değiştir",
+        removeTrust: "Güveni kaldır",
+        kickRemote: "Bağlantısını kes",
+        qrcodeDesc: "Bu QR kodu telefonunuzdan tarayıp ZilTek'i uzaktan kontrol edin",
+    },
+
+    maintenance: {
+        title: "Bakım",
+        deleteAll: "Herşeyi Sil",
+        deleteAllConfirmation: "Emin misiniz? Bu işlem geri alınamaz!",
+    },
+
+    schedule: {
+        type: "Çizelge Türü",
+        timetables: "Zaman Tablosu",
+        zones: "Alanlar",
+    },
+    
+    timetable: {
+        melodies: "Melodiler",
+        tables: "Tablolar",
+        mainGroup: "Ana",
+        main: "Ana Tablo",
+        overridesGroup: "Günlük Tablolar",
+        clear: "Sil",
+        clearConfirmation: "Tamamen silmek istediğinizden emin misiniz?",
+        generate: "Oluşturucu",
+        enabled: "Aktif",
+        enabledDesc: "Aktif ise aşağıdaki tablo bu gün için kullanılır",
+        newRow: "Yeni Satır",
+        duplicateRow: "Son Satırı Klonla",
+    },
+
+    quickMelodies: {
+        title: "Quick Melodies",
+        desc: "Show some melodies in the main view to play them fast, for example a national anthem",
+        add: "Add",
+    },
+
+    melodySelect: {
+        title: "Melody Picker",
+        file: "File",
+        cut: "Cut",
+    },
+
+    fileDuration: "File Duration",
+    melodyDuration: "Melody Duration",
+
+    files: {
+        title: "Files",
+        desc: "Upload some files to use in melodies",
+        amount: "{{count}} files",
+        rename: "Rename",
+        delete: "Delete",
+        deleteConfirmation: "Are you sure you want to delete {{filename}}?",
+        refresh: "Refresh",
+        upload: "Upload",
+        download: "Download",
+        search: "Search...",
+        searchResults: "Found {{count}} files",
+    },
+
+    menu: {
+        edit: "Edit",
+        view: "View",
     },
 
     editor: {
-        tabs: {
-            main: "Ana Ayarlar",
-            schedule: "Programlar",
-            files: "Dosyalar",
-            melodies: "Melodiler",
-        },
-        sections: {
-            quickMelodies: {
-                title: "Hızlı Melodileri Düzenle",
-                desc: "Hızlı Melodiler ana menüde bir oynat butonu ile gösterilir.",
-                add: "Hızlı Melodi Ekle",
-            },
-
-            melodies: {
-                title: "Melodileri Düzenle",
-                desc: "Her tür zil için çalınacak melodileri ayarla",
-            },
-
-            files: {
-                title: "Dosyaları Düzenle",
-                desc: "Dosyaları ve melodileri burada düzenleyebilirsiniz",
-                amount: "{{count}} dosya",
-                searchPlaceholder: "Dosya ara...",
-                upload: "Dosya Yükle",
-                downloadFromYoutube: "YouTube'dan indir",
-                playAudio: "Sesi Oynat",
-                audioPlaying: "Ses Oynatılıyor",
-            },
-
-            schedule: {
-                type: {
-                    switch: "Program Tipi",
-                    timetable: {
-                        name: "Zaman Tabloları",
-                        overrides: "Üstüne yazmalar",
-                        mainTimetable: "Ana Zaman Tablosu",
-                        main: "Ana",
-                        daySelect: "Günü Seç",
-                        clear: "Temizle",
-                        copyFromMain: "Ana Tablodan Kopyala",
-                        generate: "Oluştur",
-                        fullOverride: "Tamamen Üstüne Yaz",
-                        fullOverrideDesc: "Aktif edildiği zaman bu tablo kullanılır, aktif değil ise ana tablonun üstüne konularak hesaplanır",
-                    },
-                    zones: {
-                        name: "Bölgeler",
-                    },
-                },
-            },
-
-            ziltek: {
-                title: "ZilTek",
-                desc: "Sürüm {{version}}, yapı {{build}}'ı kullanıyorsunuz",
-                made_by: "{{author}} tarafından ZilTek",
-                website: "web sayfama gitmek için tıkla",
-                checkingForUpdates: "Güncellemelere bakılıyor...",
-                upToDate: "ZilTek'iniz güncel!",
-                updateError: "Güncelleme hatası, konsola bkz.",
-                updateAvailable: "Güncelleme var: {{current}} -> {{available}}",
-                updateButton: "Güncelle",
-                recheckUpdates: "Güncellemelere yeniden bak",
-            },
-
-            rc: {
-                title: "Uzaktan Kontrol",
-            },
-
-            maintenance: {
-                title: "Bakım",
-            },
-        },
+        advanced: "Advanced",
+        debug: "Debugging",
     },
 
-    timetableGenerator: {
-        title: "Zaman Tablosu Oluşturucusu",
-        classCountLabel: "Ders Miktarı",
-        classCountDesc: "Kaç tane ders var?",
-        breakDurationLabel: "Tenefüs Süresi",
-        breakDurationDesc: "(dk.)",
-        classDurationLabel: "Ders Süresi",
-        classDurationDesc: "(dk.)",
-        studentBellOffsetLabel: "Öğrenci-Öğretmen Farkı",
-        studentBellOffsetDesc: "Öğrenci zili öğretmen zilinden kaç dakika önce çalsın?",
-        preview: "Önizleme",
-        segmentType: {
-            startTime: "Başlangıç Zamanı",
-            offset: "Öncekinden fark ile",
-        },
-        offsetLabel: "Önceki bölümden fark",
-        offsetDesc: "Önceki bölümden kaç dakika sonra bu bölüm başlasın?",
-        startTimeLabel: "Bölüm Başlangıç Zamanı",
-        startTimeDesc: "Bu bölümün başlama saati",
-        removeSegment: "Bölümü Sil",
-        clear: "Hepsini Temizle",
-        addSegment: "Bölüm Ekle",
-        cancel: "İptal",
-        save: "Zaman Tablosunu Kaydet",
-        segment: "Bölüm {{index}}",
-        preset: "Önayar {{index}}",
+    header: {
+        audioPlayingTooltip: "Click to stop",
+        online: "Online",
+        offline: "Offline",
+        connected: "Connected",
     },
 
-    rc: {
-        enabled: "Uzaktan Kontrolü Aktifleştir",
-        enabledDesc: "ZilTek'i başka bir cihazdan kontrol et",
-        hostId: "Host ID",
-        connectedRemotes: "Bağlananlar",
-        noRemotesConnected: "Hiçbir kumanda bağlanmadı",
-        authenticatedRemotes: "Güvenilen Kumandalar",
-
+    loadingScreen: {
+        self: "Bu cihazın ID'si",
+        connectTo: "Bağlanılan cihazın ID'si",
+        storage: "Yükleniyor...",
+        storageDesc: "Dosya sisteminin hazır olması bekleniyor",
+        connected: "Yükleniyor...",
+        connectedDesc: "Bağlandı, veri bekleniyor",
         connecting: "Bağlanılıyor...",
-        connectingDesc: "Lütfen bekleyin...",
-        waitingForAcception: "Kabül bekleniyor...",
-        waitingForAcceptionDesc: "Bağlantı uzaktan kontrol kısmından kabül edilmelidir.",
-        denied: "Reddedildi",
-        deniedDesc: "Bağlanılan ZilTek bağlantıyı reddetti.",
-        kicked: "Bağlantı Kesildi",
-        kickedDesc: "Bağlanılan ZilTek bağlantınızı kesti.",
-        hostOffline: "Çevrimdışı",
-        hostOfflineDesc: "Bağlanılan ZilTek şuan çevrimdışı. Çevrimiçi olduğu zaman otomatik olarak yeniden bağlanılacak.",
-
-        remoteId: "Bu kumandanın ID'si:",
-        disconnect: "Bağlantıyı Kes",
-
-        trustRemote: "Kumandaya Güven",
-        connected: "Bağlandı",
-        editLabel: "Etiketi değiştir",
-        removeTrust: "Güveni kaldır",
-        kickRemote: "Bağlantıyı Kes",
+        connectingDesc: "Röle sunucusuna bağlanılıyor...",
+        inQueue: "Kuyrukta",
+        inQueueDesc: "Bağlantı isteğinin kabul edilmesi bekleniliyor. Bağlanılan ZilTek'ten kabul edin.",
+        hostDisconnected: "Host'un Bağlantısı Kesildi",
+        hostDisconnectedDesc: "Bağlanılan ZilTek'in röle ile olan bağlantısı kesildi",
+        kicked: "Atıldı",
+        kickedDesc: "Bağlanılan ZilTek sizi attı",
+        remoteDisconnected: "Bağlantınız Kesildi",
+        remoteDisconnectedDesc: "Bu cihazın röle ile olan bağlantısı kesildi",
     },
 
-    yt: {
-        search: "Ara",
-        beginSearching: "Arama butonuna basarak arayın",
-        pick: "Seç",
-    },
-
-    audio: {
-        playfailed: "Sesi oynatma başarısız! Pencereye tıklamayı deneyin",
-    },
+    download: "Download ZilTek as a Desktop App",
+    autoLocal: "Always use this device",
+    autoLocalDesc: "If checked, uses this device on startup",
+    enterLocal: "Use this device",
 };
+
+export default tr;

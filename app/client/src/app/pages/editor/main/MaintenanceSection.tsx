@@ -20,7 +20,7 @@ export const MaintenanceSection = () => {
 
     return (
         <Fieldset
-            legend={t("editor.sections.maintenance.title")}>
+            legend={t("maintenance.title")}>
             <Stack>
                 <Group justify="center">
                     <Button
@@ -29,23 +29,15 @@ export const MaintenanceSection = () => {
                         leftSection={<IconTrash />}
                         onClick={() => {
                             modals.openConfirmModal({
-                                title: t("modals.clearAllData.title"),
-                                children: t("modals.clearAllData.content"),
+                                title: t("maintenance.deleteAll"),
+                                children: t("maintenance.deleteAllConfirmation"),
                                 confirmProps: { color: "red" },
-                                labels: {
-                                    confirm: t("modals.clearAllData.confirm"),
-                                    cancel: t("modals.cancel")
-                                },
                                 onConfirm() {
                                     processCommand(Command.Maintenance(MaintenanceCommand.ClearAllData()));
-                                    notifications.show({
-                                        message: t("notif.deletedEverything"),
-                                        color: "red",
-                                    });
                                 },
                             });
                         }}>
-                        {t("deleteAllData")}
+                        {t("maintenance.deleteAll")}
                     </Button>
 
                     {/* <Button

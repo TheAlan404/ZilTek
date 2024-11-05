@@ -48,11 +48,11 @@ export const InstancesList = ({
             <Divider
                 w="80%"
                 labelPosition="center"
-                label={t("mode.remote.list")}
+                label={t("instance.list")}
             />
 
             <Text ta="center">
-                {t("mode.remote.desc")}
+                {t("instance.listDesc")}
             </Text>
 
             <Stack w="100%">
@@ -61,7 +61,7 @@ export const InstancesList = ({
                         instance={instance}
                         onConnect={() => onConnect(instance)}
                         onEdit={() => modals.open({
-                            title: t("modals.addRemote.title"),
+                            title: t("instance.edit"),
                             children: <InstanceModal
                                 instance={instance}
                                 onUpdate={(value) => {
@@ -84,13 +84,13 @@ export const InstancesList = ({
                     leftSection={<IconPlus />}
                     onClick={() => {
                         modals.open({
-                            title: t("modals.addRemote.title"),
+                            title: t("instance.add"),
                             children: <InstanceModal
                                 onUpdate={add}
                             />
                         })
                     }}>
-                    {t("mode.remote.add")}
+                    {t("instance.add")}
                 </Button>
             </Center>
         </Stack>

@@ -14,9 +14,9 @@ export const EditorPage = () => {
     return (
         <Tabs value={"/"+section} onChange={(v) => navigate(`/${target}/editor${v}`)}>
             <Tabs.List grow>
-                <Tabs.Tab value="/" leftSection={<IconSettings />}>{t("editor.tabs.main")}</Tabs.Tab>
-                <Tabs.Tab value="/schedule" leftSection={<IconListDetails />}>{t("editor.tabs.schedule")}</Tabs.Tab>
-                <Tabs.Tab value="/files" leftSection={<IconFileMusic />}>{t("editor.tabs.files")}</Tabs.Tab>
+                <Tabs.Tab value="/" leftSection={<IconSettings />}>{t("tabs.main")}</Tabs.Tab>
+                <Tabs.Tab value="/schedule" leftSection={<IconListDetails />}>{t("tabs.schedule")}</Tabs.Tab>
+                <Tabs.Tab value="/files" leftSection={<IconFileMusic />}>{t("tabs.files")}</Tabs.Tab>
             </Tabs.List>
 
             <Outlet />

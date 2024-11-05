@@ -6,9 +6,6 @@ import useMobile from "../../../hooks/useMobile";
 import { SettingsMenu } from "./SettingsMenu.tsx";
 
 export const AppTitle = () => {
-    const { t } = useTranslation();
-    const mobile = useMobile();
-
     return (
         <Group>
             <Popover withArrow transitionProps={{ transition: "scale-y" }}>

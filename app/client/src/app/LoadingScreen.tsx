@@ -54,7 +54,7 @@ export const LoadingScreen = ({
                         variant="light"
                         onClick={exit}
                     >
-                        {t("loadingScreen.exit")}
+                        {t("exit")}
                     </Button>
                 )}
             </Stack>

@@ -18,6 +18,7 @@ export const MelodySelect = ({
 
     const onClick = () => {
         const modalId = randomId();
+        console.debug(`Opening modal: ${modalId}`);
         modals.open({
             modalId,
             title: t("melodySelect.title"),

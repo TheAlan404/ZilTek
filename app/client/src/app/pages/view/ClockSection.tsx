@@ -42,7 +42,7 @@ const getProgressBetween = (prev: Time, next: Time) => {
 }
 
 export const ClockSection = () => {
-    const { t, i18n: { language } } = useTranslation();
+    const { t, i18n: { resolvedLanguage } } = useTranslation();
     const { data } = useContext(Controller);
     const [date, setDate] = useState(new Date());
 
@@ -57,13 +57,11 @@ export const ClockSection = () => {
             <Stack gap={0}>
                 <Group justify="space-between">
                     <Text>
-                        {[
-                            date.getDate(),
-                            " ",
-                            t(`months.${date.getMonth()}`),
-                            ", ",
-                            t(`days.${date.getDay()}`),
-                        ].join("")}
+                        {date.toLocaleString(resolvedLanguage, {
+                            month: "long",
+                            weekday: "long",
+                            day: "numeric",
+                        })}
                     </Text>
                     <Text c="dimmed" inline>
                         {date.getFullYear()}
@@ -80,28 +78,6 @@ export const ClockSection = () => {
                 />
             </Stack>
             <Stack>
-                {false && (
-                    <Paper withBorder p="md">
-                        <Group wrap="nowrap">
-                            <IconAlertTriangle />
-                            <Stack gap="0">
-                                <Text>{t(`errors.pleaseUploadFiles`)}</Text>
-                                <Text c="dimmed">{t(`errors.pleaseUploadFilesDesc`)}</Text>
-                            </Stack>
-                        </Group>
-                    </Paper>
-                )}
-                {false && (
-                    <Paper withBorder p="md">
-                        <Group wrap="nowrap">
-                            <IconAlertTriangle />
-                            <Stack gap="0">
-                                <Text>{t(`errors.pleaseSetMelodies`)}</Text>
-                                <Text c="dimmed">{t(`errors.pleaseSetMelodiesDesc`)}</Text>
-                            </Stack>
-                        </Group>
-                    </Paper>
-                )}
                 {!false && noBells && (
                     <Paper withBorder p="md" ta="center">
                         <Text c="dimmed" fs="italic">{t(`view.noBells`)}</Text>
@@ -120,10 +96,10 @@ export const ClockSection = () => {
                                         value={prev}
                                     />
                                     <Text c="dimmed">
-                                        {TimeUtil.relativeString(prev, language)}
+                                        {TimeUtil.relativeString(prev, resolvedLanguage)}
                                     </Text>
                                     <Text c="dimmed" ta="right">
-                                        {TimeUtil.relativeString(next, language)}
+                                        {TimeUtil.relativeString(next, resolvedLanguage)}
                                     </Text>
                                     <TimeBox
                                         value={next}
@@ -145,7 +121,7 @@ export const ClockSection = () => {
                                 value={next}
                             />
                             <Text c="dimmed">
-                                {TimeUtil.relativeString(next, language)}
+                                {TimeUtil.relativeString(next, resolvedLanguage)}
                             </Text>
                         </Group>
                     </Paper>
@@ -158,7 +134,7 @@ export const ClockSection = () => {
                                 value={prev}
                             />
                             <Text c="dimmed">
-                                {TimeUtil.relativeString(prev, language)}
+                                {TimeUtil.relativeString(prev, resolvedLanguage)}
                             </Text>
                         </Group>
                     </Paper>

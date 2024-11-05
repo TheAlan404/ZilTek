@@ -39,9 +39,9 @@ export const CommitableTimetable = ({
                     <Button
                         variant="light"
                         onClick={() => addRow(createTimetableRow())}>
-                        {t("edit.newRow")}
+                        {t("timetable.newRow")}
                     </Button>
-                    <Tooltip label={t("edit.duplicateRow")}>
+                    <Tooltip label={t("timetable.duplicateRow")}>
                         <ActionIcon variant="light" onClick={() => {
                             let lastRow = value[value.length - 1];
                             addRow(structuredClone(lastRow));
@@ -60,7 +60,7 @@ export const CommitableTimetable = ({
                             setTable(value);
                         }}
                     >
-                        {""}
+                        {t("cancel")}
                     </Button>
 
                     <Button
@@ -71,7 +71,7 @@ export const CommitableTimetable = ({
                             onChange(table);
                         }}
                     >
-                        {""}
+                        {t("save")}
                     </Button>
                 </Group>
             </Group>

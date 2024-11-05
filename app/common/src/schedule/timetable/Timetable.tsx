@@ -19,7 +19,7 @@ export const getTimetableLayers = (schedule: TimetableSchedule, dayOfWeek: numbe
     let layers: Timetable[] = [];
 
     let day: TimetableDay | undefined = schedule.tables.days[dayOfWeek];
-    if(!day?.isFullOverride) layers.push(schedule.tables.default);
+    if(day?.isLayered) layers.push(schedule.tables.default);
     if(day && day.enabled) layers.push(day.table);
 
     return layers;
