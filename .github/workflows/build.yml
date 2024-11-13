@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: cd app/frontend
+      - run: cd app/client
 
       - name: setup node
         uses: actions/setup-node@v4
@@ -52,7 +52,6 @@ jobs:
 
       - uses: tauri-apps/tauri-action@v0
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GH }}
           TAURI_PRIVATE_KEY: ${{ secrets.KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         with:

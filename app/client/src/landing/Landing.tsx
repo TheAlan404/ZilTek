@@ -2,7 +2,7 @@ import { ActionIcon, Box, Button, Center, Checkbox, Flex, Group, Stack, Text, Ti
 import { DOWNLOAD_LINK, HOST_MODE_ALLOWED, MODE, REMOTE_MODE_ALLOWED, VERSION } from "../meta";
 import { LanguageSwitch } from "../app/components/LanguageSwitch";
 import { useTranslation } from "react-i18next";
-import { IconArrowRight, IconDownload } from "@tabler/icons-react";
+import { IconArrowRight, IconBell, IconDownload } from "@tabler/icons-react";
 import { InstancesList } from "./InstancesList";
 import { useLocalStorage } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
@@ -35,7 +35,13 @@ export const Landing = () => {
                 <Stack w={{ base: "100%", sm: "80%", md: "70%", lg: "50%" }}>
                     <Stack align="center" gap="xl" p="md" mt="md" w="100%">
                         <Group justify="space-between" align="center" w="100%">
-                            <Title>ZilTek {VERSION}</Title>
+                            <Group>
+                                <Group align="center">
+                                    <IconBell />
+                                    <Title order={3}>ZilTek</Title>
+                                </Group>
+                                <Text c="dimmed">{VERSION}</Text>
+                            </Group>
                             <LanguageSwitch />
                         </Group>
 
