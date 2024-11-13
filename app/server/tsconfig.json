@@ -1,0 +1,17 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "include": [
+        "src/**/*"
+    ],
+    "references": [{ "path": "../common" }],
+    "compilerOptions": {
+        "noEmit": true,
+        "rootDir": "./src",
+        "target": "ESNext",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "esModuleInterop": true,
+        "allowArbitraryExtensions": true,
+        "allowImportingTsExtensions": true
+    }
+}

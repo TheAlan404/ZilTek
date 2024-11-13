@@ -1,0 +1,26 @@
+{
+  "name": "server",
+  "version": "0.0.0-development",
+  "description": "web socke tr",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ziltek/common": "workspace:*",
+    "chalk": "^5.3.0",
+    "express": "^4.18.2",
+    "lowdb": "^7.0.1",
+    "socket.io": "^4.7.3",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.19.2"
+  }
+}

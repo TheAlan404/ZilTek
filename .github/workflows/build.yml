@@ -22,6 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - run: cd app/client
+
       - name: setup node
         uses: actions/setup-node@v4
         with:
@@ -50,16 +52,14 @@ jobs:
 
       - uses: tauri-apps/tauri-action@v0
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GH }}
           TAURI_PRIVATE_KEY: ${{ secrets.KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         with:
           tagName: ZilTek-v__VERSION__
           releaseName: "ZilTek v__VERSION__"
-          releaseBody: "evet"
+          releaseBody: "Release __VERSION__"
           releaseDraft: true
           prerelease: true
           includeUpdaterJson: true
           releaseCommitish: "main"
-          owner: "TheAlan404"
-          repo: "ZilTekProject"
+          args: ${{ matrix.args }}

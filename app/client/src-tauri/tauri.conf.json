@@ -1,0 +1,71 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "build": {
+    "beforeBuildCommand": "pnpm build --mode tauri",
+    "beforeDevCommand": "pnpm dev",
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173"
+  },
+  "bundle": {
+    "active": true,
+    "category": "Utility",
+    "copyright": "",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      },
+      "timestampUrl": ""
+    },
+    "longDescription": "",
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null
+    },
+    "resources": [],
+    "shortDescription": "",
+    "targets": "all",
+    "createUpdaterArtifacts": "v1Compatible"
+  },
+  "productName": "ZilTek",
+  "mainBinaryName": "ZilTek",
+  "version": "../package.json",
+  "identifier": "dennis.ziltek",
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/TheAlan404/ZilTekProject/releases/download/latest/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJDNjE1QUVEQTA1OTQ2MUEKUldRYVJsbWc3VnBodlAvbGFORmdjaTJObjU3QlhtU0RFZnZoTncweTQ2eFp2Vm9kaDRhSkhDMW0K"
+    }
+  },
+  "app": {
+    "windows": [
+      {
+        "fullscreen": false,
+        "maximized": true,
+        "resizable": true,
+        "title": "ZilTek",
+        "focus": true
+      }
+    ],
+    "trayIcon": {
+      "iconAsTemplate": true,
+      "iconPath": "icons/128x128.png"
+    },
+    "security": {
+      "csp": null
+    }
+  }
+}

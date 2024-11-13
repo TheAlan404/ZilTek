@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "moduleResolution": "Bundler",
+        "composite": true,
+        "resolveJsonModule": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": false,
+        "jsx": "react-jsx",
+        "esModuleInterop": true,
+    }
+}
