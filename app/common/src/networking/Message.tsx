@@ -1,6 +1,7 @@
 import { Command } from "../cmd/Command";
 import { State } from "../state/State";
 import { StoredFileMetadata } from "../StoredFile";
+import { SystemNotification } from "../SystemNotification";
 import { HostStatus } from "./HostStatus";
 
 export type HostMessageMap = {
@@ -8,6 +9,7 @@ export type HostMessageMap = {
     UpdateState: (state: State) => void;
     RequestFile: (filename: string, cb: (data: ArrayBuffer) => void) => void;
     SetFilesList: (files: StoredFileMetadata[]) => void;
+    DispatchNotification: (notif: SystemNotification) => void;
 };
 
 export type S2CMessageMap = HostMessageMap & {

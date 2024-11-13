@@ -101,6 +101,26 @@ export default {
         enabledDesc: "Should ZilTek use this day override?",
         newRow: "New Row",
         duplicateRow: "Duplicate Row",
+        copyFrom: "Copy from",
+        copyFromConfirmation: "The table you selected will be copied into the current table. Are you sure?",
+        actions: "Actions",
+        table: "Table",
+    },
+
+    gen: {
+        segments: "Segments",
+        addSegment: "Add Segment",
+        startTime: "Set Start Time",
+        break: "Break",
+        classes: "Classes",
+        amount: "Class Amount",
+        studentOffset: "Students' Offset",
+        classDur: "Class Duration",
+        breakDur: "Break Duration",
+        preview: "Preview",
+        preset: "Preset {{x}}",
+        reset: "Reset",
+        p: "Generate a timetable by specifying classes and their durations",
     },
 
     quickMelodies: {
@@ -166,6 +186,7 @@ export default {
         kickedDesc: "Host kicked you",
         remoteDisconnected: "Remote Disconnected",
         remoteDisconnectedDesc: "This device was disconnected from the relay",
+        error: "Error",
     },
 
     instance: {

@@ -14,6 +14,7 @@ export type Playback = {
 export const useAudioPlayer = () => {
     const [playback, setPlayback] = useState<Playback | null>(null);
     const [muted, setMuted] = useState<AudioState["muted"]>(false);
+    const [progress, setProgress] = useState(0);
 
     const audioRef = useRef<HTMLAudioElement>(new Audio());
 
@@ -25,12 +26,18 @@ export const useAudioPlayer = () => {
             return;
         }
 
+        const startTime = playback.startTime || 0;
+        const endTime = playback.endTime || Infinity;
+
         audioRef.current.src = playback.source;
-        audioRef.current.currentTime = playback.startTime || 0;
+        audioRef.current.currentTime = startTime;
         
         const onUpdate = () => {
+            const playbackDuration = (playback.endTime || audioRef.current.duration) - startTime;
+            setProgress((audioRef.current.currentTime - startTime) / playbackDuration);
+
             if(
-                (audioRef.current.currentTime > (playback.endTime || Infinity))
+                (audioRef.current.currentTime > endTime)
                 || audioRef.current.ended
             ) {
                 audioRef.current.pause();
@@ -76,6 +83,7 @@ export const useAudioPlayer = () => {
             muted,
             isPlaying: !!playback,
             currentlyPlaying: playback?.label,
+            progress: !!playback ? progress : undefined,
         } as AudioState,
         setMuted,
         play,

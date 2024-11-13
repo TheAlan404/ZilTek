@@ -2,7 +2,7 @@ import { Group, Paper, Progress, Stack, Text } from "@mantine/core"
 import { useContext, useState } from "react";
 import { Time, TimeUtil } from "@ziltek/common/src/Time";
 import { useTranslation } from "react-i18next";
-import { Controller } from "../../../host/ControllerAPI";
+import { Controller } from "../../../host/ctx/Controller";
 import { TimeBox } from "../../components/schedule/TimeBox";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { useDate } from "../../../hooks/useClock";
@@ -72,10 +72,10 @@ export const ClockSection = () => {
                     {TimeUtil.fromDate(date)}:{pad(date.getSeconds())}
                 </Text>
 
-                <Progress
+                {/* <Progress
                     color="violet"
                     value={(date.getSeconds() / 60) * 100}
-                />
+                /> */}
             </Stack>
             <Stack>
                 {!false && noBells && (

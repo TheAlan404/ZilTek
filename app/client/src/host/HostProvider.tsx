@@ -1,5 +1,5 @@
 import { PropsWithChildren, useContext } from "react";
-import { HostContext } from "./HostContext";
+import { HostContext } from "./ctx/HostContext";
 import { IndexedDBFilesystem } from "./fs/IndexedDBFilesystem";
 import { LocalHost } from "./Local";
 import { RemoteHost } from "./Remote";

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button, Group, Stack, Text } from "@mantine/core";
 import { IconLogout2 } from "@tabler/icons-react";
 import { LanguageSwitch } from "../LanguageSwitch";
-import { HostContext } from "../../../host/HostContext";
+import { HostContext } from "../../../host/ctx/HostContext";
 
 export const SettingsMenu = () => {
     const { exit } = useContext(HostContext);

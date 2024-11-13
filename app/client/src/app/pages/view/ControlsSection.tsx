@@ -1,7 +1,7 @@
 import { Button, Divider, Group, Kbd, SegmentedControl, Stack, Text, Tooltip } from "@mantine/core"
 import React, { useContext } from "react";
 import { useTranslation } from "react-i18next"
-import { Controller } from "../../../host/ControllerAPI";
+import { Controller } from "../../../host/ctx/Controller";
 import { IconPlayerPause, IconPlayerPlay, IconPlayerStop } from "@tabler/icons-react";
 import { HotkeyItem, useHotkeys } from "@mantine/hooks";
 import { Command } from "@ziltek/common/src/cmd/Command";

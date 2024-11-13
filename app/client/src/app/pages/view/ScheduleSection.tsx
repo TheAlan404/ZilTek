@@ -1,5 +1,5 @@
 import { useContext, useState } from "react"
-import { Controller } from "../../../host/ControllerAPI"
+import { Controller } from "../../../host/ctx/Controller"
 import { match } from "@alan404/enum";
 import { Schedule } from "@ziltek/common/src/schedule/Schedule";
 import { TimetableComponent } from "../../components/schedule/TimetableComponent";

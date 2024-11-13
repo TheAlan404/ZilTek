@@ -1,4 +1,4 @@
-import { HostContext } from "../host/HostContext";
+import { HostContext } from "../host/ctx/HostContext";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { DEFAULT_RELAY } from "../meta";
 import { HostProvider } from "../host/HostProvider";

@@ -1,6 +1,6 @@
 import { PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
-import { Controller } from "./ControllerAPI";
-import { NetworkingContext } from "./NetworkingContext";
+import { Controller } from "./ctx/Controller";
+import { NetworkingContext } from "./ctx/NetworkingContext";
 import { createState, State } from "@ziltek/common/src/state/State";
 import { useEventListener } from "../hooks/useEvents";
 import { StoredFileMetadata } from "@ziltek/common/src/StoredFile";

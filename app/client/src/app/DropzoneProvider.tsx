@@ -2,7 +2,7 @@ import { Dropzone } from "@mantine/dropzone";
 import { useContext } from "react";
 import { IconUpload } from "@tabler/icons-react";
 import { saveAs } from 'file-saver';
-import { Controller } from "../host/ControllerAPI";
+import { Controller } from "../host/ctx/Controller";
 import { Command } from "@ziltek/common/src/cmd/Command";
 import { FilesystemCommand } from "@ziltek/common/src/cmd/FilesystemCommand";
 import { importFromZip } from "../lib/ziltekConfigZip";

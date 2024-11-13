@@ -1,5 +1,5 @@
 import { ReactNode, useContext } from "react"
-import { Controller } from "../../../../host/ControllerAPI"
+import { Controller } from "../../../../host/ctx/Controller"
 import { Flex, Group, Paper, SegmentedControl, Stack, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import useMobile from "../../../../hooks/useMobile";
@@ -27,8 +27,8 @@ export const EditorScheduleTab = () => {
                                     disabled
                                     value={data.schedule.type}
                                     data={[
-                                        { value: "timetable", label: t("schedule.timetables") },
-                                        { value: "zones", label: t("schedule.zones") },
+                                        { value: "Timetable", label: t("schedule.timetables") },
+                                        { value: "Zones", label: t("schedule.zones") },
                                     ]}
                                 />
                             </Group>

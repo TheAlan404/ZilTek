@@ -1,17 +1,19 @@
 import { Button, Center, Code, Group, Loader, Stack, Text, Title } from "@mantine/core";
-import { IconPlugX, IconUserX } from "@tabler/icons-react";
+import { IconAlertTriangle, IconPlugX, IconUserX } from "@tabler/icons-react";
 import { HostStatus } from "@ziltek/common/src/networking/HostStatus";
-import React, { useContext } from "react";
+import React, { ReactNode, useContext } from "react";
 import { useTranslation } from "react-i18next";
-import { HostContext } from "../host/HostContext";
-import { NetworkingContext } from "../host/NetworkingContext";
+import { HostContext } from "../host/ctx/HostContext";
+import { NetworkingContext } from "../host/ctx/NetworkingContext";
 
-export type LoadingScreenVariant = HostStatus | "storage";
+export type LoadingScreenVariant = HostStatus | "storage" | "error";
 
 export const LoadingScreen = ({
     variant,
+    content,
 }: {
     variant: LoadingScreenVariant;
+    content?: ReactNode;
 }) => {
     const { remoteId } = useContext(NetworkingContext);
     const { clientType, connectTo, exit } = useContext(HostContext);
@@ -25,6 +27,7 @@ export const LoadingScreen = ({
         kicked: IconUserX,
         remoteDisconnected: IconPlugX,
         storage: Loader,
+        error: IconAlertTriangle,
     } as Record<LoadingScreenVariant, React.ComponentType<any>>)[variant];
 
     return (
@@ -33,7 +36,10 @@ export const LoadingScreen = ({
                 <Icon />
 
                 <Title order={4}>{t(`loadingScreen.${variant}`)}</Title>
-                <Text>{t(`loadingScreen.${variant}Desc`)}</Text>
+                
+                {content || (
+                    <Text>{t(`loadingScreen.${variant}Desc`)}</Text>
+                )}
 
                 {clientType == "remote" && (
                     <Stack>

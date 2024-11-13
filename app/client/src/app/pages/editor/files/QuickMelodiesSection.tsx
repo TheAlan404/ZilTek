@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Controller } from "../../../../host/ControllerAPI";
+import { Controller } from "../../../../host/ctx/Controller";
 import { Button, CloseButton, Fieldset, Group, Stack, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { MelodySelect } from "../../../components/editor/MelodySelect";
@@ -8,6 +8,9 @@ import { MelodyCommand } from "@ziltek/common/src/cmd/MelodyCommand";
 import { ListAction } from "@ziltek/common/src/ListAction";
 import { createMelody, Melody } from "@ziltek/common/src/Melody";
 import { IconPlus } from "@tabler/icons-react";
+import { randomId } from "@mantine/hooks";
+import { modals } from "@mantine/modals";
+import { MelodySelectModal } from "../../../components/editor/MelodySelectModal";
 
 export const QuickMelodiesSection = () => {
     const { data, processCommand } = useContext(Controller);
@@ -43,7 +46,21 @@ export const QuickMelodiesSection = () => {
                     leftSection={<IconPlus />}
                     color="green"
                     onClick={() => {
-                        processCommand(Command.Melody(MelodyCommand.EditQuickMelodies(ListAction<Melody>().Add(createMelody()))));
+                        const modalId = randomId();
+                        console.debug(`Opening modal: ${modalId}`);
+                        modals.open({
+                            modalId,
+                            title: t("melodySelect.title"),
+                            children: (
+                                <MelodySelectModal
+                                    value={createMelody()}
+                                    onChange={(m) => {
+                                        modals.close(modalId);
+                                        processCommand(Command.Melody(MelodyCommand.EditQuickMelodies(ListAction<Melody>().Add(m))));
+                                    }}
+                                />
+                            )
+                        });
                     }}
                 >
                     {t("quickMelodies.add")}

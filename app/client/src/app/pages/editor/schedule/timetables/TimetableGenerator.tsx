@@ -1,76 +1,86 @@
-import { ActionIcon, Button, Fieldset, Group, NumberInput, Paper, ScrollArea, Select, SimpleGrid, Stack, Text, Title, Tooltip } from "@mantine/core";
+import { ActionIcon, Button, CloseButton, Divider, Fieldset, Group, NumberInput, Paper, ScrollArea, Select, SimpleGrid, Stack, Text, Title, Tooltip } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
-import { TimeBox } from "../../../../components/schedule/TimeBox";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
-import { useState } from "react";
-import { TimetableComponent } from "../../../../components/schedule/TimetableComponent";
-import { AddMinutesToTime, SubtractMinuesFromTime, Time } from "@ziltek/common/src/Time";
+import { Time, TimeUtil } from "@ziltek/common/src/Time";
 import { modals } from "@mantine/modals";
+import { Timetable, TimetableRow } from "@ziltek/common/src/schedule/timetable/Timetable";
+import { createFactory, Enum, EnumData, match } from "@alan404/enum";
+import { TimetableEntry } from "@ziltek/common/src/schedule/timetable/TimetableEntry";
+import { ReactNode } from "react";
+import { TimeBox } from "../../../../components/schedule/TimeBox";
+import { TimetableComponent } from "../../../../components/schedule/TimetableComponent";
+import { IconCalendarClock, IconClockCheck, IconHourglass } from "@tabler/icons-react";
 
-export type TimetableGenSegment = ({
-    type: "startTime";
-    startTime: Time;
-} | {
-    type: "offset";
-    offset: number;
-}) & ({
-    classCount: number;
-    classDuration: number;
-    breakDuration: number;
-    studentBellOffset: number;
-});
+export const GenMarker = createFactory<GenMarker>();
+export type GenMarker = Enum<{
+    StartTime: Time;
+    ExtendedBreak: number;
+    Classes: {
+        amount: number;
+        studentOffset?: number;
+        classDur: number;
+        breakDur: number;
+    };
+}>;
 
-const GeneratorPresets: TimetableGenSegment[][] = [
+const presets: GenMarker[][] = [
     [
-        { type: "startTime", startTime: Time(9, 0), classDuration: 30, breakDuration: 10, classCount: 6, studentBellOffset: 0 },
-    ],
-    [
-        { type: "startTime", startTime: Time(8, 50), classDuration: 40, breakDuration: 10, classCount: 5, studentBellOffset: 2 },
-        { type: "offset", offset: 50, classDuration: 40, breakDuration: 10, classCount: 3, studentBellOffset: 2 },
+        GenMarker.StartTime(Time(9, 0)),
+        GenMarker.Classes({
+            amount: 5,
+            breakDur: 10,
+            studentOffset: 2,
+            classDur: 40,
+        }),
+        GenMarker.ExtendedBreak(40),
+        GenMarker.Classes({
+            amount: 3,
+            breakDur: 10,
+            studentOffset: 2,
+            classDur: 40,
+        }),
     ]
 ];
 
-const generateTimetable = (segments: TimetableGenSegment[]) => {
+const generateTimetable = (markers: GenMarker[]) => {
     let table: Timetable = [];
     let currentTime = Time(0, 0);
-    segments.forEach(segment => {
-        if (segment.type == "startTime")
-            currentTime = segment.startTime;
-        else if (segment.type == "offset")
-            currentTime = AddMinutesToTime(currentTime, segment.offset || 0);
 
-        for (let i = 0; i < segment.classCount; i++) {
-            let tuple: Tuple = [];
-            if (segment.studentBellOffset) {
-                tuple.push({
-                    value: SubtractMinuesFromTime(currentTime, segment.studentBellOffset || 0),
-                    variant: "idle",
-                });
-            } else {
-                tuple.push({
-                    value: Time(0, 0),
-                    variant: "idle",
-                });
-            }
-            tuple.push({
-                value: currentTime,
-                variant: "idle",
-            });
-            currentTime = AddMinutesToTime(currentTime, segment.classDuration || 0);
-            tuple.push({
-                value: currentTime,
-                variant: "idle",
-            });
-            if (i < segment.classCount - 1) {
-                currentTime = AddMinutesToTime(currentTime, segment.breakDuration || 0);
-            };
+    for (let marker of markers) {
+        match(marker)({
+            StartTime: (time) => { currentTime = time },
+            ExtendedBreak: (dur) => { currentTime = TimeUtil.add(currentTime, dur) },
+            Classes: ({
+                amount,
+                breakDur,
+                classDur,
+                studentOffset,
+            }) => {
+                for (let i = 0; i < amount; i++) {
+                    if (i !== 0) currentTime = TimeUtil.add(currentTime, breakDur);
 
-            table.push(tuple);
-        }
-    });
+                    const students: TimetableEntry = !studentOffset ? {
+                        value: Time(0, 0),
+                    } : {
+                        value: TimeUtil.add(currentTime, -studentOffset),
+                    };
 
-    console.log(table);
+                    const teachers: TimetableEntry = {
+                        value: currentTime,
+                    };
+
+                    currentTime = TimeUtil.add(currentTime, classDur);
+
+                    const classEnd: TimetableEntry = {
+                        value: currentTime,
+                    };
+
+                    const row: TimetableRow = [students, teachers, classEnd];
+                    table.push(row);
+                }
+            },
+        });
+    }
 
     return table;
 };
@@ -78,193 +88,218 @@ const generateTimetable = (segments: TimetableGenSegment[]) => {
 export const TimetableGenerator = ({
     onAccept,
 }: {
-    onAccept: () => void,
+    onAccept?: (table: Timetable) => void,
 }) => {
     let { t } = useTranslation();
-    let [segments, setSegments] = useState<TimetableGenSegment[]>([
-        {
-            type: "startTime",
-            startTime: "09:00",
-            breakDuration: 10,
-            classCount: 1,
-            classDuration: 40,
-            studentBellOffset: 0,
-        }
+    let [markers, handlers] = useListState<GenMarker>([
+        GenMarker.StartTime(Time(9, 0))
     ]);
 
     let elements = [];
 
-    for (let i = 0; i < segments.length; i++) {
-        const segment = segments[i];
+    let currentTime = Time(0, 0);
+    for (let i = 0; i < markers.length; i++) {
+        const marker = markers[i];
+        const isFirst = i == 0;
+        const isLast = i == markers.length - 1;
+
+        const beforeTime = currentTime;
+        match(marker)({
+            StartTime: (time) => { currentTime = time },
+            ExtendedBreak: (dur) => { currentTime = TimeUtil.add(currentTime, dur) },
+            Classes: ({ amount, breakDur, classDur }) => {
+                currentTime = TimeUtil.add(currentTime, (classDur * amount) + (amount - 1) * breakDur);
+            },
+        })
+        const afterTime = currentTime;
+
+        const inner = match<GenMarker, ReactNode>(marker)({
+            StartTime: (st) => (
+                <Group justify="space-between">
+                    <Text fw="bold">{t("gen.startTime")}</Text>
+                    <Group>
+                        <TimeBox
+                            value={st}
+                            onChange={(time) => handlers.setItem(i, GenMarker.StartTime(time))}
+                        />
+                        <CloseButton
+                            onClick={() => handlers.remove(i)}
+                        />
+                    </Group>
+                </Group>
+            ),
+            ExtendedBreak: (dur) => (
+                <Group justify="space-between">
+                    <Text fw="bold">{t("gen.break")}</Text>
+                    <Group>
+                        <TimeBox
+                            value={TimeUtil.fromMins(dur)}
+                            onChange={(time) => handlers.setItem(i, GenMarker.ExtendedBreak(TimeUtil.toMins(time)))}
+                        />
+                        <CloseButton
+                            onClick={() => handlers.remove(i)}
+                        />
+                    </Group>
+                </Group>
+            ),
+            Classes: (data) => {
+                const set = (x: Partial<EnumData<GenMarker, "Classes">>) => {
+                    handlers.setItem(i, GenMarker.Classes({
+                        ...data,
+                        ...x,
+                    }));
+                };
+
+                return (
+                    <Stack>
+                        <Group justify="space-between">
+                            <Group>
+                                <Text fw="bold">{t("gen.classes")}</Text>
+                                <Text>{beforeTime} - {afterTime}</Text>
+                            </Group>
+
+                            <CloseButton
+                                onClick={() => handlers.remove(i)}
+                            />
+                        </Group>
+                        <SimpleGrid cols={{ base: 2, md: 4 }}>
+                            {(["amount", "studentOffset", "classDur", "breakDur"] as (keyof EnumData<GenMarker, "Classes">)[]).map(key => (
+                                <NumberInput
+                                    label={t(`gen.${key}`)}
+                                    value={data[key]}
+                                    allowDecimal={false}
+                                    allowNegative={false}
+                                    onChange={(x) => typeof x == "number" && set({ [key]: x })}
+                                />
+                            ))}
+                        </SimpleGrid>
+
+                    </Stack>
+                );
+            },
+        });
+
+        elements.push(
+            <Paper key={i} withBorder p="sm">
+                {inner}
+            </Paper>
+        );
     }
+
+    const buttons = (
+        <SimpleGrid cols={{ base: 1, sm: 3 }}>
+            <Button
+                variant="light"
+                color="green"
+                onClick={() => handlers.append(GenMarker.StartTime(Time(0, 0)))}
+                leftSection={<IconClockCheck />}
+            >
+                {t("gen.startTime")}
+            </Button>
+            <Button
+                variant="light"
+                color="green"
+                onClick={() => handlers.append(GenMarker.ExtendedBreak(0))}
+                leftSection={<IconHourglass />}
+            >
+                {t("gen.break")}
+            </Button>
+            <Button
+                variant="light"
+                leftSection={<IconCalendarClock />}
+                color="green"
+                onClick={() => handlers.append(GenMarker.Classes({
+                    amount: 2,
+                    breakDur: 10,
+                    classDur: 40,
+                    studentOffset: 0,
+                }))}
+            >
+                {t("gen.classes")}
+            </Button>
+        </SimpleGrid>
+    );
 
     return (
         <Stack>
-            <Paper withBorder p="md">
-
-            </Paper>
-
-            <Group justify="start">
-                <Button variant="light" color="red" onClick={() => setSegments([])}>
-                    {t("timetableGenerator.clear")}
-                </Button>
-                {GeneratorPresets.map((preset, i) => (
-                    <Button key={i} variant="light" onClick={() => setSegments(preset.slice())}>
-                        {t("timetableGenerator.preset", { index: i+1 })}
-                    </Button>
-                ))}
-            </Group>
-
-            <SimpleGrid cols={{ base: 1, md: 2 }}>
-                <ScrollArea.Autosize mah="100%">
-                    <Stack>
-                        {segments.map((segment, i) => (
-                            <TimetableGeneratorSegment
-                                value={segment}
-                                index={i}
-                                onRemove={() => setSegments(segs => segs.filter((_, idx) => idx !== i))}
-                                onChange={(v) => setSegments(segs => segs.map((seg, idx) => idx == i ? v : seg))}
-                                key={i}
-                            />
+            <SimpleGrid cols={{ base: 1, xs: 2 }}>
+                <Stack>
+                    <Group>
+                        {presets.map((preset, i) => (
+                            <Button
+                                variant="outline"
+                                onClick={() => handlers.setState(preset)}
+                            >
+                                {t("gen.preset", { x: i+1 })}
+                            </Button>
                         ))}
 
                         <Button
-                            fullWidth
-                            variant="light"
-                            color="green"
-                            leftSection={<IconPlus />}
-                            onClick={() => {
-                                setSegments(s => [
-                                    ...s,
-                                    {
-                                        type: "offset",
-                                        offset: 0,
-                                        breakDuration: 10,
-                                        classDuration: 40,
-                                        classCount: 1,
-                                        studentBellOffset: 0,
-                                    }
-                                ]);
-                            }}
+                            variant="outline"
+                            color="red"
+                            onClick={() => handlers.setState([GenMarker.StartTime(Time(9, 0))])}
                         >
-                            {t("timetableGenerator.addSegment")}
+                            {t("gen.reset")}
                         </Button>
-                    </Stack>
-                </ScrollArea.Autosize>
+                    </Group>
+
+                    <Text>
+                        {t("gen.p")}
+                    </Text>
+
+                    <Divider
+                        w="100%"
+                        label={t("gen.segments")}
+                    />
+
+                    {elements}
+
+                    <Divider
+                        w="100%"
+                        label={t("gen.addSegment")}
+                    />
+
+                    {buttons}
+                </Stack>
+
                 <Stack>
-                    <Title order={3}>{t("timetableGenerator.preview")}</Title>
-                    <TimetableComponent value={generateTimetable(segments)} />
+                    <Divider
+                        w="100%"
+                        label={t("gen.preview")}
+                    />
+
+                    <TimetableComponent
+                        value={generateTimetable(markers)}
+                        forceIdle
+                    />
                 </Stack>
             </SimpleGrid>
 
-            <Group justify="end">
+            <Group justify="end" pt="xl">
                 <Button color="gray" variant="light" onClick={() => modals.closeAll()}>
-                    {t("timetableGenerator.cancel")}
+                    {t("modals.cancel")}
                 </Button>
                 <Button variant="light" onClick={() => {
-                    onAccept(generateTimetable(segments));
+                    onAccept(generateTimetable(markers));
                     modals.closeAll();
                 }}>
-                    {t("timetableGenerator.save")}
+                    {t("save")}
                 </Button>
             </Group>
         </Stack>
     );
 }
 
-export const TimetableGeneratorSegment = ({
-    value,
+export const GenMarkerEditor = ({
+    marker,
     onChange,
-    index,
-    onRemove,
 }: {
-    value: TimetableGenSegment,
-    onChange: (v: TimetableGenSegment) => void,
-    onRemove: () => void,
-    index: number,
-    calculatedTime: Date,
+    marker: GenMarker;
+    onChange: (m: GenMarker) => void;
 }) => {
-    let { t } = useTranslation();
-
     return (
-        <Fieldset legend={<Text>
-            {t("timetableGenerator.segment", { index: index+1 })}
-        </Text>}>
-            <Stack>
-                <Group wrap="nowrap" justify={index ? "space-between" : "center"}>
-                    {!!index && (
-                        <Select
-                            data={[
-                                { value: "startTime", label: t("timetableGenerator.segmentType.startTime") },
-                                { value: "offset", label: t("timetableGenerator.segmentType.offset") },
-                            ]}
-                            value={value.type}
-                            onChange={(v) => onChange({
-                                ...value,
-                                type: v,
-                            })}
-                            allowDeselect={false}
-                        />
-                    )}
+        <Paper withBorder p="sm">
 
-                    {value.type == "startTime" ? (
-                        <TimeBox
-                            label={t("timetableGenerator.startTimeLabel")}
-                            description={t("timetableGenerator.startTimeDesc")}
-                            value={value.startTime}
-                            onChange={(v) => onChange({
-                                ...value,
-                                startTime: v,
-                            })}
-                        />
-                    ) : (
-                        <NumberInput
-                            value={value.offset}
-                            onChange={(v) => onChange({
-                                ...value,
-                                offset: v,
-                            })}
-                            label={t("timetableGenerator.offsetLabel")}
-                            description={t("timetableGenerator.offsetDesc")}
-                            defaultValue={0}
-                            min={0}
-                        />
-                    )}
-
-                    {!!index && (
-                        <Tooltip label={t("timetableGenerator.removeSegment")}>
-                            <ActionIcon
-                                variant="light"
-                                color="red"
-                                onClick={() => onRemove()}
-                            >
-                                <IconTrash />
-                            </ActionIcon>
-                        </Tooltip>
-                    )}
-                </Group>
-                <SimpleGrid cols={{ base: 1, md: 2 }}>
-                    {[
-                        "classCount",
-                        "classDuration",
-                        "breakDuration",
-                        "studentBellOffset",
-                    ].map((key, i) => (
-                        <NumberInput
-                            value={value[key]}
-                            onChange={(v) => onChange({
-                                ...value,
-                                [key]: v,
-                            })}
-                            label={t(`timetableGenerator.${key}Label`)}
-                            description={t(`timetableGenerator.${key}Desc`)}
-                            defaultValue={key == "studentBellOffset" ? 0 : 1}
-                            min={key == "studentBellOffset" ? 0 : 1}
-                            key={i}
-                        />
-                    ))}
-                </SimpleGrid>
-            </Stack>
-        </Fieldset>
-    );
-}
+        </Paper>
+    )
+};

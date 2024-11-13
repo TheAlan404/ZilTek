@@ -2,7 +2,7 @@ import { Flex, Stack } from "@mantine/core";
 import { useContext } from "react";
 import { RemoteControlSettings } from "./RemoteControlSettings";
 import { MaintenanceSection } from "./MaintenanceSection";
-import { HostContext } from "../../../../host/HostContext";
+import { HostContext } from "../../../../host/ctx/HostContext";
 import { ZilTekSection } from "./ZilTekSection";
 import { DebugSection } from "./DebugSection";
 

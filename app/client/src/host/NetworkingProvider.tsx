@@ -4,13 +4,13 @@ import { useSocketIO } from "../hooks/useSocketIO";
 import { ClientAuth } from "@ziltek/common/src/networking/ClientAuth";
 import { noop } from "@mantine/core";
 import { EmitOf, useEventEmitter } from "../hooks/useEvents";
-import { HostContext } from "./HostContext";
+import { HostContext } from "./ctx/HostContext";
 import { v4 } from "uuid";
 import { DEFAULT_RELAY } from "../meta";
 import { C2SMessageMap, HostMessageMap, S2CMessageMap } from "@ziltek/common/src/networking/Message";
 import { KnownRemote } from "@ziltek/common/src/networking/KnownRemote";
 import { Command } from "@ziltek/common/src/cmd/Command";
-import { NetworkingContext } from "./NetworkingContext";
+import { NetworkingContext } from "./ctx/NetworkingContext";
 import { applyListAction } from "@ziltek/common/src/ListAction";
 import { HostStatus } from "@ziltek/common/src/networking/HostStatus";
 

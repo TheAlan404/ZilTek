@@ -5,7 +5,6 @@ import { Command } from "@ziltek/common/src/cmd/Command";
 
 export interface IController extends State {
     processCommand: (cmd: Command) => void;
-    //files: StoredFile[],
 }
 
 export const Controller = createContext<IController>({

@@ -1,8 +1,8 @@
 import { Badge, Tooltip } from "@mantine/core";
 import { useContext } from "react";
 import { useTranslation } from "react-i18next";
-import { NetworkingContext } from "../../../host/NetworkingContext";
-import { HostContext } from "../../../host/HostContext";
+import { NetworkingContext } from "../../../host/ctx/NetworkingContext";
+import { HostContext } from "../../../host/ctx/HostContext";
 
 export const OnlineBadge = () => {
     const { clientType } = useContext(HostContext);

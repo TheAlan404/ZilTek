@@ -1,6 +1,6 @@
 import { Data } from "@ziltek/common/src/data/Data";
 import JSZip from "jszip";
-import { deserialize } from "../host/DataFixer";
+import { deserialize } from "../host/ctx/DataFixer";
 
 export type IOFile = {
     filename: string;

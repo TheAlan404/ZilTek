@@ -2,7 +2,7 @@ import React from "react";
 import { ListAction } from "@ziltek/common/src/ListAction";
 import { KnownRemote } from "@ziltek/common/src/networking/KnownRemote";
 import { C2SMessageMap, HostMessageMap, S2CMessageMap } from "@ziltek/common/src/networking/Message";
-import { EmitOf, EventEmitter } from "../hooks/useEvents";
+import { EmitOf, EventEmitter } from "../../hooks/useEvents";
 import { Command } from "@ziltek/common/src/cmd/Command";
 import { Socket } from "socket.io-client";
 import { HostStatus } from "@ziltek/common/src/networking/HostStatus";

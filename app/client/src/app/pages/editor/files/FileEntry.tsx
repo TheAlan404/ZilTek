@@ -3,14 +3,14 @@ import { modals } from "@mantine/modals";
 import { IconFileMusic, IconHighlight, IconPlayerPause, IconPlayerPlay, IconTrash } from "@tabler/icons-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Controller } from "../../../../host/ControllerAPI";
+import { Controller } from "../../../../host/ctx/Controller";
 import { ActionButtonWithTooltip } from "../../../components/editor/ActionButtonWithTooltip";
 import { StoredFileMetadata } from "@ziltek/common/src/StoredFile";
 import { Command } from "@ziltek/common/src/cmd/Command";
 import { FilesystemCommand } from "@ziltek/common/src/cmd/FilesystemCommand";
 import { createTextInputModal } from "../../../components/editor/TextInputModal";
 import { FilesystemContext } from "../../../../host/fs/FilesystemContext";
-import { HostContext } from "../../../../host/HostContext";
+import { HostContext } from "../../../../host/ctx/HostContext";
 
 const sufixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 const getBytes = (bytes) => {

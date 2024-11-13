@@ -6,7 +6,7 @@ import { OnlineBadge } from "../../../components/view/OnlineBadge";
 import { WEBSITE } from "../../../../meta";
 import { QRCodeSVG } from "qrcode.react";
 import { RemoteItem } from "./RemoteItem";
-import { NetworkingContext } from "../../../../host/NetworkingContext";
+import { NetworkingContext } from "../../../../host/ctx/NetworkingContext";
 import { ListAction } from "@ziltek/common/src/ListAction";
 import { KnownRemote } from "@ziltek/common/src/networking/KnownRemote";
 

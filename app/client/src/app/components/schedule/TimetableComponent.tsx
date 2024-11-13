@@ -12,10 +12,12 @@ export const TimetableComponent = ({
     value,
     onChange,
     invalids = new Set(),
+    forceIdle,
 }: {
     value: Timetable;
     onChange?: (value: Timetable) => void;
     invalids?: Set<string>;
+    forceIdle?: boolean;
 }) => {
     const { t } = useTranslation();
 
@@ -79,6 +81,7 @@ export const TimetableComponent = ({
                                             invalids.add(key);
                                         }
                                     }}
+                                    forceIdle={forceIdle}
                                 />
                             </Box>
                         ))}
@@ -91,6 +94,8 @@ export const TimetableComponent = ({
                         )}
                     </Group>
                 ))}
+
+                {!value.length && "..."}
             </Stack>
         </Stack>
     )

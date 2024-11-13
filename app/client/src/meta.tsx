@@ -3,7 +3,7 @@ import pkg from "../../../package.json";
 export const MODE = (import.meta.env.VITE_MODE || "") as "web" | "tauri" | "";
 
 export const VERSION = pkg.version;
-export const BUILD = "241025"; // YYMMDD
+export const BUILD = "241113"; // YYMMDD
 export const DEFAULT_RELAY = "wss://ziltek.deniz.blue";
 export const UPDATE_URL = "https://raw.githack.com/TheAlan404/ZilTekProject/main/metadata.json";
 export const WEBSITE = "https://ziltek.deniz.blue/";

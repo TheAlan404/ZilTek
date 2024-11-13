@@ -14,8 +14,13 @@ export const Time = (h: number, m: number): Time => (
 export const TimeUtil = {
     validate: (s: any): s is Time => typeof s === "string" && s.length == 5 && TimeRegex.test(s),
 
+    now: () => TimeUtil.fromDate(new Date()),
+
     toDate: (s: Time) => new Date(0, 0, 0, ...s.split(":").map(Number), 0, 0),
     fromDate: (d: Date) => Time(d.getHours(), d.getMinutes()),
+
+    toMins: (s: Time) => Number(s.split(":")[0])*60 + Number(s.split(":")[1]),
+    fromMins: (mins: number) => Time(Math.floor(mins/60), mins%60),
     
     add: (t: Time, minutes: number) => TimeUtil.fromDate(
         new Date(TimeUtil.toDate(t).getTime() + minutes * 60 * 1000)

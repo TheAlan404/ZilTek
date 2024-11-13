@@ -58,7 +58,7 @@ export const Landing = () => {
                             </Group>)}
 
                         {MODE === "web" && (
-                            <Group justify="end" align="center" px="md" w="100%">
+                            <Group justify="end" wrap="nowrap" align="center" px="md" w="100%">
                                 <Text>{t("download")}</Text>
                                 <ActionIcon
                                     component="a"

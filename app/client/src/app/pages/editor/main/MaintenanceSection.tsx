@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Button, Fieldset, Group, Stack } from "@mantine/core";
 import { IconDownload, IconTrash, IconUpload } from "@tabler/icons-react";
 import { useContext, useRef } from "react";
-import { Controller } from "../../../../host/ControllerAPI";
+import { Controller } from "../../../../host/ctx/Controller";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { exportToZip, importFromZip } from "../../../DropzoneProvider";
