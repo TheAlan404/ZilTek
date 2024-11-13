@@ -2,10 +2,6 @@
 
 School bell app project
 
-TODO finish v0.3.0
-
-TODO open-source
-
 ## Technical Summary
 
 ZilTek uses end-to-end communication. There are two types of clients - "host" and "remote".
@@ -28,3 +24,4 @@ Having the clock/data/etc logic on the client itself gives us a few advantages:
 Hosts accept and deny remote connections according to their database. A remote can only connect to a host if the user of the host client accepts an incoming connection via the user interface OR if the remote has already been previously marked as "trusted" via the user of the host client.
 
 ZilTek has two filesystem interfaces: IndexedDB and *Native (TODO)*. IndexedDB is used on the web app version of the client while the Native fs interface is used on the tauri app. Remote clients can read files via a relay-nested socket.io ACK function (remote -> `RequestFile` -> relay -> `RequestFile` -> host -> `ack(ArrayBuffer)` -> relay -> `ack(ArrayBuffer)` -> remote)
+
