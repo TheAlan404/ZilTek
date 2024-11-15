@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import express from 'express';
 import { createServer } from 'node:http';
 import { existsSync } from "node:fs";
-import { DIST_FOLDER } from "./config.ts";
+import { DIST_FOLDER, VERSION } from "./config.ts";
 import { authenticationMiddleware } from "./handlers/auth.ts";
 import { TServer } from "./types.ts";
 import { versionCheckMiddleware } from "./handlers/versionCheck.ts";
@@ -20,10 +20,12 @@ export const io: TServer = new Server(httpServer, {
 	},
 });
 
+app.get("/_version", (req, res) => void res.json(VERSION))
 app.get("/_test", (req, res) => void res.json("OK"));
 
 if(existsSync(DIST_FOLDER)) {
 	logger.serving(DIST_FOLDER);
+	app.get("/", (req, res) => res.sendFile(DIST_FOLDER + "/index.html"));
     app.use(express.static(DIST_FOLDER));
 };
 

@@ -14,7 +14,7 @@ COPY --from=build /app/package.json .
 COPY --from=build /app/pnpm-workspace.yaml .
 COPY --from=build /app/app/server app/server
 COPY --from=build /app/app/common app/common
-COPY --from=build /app/app/frontend/dist app/server/
+COPY --from=build /app/app/client/dist app/server/dist
 
 WORKDIR /app/app/server
 RUN pnpm install
