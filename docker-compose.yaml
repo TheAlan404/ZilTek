@@ -1,11 +1,13 @@
 version: '3.8'
 
 services:
-  app:
+  ziltek:
+    container_name: ziltek
     build:
       context: .
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - 3014:3014
     environment:
-      - PORT=3000
+      - PORT=3014
     command: pnpm run run
